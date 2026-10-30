@@ -26,8 +26,7 @@ from mutatis_mutandis.lib.corpus_config import (
 from mutatis_mutandis.lib.corpus_logging import logger
 
 
-# INPUT_DIR = MAPPED_GOOGLE_DRIVE / "output-passages"
-INPUT_DIR = path = Path("D:/") / "temp" / "output-passages"
+INPUT_DIR = MAPPED_GOOGLE_DRIVE / "output-passages"
 
 REPRESENTATIONS = ("l8", "last", "mean4")
 VECTOR_DIM = 768
@@ -684,10 +683,7 @@ def main() -> None:
         "--legacy-ids",
         action="store_true",
         default=False,
-        help=(
-            "Use the old passage_id formula when re-importing "
-            "pre-multi-scale shards."
-        ),
+        help=( "Use the old passage_id formula when re-importing pre-multi-scale shards." ),
     )
 
     args = parser.parse_args()

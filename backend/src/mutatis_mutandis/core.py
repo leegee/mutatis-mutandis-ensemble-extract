@@ -27,7 +27,7 @@ from typing import List, Optional
 
 import numpy as np
 
-from mutatis_mutandis.lib.corpus_config import LANCE_MODEL_NAME
+from mutatis_mutandis.lib.corpus_config import LANCE_MODEL_NAME, PASSAGE_SCALES
 from mutatis_mutandis.lib.corpus_logging import get_logger
 
 logger = get_logger("passage_search.core")
@@ -37,8 +37,9 @@ RESULT_COLUMNS = [
     "corpus",
     "doc_id",
     "pub_year",
-    "scale",          # new
-    "char_start",     # optional but useful
+    "scale",
+    "char_start",
+    "char_end",
     "word_start",
     "word_end",
     "token_start",
@@ -161,8 +162,21 @@ def search_passages(
     negative_vectors: Optional[List[np.ndarray]] = None,
     beta: float = 0.5,
     overfetch: int = 5,
+    scale: Optional[str] = None,
 ):
-    """Search year-bucketed tables with optional negative re-ranking."""
+    """
+    Search year-bucketed tables with optional negative re-ranking.
+
+    `scale` restricts results to one passage scale (None = all scales).
+    """
+    if scale is not None and scale not in PASSAGE_SCALES:
+        # Also guards the filter string below, which interpolates `scale`.
+        raise ValueError(f"scale must be one of {list(PASSAGE_SCALES)}")
+
+    where = f"pub_year >= {int(start_year)} AND pub_year <= {int(end_year)}"
+    if scale:
+        where += f" AND scale = '{scale}'"
+
     query_vec = normalise_vector(query_vector, "Query vector")
     use_negatives = bool(negative_vectors)
     need_vectors = include_vectors or use_negatives
@@ -181,11 +195,7 @@ def search_passages(
         arrow = (
             table.search(query_vec, vector_column_name="vector")
             .metric("cosine")
-            .where(
-                f"pub_year >= {int(start_year)} "
-                f"AND pub_year <= {int(end_year)}"
-                + (f" AND scale = '{scale}'" if scale else "")
-            )
+            .where(where)
             .select(columns)
             .limit(per_table_limit)
             .to_arrow()

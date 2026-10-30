@@ -3,27 +3,13 @@ mutatis_mutandis/cli.py
 
 Command-line front end. Uses the same service layer as the API.
 
-    python src/mutatis_mutandis/cli.py --query "white hair" --limit 30 --scale broad 
-    python src/mutatis_mutandis/cli.py --vector-id <passage_id>
-    python src/mutatis_mutandis/cli.py --query "white hair" \
-        --negative-id <id> --negative-id <id> --beta 0.6 --scale broad 
+    python src/mutatis_mutandis/cli.py --query "white hair" --limit 30 --scale broad
+    python src/mutatis_mutandis/cli.py --vector-id <passage_id> --scale broad
+    python src/mutatis_mutandis/cli.py --query "white hair" --representation l8 \
+        --limit 50 --scale broad \
+        --negative-id <id> --negative-id <id> --beta 0.6
 
-
-    python src/mutatis_mutandis/cli.py --query "white hair" --limit 30 --scale broad 
-
-    python src/mutatis_mutandis/cli.py \
-        --vector-id ef2f4aaf68dc6c924a2f1218e470a555060be2cb886a0ef1ebf169b800508f8a \
-        --limit 30
-        --scale broad 
-
-    python src/mutatis_mutandis/cli.py \
-        --query "white hair" --representation l8 --limit 50 \
-        --scale broad \
-        --negative-id dfbee39870fbbababa5fc24da247fb8468a82350bca1170209458b84568be2c3 \
-        --negative-id afee38e3452766ffd28bc725ba733cec845fe8cb338c8ef93a52f850223fdbe7 \
-        --negative-id b18fa10570b4402f240375c0f45fe9d179493486ab8abe32f285f112b7ff8126 \
-        --beta 0.6
-
+--scale defaults to "local"; the HTTP API searches all scales unless told otherwise.
 """
 
 from __future__ import annotations
@@ -56,7 +42,10 @@ def parse_args():
 
 def log_hit(h: dict):
     logger.info("...............................................................")
-    line = f"{h['rank']}. year={h['pub_year']} distance={h['distance']:.4f}"
+    line = (
+        f"{h['rank']}. year={h['pub_year']} scale={h.get('scale') or '-'} "
+        f"distance={h['distance']:.4f}"
+    )
     if h.get("score") is not None:
         line += f" score={h['score']:.4f} sim_neg={h['sim_neg']:.4f}"
     logger.info(line)
@@ -64,13 +53,13 @@ def log_hit(h: dict):
     logger.info(f"   title={h['title'] or '(untitled)'}")
     logger.info(f"   author={h['author'] or '(unknown)'}")
     logger.info(f"   filepath={h['filepath']}")
-    logger.info(f"   words={h['word_start']}:{h['word_end']} tokens={h['token_start']}:{h['token_end']}")
+    logger.info(
+        f"   chars={h.get('char_start')}:{h.get('char_end')} "
+        f"words={h['word_start']}:{h['word_end']} "
+        f"tokens={h['token_start']}:{h['token_end']}"
+    )
     logger.info(f"   passage_id={h['passage_id']}")
     logger.info(f"   {h['text'] or '[Text unavailable]'}")
-    logger.info(
-        f"   scale={h.get('scale')} words={h['word_start']}:{h['word_end']} "
-        f"   tokens={h['token_start']}:{h['token_end']}"
-    )
 
 
 def main():
@@ -92,7 +81,10 @@ def main():
         raise SystemExit(f"error: {e}")
 
     service = PassageSearchService(LANCE_INDEXES_DIR, application_name="passage-search-cli")
-    outcome = service.search(params)
+    try:
+        outcome = service.search(params)
+    except ValueError as e:  # includes VectorNotFoundError
+        raise SystemExit(f"error: {e}")
 
     for w in outcome.warnings:
         logger.warning(w)

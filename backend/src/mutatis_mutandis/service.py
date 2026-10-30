@@ -17,6 +17,7 @@ from typing import List, Optional, Tuple
 
 import lancedb
 
+from mutatis_mutandis.lib.corpus_config import PASSAGE_SCALES
 from mutatis_mutandis.lib.corpus_db import get_connection
 from mutatis_mutandis.lib.corpus_logging import get_logger
 from mutatis_mutandis.lib.macberth import encode_passage_query
@@ -55,6 +56,8 @@ class SearchParams:
             raise ValueError("limit must be >= 1")
         if self.overfetch < 1:
             raise ValueError("overfetch must be >= 1")
+        if self.scale is not None and self.scale not in PASSAGE_SCALES:
+            raise ValueError(f"scale must be one of {list(PASSAGE_SCALES)}")
 
 
 @dataclass(frozen=True)
@@ -202,6 +205,7 @@ class PassageSearchService:
             negative_vectors=negatives or None,
             beta=params.beta,
             overfetch=params.overfetch,
+            scale=params.scale,
         )
 
         metas: List[Optional[dict]] = [None] * len(rows)
@@ -215,10 +219,11 @@ class PassageSearchService:
         ]
 
         logger.info(
-            "search done: %d hits in %.0f ms (rep=%s years=%s-%s negatives=%d)",
+            "search done: %d hits in %.0f ms (rep=%s scale=%s years=%s-%s negatives=%d)",
             len(hits),
             (time.perf_counter() - t0) * 1000,
             params.representation,
+            params.scale or "all",
             params.start_year,
             params.end_year,
             len(negatives),

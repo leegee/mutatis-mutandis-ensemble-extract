@@ -95,6 +95,7 @@ def search(req: SearchRequest, service: PassageSearchService = Depends(get_servi
         vector_id=req.vector_id,
         negative_ids=tuple(req.negative_ids),
         representation=req.representation,
+        scale=req.scale,
         start_year=req.start_year,
         end_year=req.end_year,
         limit=req.limit,

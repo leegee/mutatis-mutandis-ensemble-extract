@@ -4,8 +4,7 @@ API tests with a fake service: no LanceDB, Postgres or model needed.
 TestClient is used WITHOUT a `with` block so the lifespan (which builds the
 real service) does not run; get_service is overridden instead.
 
-    pip install pytest httpx
-    pytest tests
+    pytest src/mutatis_mutandis/test_api.py 
 """
 
 import pytest
@@ -13,6 +12,7 @@ from fastapi.testclient import TestClient
 
 from mutatis_mutandis.api import app, get_service
 from mutatis_mutandis.core import VectorNotFoundError
+from mutatis_mutandis.lib.corpus_config import PASSAGE_SCALES
 from mutatis_mutandis.service import SearchOutcome
 
 PID = "ef2f4aaf68dc6c924a2f1218e470a555060be2cb886a0ef1ebf169b800508f8a"
@@ -21,7 +21,8 @@ PID = "ef2f4aaf68dc6c924a2f1218e470a555060be2cb886a0ef1ebf169b800508f8a"
 def _hit(rank=1):
     return {
         "rank": rank, "passage_id": PID, "corpus": "misc", "doc_id": "d1",
-        "pub_year": 1972, "distance": 0.12, "score": None, "sim_q": None,
+        "pub_year": 1972, "scale": PASSAGE_SCALES[0],
+        "char_start": 1200, "char_end": 1700, "distance": 0.12, "score": None, "sim_q": None,
         "sim_neg": None, "word_start": 0, "word_end": 40,
         "token_start": 260, "token_end": 300, "title": "Albinism",
         "author": "Psaila", "filepath": "misc/x.xml", "text": "her hair is whitish",
@@ -75,6 +76,29 @@ def test_search_by_text(client):
     assert body["count"] == 1 and body["warnings"] == ["note"]
     assert body["results"][0]["passage_id"] == PID
     assert client.fake.last.limit == 5
+
+
+def test_hit_includes_scale_and_char_span(client):
+    hit = client.post("/search", json={"query": "x"}).json()["results"][0]
+    assert hit["scale"] == PASSAGE_SCALES[0]
+    assert (hit["char_start"], hit["char_end"]) == (1200, 1700)
+
+
+def test_scale_is_passed_to_service(client):
+    scale = PASSAGE_SCALES[-1]
+    r = client.post("/search", json={"query": "x", "scale": scale})
+    assert r.status_code == 200
+    assert client.fake.last.scale == scale
+
+
+def test_scale_defaults_to_all_scales(client):
+    client.post("/search", json={"query": "x"})
+    assert client.fake.last.scale is None
+
+
+def test_unknown_scale_rejected(client):
+    r = client.post("/search", json={"query": "x", "scale": "enormous"})
+    assert r.status_code == 422
 
 
 def test_requires_exactly_one_query_source(client):
