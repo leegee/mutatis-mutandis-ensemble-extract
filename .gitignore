@@ -1,0 +1,41 @@
+cat > .gitignore <<'EOF'
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Test and tooling caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Local data and model artefacts
+data/
+models/
+*.parquet
+*.sqlite
+*.sqlite3
+*.db
+
+# OS/editor
+.DS_Store
+Thumbs.db
+EOF
+
+# Output
+out/
+
+# Libs
+backend/src/lib/macberth-huggingface
+
+# JS
+frontend/node_modules/
