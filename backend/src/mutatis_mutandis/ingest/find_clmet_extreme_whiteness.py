@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-tier0_clmet_extreme_whiteness.py
+find_clmet_extreme_whiteness.py
 
 Create derived CLMET documents for every source document represented in
 the bodily-whiteness concordance and insert the COMPLETE source document
