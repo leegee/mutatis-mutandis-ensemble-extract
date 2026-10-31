@@ -1,25 +1,5 @@
 # Semantic Passage Search Across Historical Texts
 
-From a Postgres database of document metadata and tokens extracted from TEI XML and plain text, 
-uses Manjavacas and Fonteyn's historical BERT model [MacBERTh](https://aclanthology.org/2021.nlp4dh-1.4/) 
-and Google Colab to create embeddings that are stored in and searched through Lance via a Python FastAPI/SolidJS 
-application.
-
-A sample dataset, and indeed Lance indexes, are available upon request.
-
-## Usage Synopsis
-
-To add a doc to the corpus:
-
-    python src/tier0/tier0_0_text2db.py --file enoch_charles_1917.xml --corpus misc
-    python src/passage_search_pipeline/ingest/passages_1_export_full.py --force-doc-id enoch_charles_1917
-    # Run on Colab passages_2_0_colab_embed_passages.py
-    python src/passage_search_pipeline/ingest/passages_3_passages_parquet_to_lance.py
-
-Run the search servers:
-
-    start-servers.sh
-
 ## Motivation
 
 > We all declare for liberty but in using the same word we do not all mean the same thing
