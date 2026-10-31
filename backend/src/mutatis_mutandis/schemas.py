@@ -8,15 +8,35 @@ from __future__ import annotations
 
 from typing import Annotated, List, Optional
 
-from pydantic import BaseModel, ConfigDict, Field, StringConstraints, field_validator, model_validator
+from pydantic import (
+    AfterValidator,
+    BaseModel,
+    ConfigDict,
+    Field,
+    StringConstraints,
+    field_validator,
+    model_validator,
+)
 
 from mutatis_mutandis.lib.macberth import PASSAGE_REPRESENTATIONS
 
 from mutatis_mutandis.lib.corpus_config import PASSAGE_SCALES
+from mutatis_mutandis.years import current_year
 
 # passage_ids in this corpus are 64-char lowercase hex (sha256). Loosen the
 # pattern here if you ever introduce other ID formats.
 PassageId = Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{64}$")]
+
+
+def _not_in_future(year: int) -> int:
+    latest = current_year()
+    if year > latest:
+        raise ValueError(f"year must not be after {latest}")
+    return year
+
+
+# A publication year: non-negative and no later than the current year.
+Year = Annotated[int, Field(ge=0), AfterValidator(_not_in_future)]
 
 
 class SearchRequest(BaseModel):
@@ -26,8 +46,8 @@ class SearchRequest(BaseModel):
     vector_id: Optional[PassageId] = None
     negative_ids: List[PassageId] = Field(default_factory=list, max_length=50)
     representation: str = "l8"
-    start_year: int = Field(0, ge=0, le=2030)
-    end_year: int = Field(2030, ge=0, le=2030)
+    start_year: Year = 0
+    end_year: Year = Field(default_factory=current_year)
     limit: int = Field(1000, ge=1, le=1000)
     beta: float = Field(0.5, ge=0.0, le=5.0)
     overfetch: int = Field(5, ge=1, le=20)
@@ -66,8 +86,8 @@ class TextSearchRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     query: str = Field(..., min_length=1, max_length=500)
-    start_year: int = Field(0, ge=0, le=2030)
-    end_year: int = Field(2030, ge=0, le=2030)
+    start_year: Year = 0
+    end_year: Year = Field(default_factory=current_year)
     limit: int = Field(1000, ge=1, le=1000)
     window_tokens: int = Field(
         40,

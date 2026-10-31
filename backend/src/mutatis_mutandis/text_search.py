@@ -18,6 +18,8 @@ import hashlib
 import re
 from typing import Dict, List, Optional, Sequence
 
+from mutatis_mutandis.years import current_year
+
 # Match the same tokenisation spirit as the UI highlight helper.
 _TOKEN_RE = re.compile(r"[a-zA-Z\u00c0-\u024f']+", re.UNICODE)
 
@@ -124,7 +126,7 @@ def search_text_passages(
     *,
     limit: int = 30,
     start_year: int = 0,
-    end_year: int = 2030,
+    end_year: Optional[int] = None,  # None = current year
     window_tokens: int = 40,
     use_year_filter: bool = True,
 ) -> List[dict]:
@@ -135,6 +137,9 @@ def search_text_passages(
       passage_id, corpus, doc_id, pub_year, token_start, token_end,
       title, author, filepath, text, match_start, match_end
     """
+    if end_year is None:
+        end_year = current_year()
+
     terms = query_terms(query)
     if not terms:
         return []

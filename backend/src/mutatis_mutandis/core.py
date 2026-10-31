@@ -129,10 +129,23 @@ def load_passage_vector(db, passage_id: str, representation: str) -> np.ndarray:
 
     if len(matches) > 1:
         locations = [name for name, _ in matches]
-        raise ValueError(
-            f"Multiple vectors found for passage_id={passage_id!r}: "
-            f"{locations}"
-        )
+        vectors = [normalise_vector(r["vector"], "Stored passage vector") for _, r in matches]
+        if all(np.allclose(vectors[0], v, atol=1e-6) for v in vectors[1:]):
+            # Harmless for this lookup, but the table holds duplicate rows (and
+            # searches can return the passage twice). Fix with lance_dedupe.py.
+            logger.warning(
+                "passage_id=%r is stored %d times with identical vectors %s; "
+                "using the first. Run lance_dedupe.py --fix.",
+                passage_id,
+                len(matches),
+                locations,
+            )
+            matches = matches[:1]
+        else:
+            raise ValueError(
+                f"Multiple DIFFERENT vectors found for passage_id={passage_id!r}: "
+                f"{locations}"
+            )
 
     table_name, row = matches[0]
     vector = normalise_vector(row["vector"], "Stored passage vector")

@@ -24,7 +24,7 @@ PARQ_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 SHARD_PREFIX = 'tokens_'
 
 FORCE_EXPORT_DOC_IDS = {
-    "albinism_case_report_psaila_1972",
+#     "albinism_case_report_psaila_1972",
 }
 
 DOC_TABLE = "documents"
@@ -82,7 +82,7 @@ def indexed_documents() -> set[tuple[str, str]]:
 
 
 def populate_indexed_docs(conn, indexed: set[tuple[str, str]]) -> None:
-    logger.info("Enter populate_indexed_docs")
+    logger.info("Enter populate_indexed_docs with %d", len(indexed))
     with conn.cursor() as cur:
         cur.execute("""
             CREATE TEMP TABLE export_indexed_docs (
@@ -104,7 +104,7 @@ def populate_indexed_docs(conn, indexed: set[tuple[str, str]]) -> None:
             )
 
     conn.commit()
-    logger.info("Leave  populate_indexed_docs")
+    logger.info("Leave populate_indexed_docs")
 
 
 def main() -> None:

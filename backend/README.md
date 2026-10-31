@@ -32,7 +32,7 @@ See the main project's Tier 0.
           ON DELETE CASCADE
     );
 
-The `ingest` directory contains cost-conscious scripts for reading the above database (available on request) to produce token Parquet shards placed  on Google Drive for the standalone Google Colab script (`ingest/colab_embed_passages.py`) which creates into passage-level MacBERTh embeddings, without requiring PostgreSQL or LanceDB. It generates 768-dimensional vectors using layer 8, the final layer, and the mean of the final four layers, dividing text into 40-word windows with a 20-word hop (50% overlap) while preserving document metadata and original token offsets. Per-document checkpoints, validation, and atomic publication support safe resumption after interruptions. As it is stand-alone, configuration should remain synchronised with lib.corpus_config and lib.macberth, one of the many comporises made in unfunded research. A further script adds those shards to the Lance database reading for searching.
+The `embed/` directory contains cost-conscious scripts for reading the above database (available on request) to produce token Parquet shards placed  on Google Drive for the standalone Google Colab script (`embed/colab_embed_passages.py`) which creates into passage-level MacBERTh embeddings, without requiring PostgreSQL or LanceDB. It generates 768-dimensional vectors using layer 8, the final layer, and the mean of the final four layers, dividing text into 40-word windows with a 20-word hop (50% overlap) while preserving document metadata and original token offsets. Per-document checkpoints, validation, and atomic publication support safe resumption after interruptions. As it is stand-alone, configuration should remain synchronised with lib.corpus_config and lib.macberth, one of the many comporises made in unfunded research. A further script adds those shards to the Lance database reading for searching.
 
 Different window sizes and embedding methods are tried in the main project (`mutatis-mutandis`) where the above configuration has proven for the task at hand.
 
@@ -40,7 +40,7 @@ Different window sizes and embedding methods are tried in the main project (`mut
 
 | File                          | Role                                                                                           |
 |-------------------------------|------------------------------------------------------------------------------------------------|
-| `ingest/`                     | As above |
+| `embed/`                     | As above |
 | `static/`                     | Small Solid JS app providing a search interface to the Lance and PG databases |
 | `core.py`                     | Retrieval primitives: normalise, table selection, stored vectors, search + negative re-ranking |
 | `texts.py`                    | Batched Postgres lookup (one query for all hits) |

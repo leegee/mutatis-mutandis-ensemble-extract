@@ -5,6 +5,7 @@ Command-line front end. Uses the same service layer as the API.
 
     python src/mutatis_mutandis/cli.py --query "white hair" --limit 30 --scale broad
     python src/mutatis_mutandis/cli.py --vector-id <passage_id> --scale broad
+    python src/mutatis_mutandis/cli.py --query "albino" --limit 30 --scale broad --start-year 1971 --end-year 1973
     python src/mutatis_mutandis/cli.py --query "white hair" --representation l8 \
         --limit 50 --scale broad \
         --negative-id <id> --negative-id <id> --beta 0.6
@@ -21,6 +22,7 @@ from mutatis_mutandis.lib.corpus_logging import get_logger
 from mutatis_mutandis.lib.macberth import PASSAGE_REPRESENTATIONS
 
 from mutatis_mutandis.service import PassageSearchService, SearchParams
+from mutatis_mutandis.years import current_year
 
 logger = get_logger("passage_search.cli")
 
@@ -30,7 +32,7 @@ def parse_args():
     p.add_argument("--query", help="Text to encode as the search query.")
     p.add_argument("--vector-id", help="Use an existing passage vector (passage_id) as the query.")
     p.add_argument("--start-year", type=int, default=0)
-    p.add_argument("--end-year", type=int, default=2030)
+    p.add_argument("--end-year", type=int, default=current_year())
     p.add_argument("--representation", choices=PASSAGE_REPRESENTATIONS, default="l8")
     p.add_argument( "--scale", choices=PASSAGE_SCALES, default="local", help="Passage window scale (default: local).", )
     p.add_argument("--limit", type=int, default=30)

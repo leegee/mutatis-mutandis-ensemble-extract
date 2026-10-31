@@ -180,6 +180,7 @@ class PassageWriter:
         self.db = lancedb.connect(str(root))
         self.schema = make_schema()
         self.tables = {}
+        self._ids: dict[str, set[str]] = {}
 
     def get_table(self, name: str):
         if name in self.tables:
@@ -244,6 +245,23 @@ class PassageWriter:
                 f"{mismatched}"
             )
 
+    def known_ids(self, name: str, table) -> set[str]:
+        ids = self._ids.get(name)
+        if ids is None:
+            n = table.count_rows()
+            ids = set()
+            if n:
+                col = (
+                    table.search()
+                    .select(["passage_id"])
+                    .limit(n)
+                    .to_arrow()
+                    .column("passage_id")
+                )
+                ids = set(col.to_pylist())
+            self._ids[name] = ids
+        return ids
+
     @staticmethod
     def existing_ids(
         table,
@@ -277,6 +295,7 @@ class PassageWriter:
 
         return found
 
+
     def write(
         self,
         name: str,
@@ -291,24 +310,18 @@ class PassageWriter:
             return 0
 
         table = self.get_table(name)
+        known = self.known_ids(name, table)
 
-        ids = {
-            row["passage_id"]
-            for row in rows
-        }
-
-        existing = self.existing_ids(table, ids)
-
-        seen = set(existing)
         new_rows = []
+        batch_ids = set()
 
         for row in rows:
             pid = row["passage_id"]
 
-            if pid in seen:
+            if pid in known or pid in batch_ids:
                 continue
 
-            seen.add(pid)
+            batch_ids.add(pid)
             new_rows.append(row)
 
         if new_rows:
@@ -316,9 +329,13 @@ class PassageWriter:
                 new_rows,
                 mode="append",
             )
+            # Only record the ids once the append has succeeded, so a failed
+            # write can be retried.
+            known.update(batch_ids)
 
         return len(new_rows)
 
+        
     # -----------------------------------------------------------------------
     # Index management
     # -----------------------------------------------------------------------

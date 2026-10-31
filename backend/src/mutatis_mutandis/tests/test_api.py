@@ -4,7 +4,8 @@ API tests with a fake service: no LanceDB, Postgres or model needed.
 TestClient is used WITHOUT a `with` block so the lifespan (which builds the
 real service) does not run; get_service is overridden instead.
 
-    pytest src/mutatis_mutandis/test_api.py 
+    pip install pytest httpx
+    pytest tests
 """
 
 import pytest
@@ -13,6 +14,7 @@ from fastapi.testclient import TestClient
 from mutatis_mutandis.api import app, get_service
 from mutatis_mutandis.core import VectorNotFoundError
 from mutatis_mutandis.lib.corpus_config import PASSAGE_SCALES
+from mutatis_mutandis.years import current_year
 from mutatis_mutandis.service import SearchOutcome
 
 PID = "ef2f4aaf68dc6c924a2f1218e470a555060be2cb886a0ef1ebf169b800508f8a"
@@ -69,6 +71,10 @@ def test_health(client):
     assert client.get("/health").json() == {"status": "ok"}
 
 
+def test_scales(client):
+    assert client.get("/scales").json() == {"scales": list(PASSAGE_SCALES)}
+
+
 def test_search_by_text(client):
     r = client.post("/search", json={"query": "white hair", "limit": 5})
     assert r.status_code == 200
@@ -115,6 +121,22 @@ def test_bad_passage_id_rejected(client):
 def test_unknown_vector_is_404(client):
     r = client.post("/search", json={"vector_id": "00" + PID[2:]})
     assert r.status_code == 404
+
+
+def test_end_year_defaults_to_current_year(client):
+    client.post("/search", json={"query": "x"})
+    assert client.fake.last.end_year == current_year()
+    client.post("/text-search", json={"query": "x"})
+    assert client.fake.last_text.end_year == current_year()
+
+
+def test_current_year_accepted_future_year_rejected(client):
+    ok = client.post("/search", json={"query": "x", "end_year": current_year()})
+    assert ok.status_code == 200
+    bad = client.post("/search", json={"query": "x", "end_year": current_year() + 1})
+    assert bad.status_code == 422
+    bad_text = client.post("/text-search", json={"query": "x", "end_year": current_year() + 1})
+    assert bad_text.status_code == 422
 
 
 def test_year_order_validated(client):

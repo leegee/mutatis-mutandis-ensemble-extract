@@ -25,7 +25,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
-from mutatis_mutandis.lib.corpus_config import LANCE_INDEXES_DIR
+from mutatis_mutandis.lib.corpus_config import LANCE_INDEXES_DIR, PASSAGE_SCALES
 from mutatis_mutandis.lib.macberth import PASSAGE_REPRESENTATIONS
 
 from mutatis_mutandis.core import VectorNotFoundError
@@ -84,6 +84,11 @@ def health():
 @app.get("/representations")
 def representations():
     return {"representations": list(PASSAGE_REPRESENTATIONS)}
+
+
+@app.get("/scales")
+def scales():
+    return {"scales": list(PASSAGE_SCALES)}
 
 
 # Plain `def` on purpose: LanceDB, Postgres and the encoder are blocking,

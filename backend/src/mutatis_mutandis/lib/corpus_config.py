@@ -9,10 +9,10 @@ from mutatis_mutandis.lib.corpus_albinism import get_lance_indexes_dir, build_ex
 LANCE_MODEL_NAME = "macberth"
 LANCE_BUCKET_SIZE = 50
 
-# PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent
 
 # Share the output of the main project
-PROJECT_ROOT = Path("D:/") / "src" / "mutatis-mutandis"
+# PROJECT_ROOT = Path("D:/") / "src" / "mutatis-mutandis"
 
 CORPUS_ROOT_DIR = Path("G:/") / "corpus"
 

@@ -21,6 +21,7 @@ from mutatis_mutandis.lib.corpus_config import PASSAGE_SCALES
 from mutatis_mutandis.lib.corpus_db import get_connection
 from mutatis_mutandis.lib.corpus_logging import get_logger
 from mutatis_mutandis.lib.macberth import encode_passage_query
+from mutatis_mutandis.years import current_year
 
 from mutatis_mutandis.core import (
     load_passage_vector,
@@ -40,7 +41,7 @@ class SearchParams:
     negative_ids: Tuple[str, ...] = ()
     representation: str = "l8"
     start_year: int = 0
-    end_year: int = 2030
+    end_year: int = field(default_factory=current_year)
     limit: int = 30
     beta: float = 0.5
     overfetch: int = 5
@@ -64,7 +65,7 @@ class SearchParams:
 class TextSearchParams:
     query: str
     start_year: int = 0
-    end_year: int = 2030
+    end_year: int = field(default_factory=current_year)
     limit: int = 30
     window_tokens: int = 40
 
