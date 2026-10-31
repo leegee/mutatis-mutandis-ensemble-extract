@@ -1,15 +1,13 @@
 # Semantic Search Across Historical Texts
 
-Uses multiple layers of multiple ensemble embeddings from MacBERTh.
-
 Built upon [mutatis-mutandis-passage-search](https://github.com/leegee/mutatis-mutandis-passage-search)
 
 [Case study](./docs/case_study.md).
 
 From a Postgres database of document metadata and tokens extracted from TEI XML and plain text, 
-uses Manjavacas and Fonteyn's historical BERT model [MacBERTh](https://aclanthology.org/2021.nlp4dh-1.4/) 
-and Google Colab to create embeddings that are stored in and searched through Lance via a Python FastAPI/SolidJS 
-application.
+uses various layers of various scales of embeddings created by Manjavacas and Fonteyn's historical BERT model 
+[MacBERTh](https://aclanthology.org/2021.nlp4dh-1.4/) that are stored in and searched through Lance via a Python 
+FastAPI/SolidJS application.
 
 A sample dataset, and indeed Lance indexes, are available upon request.
 
