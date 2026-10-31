@@ -43,13 +43,13 @@ The objective is not to establish that historical figures described as white, pa
 
 **Step 1 — Begin with modern terminology.**
 
-![From an initial search for the term 'albino', find the top result, a 1972 medical text, and select 'find similar'](./README/albino_1970-2000AD.png)
+![From an initial search for the term 'albino', find the top result, a 1972 medical text, and select 'find similar'](./albino_1970-2000AD.png)
 
 I searched passages dated 1900–2000 using the query `albino` and the `l8` representation (the eighth layer of the MacBERTh model). The system returned 30 results. I selected the highest-ranked passage, from A. J. Psaila’s *Albinism – A Case Report* (1972).
 
-![Adjust the date range to find historical matches, 0 AD to 1400, and scroll to view references from (translated) Welsh and Judeo-Christian mythology:](./README/albino_0-1400AD.png)
+![Adjust the date range to find historical matches, 0 AD to 1400, and scroll to view references from (translated) Welsh and Judeo-Christian mythology:](./albino_0-1400AD.png)
 
-![More results](./README/albino_0-1400AD_b.png)
+![More results](./albino_0-1400AD_b.png)
 
 The selected passage discusses forms of albinism, including a description of partial albinism in which hair is yellow or light brown. This provides a modern medical context from which to explore historical descriptions, although the selected passage is only one fragment of a larger text.
 
