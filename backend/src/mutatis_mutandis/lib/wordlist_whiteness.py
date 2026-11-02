@@ -1,6 +1,8 @@
 WHITENESS = {
     "white",
+    "whyte",
     "whiteness",
+    "whyteness",
     "whiten",
     "whitened",
     "whitening",
