@@ -91,6 +91,38 @@ def _validate_inputs(inputs: dict[str, Any]) -> dict[str, Any]:
     return values
 
 
+def _select_seeds(
+    results: list[dict[str, Any]],
+    limit: int,
+) -> list[dict[str, Any]]:
+    """Select the highest-ranked passage from each distinct document."""
+
+    selected = []
+    seen_documents = set()
+
+    for hit in results:
+        doc_id = hit.get("doc_id")
+
+        # Include corpus because document IDs are not necessarily
+        # globally unique across corpora.
+        if doc_id:
+            document_key = (hit.get("corpus"), doc_id)
+        else:
+            # Missing document identity: treat this passage separately.
+            document_key = ("passage", hit["passage_id"])
+
+        if document_key in seen_documents:
+            continue
+
+        seen_documents.add(document_key)
+        selected.append(hit)
+
+        if len(selected) >= limit:
+            break
+
+    return selected
+
+    
 def build_reverse_search_workflow(
     retriever: PassageRetriever | None = None,
     *,
@@ -133,7 +165,9 @@ def build_reverse_search_workflow(
         }).result()
 
         initial_results = initial["results"]
-        seeds = initial_results[:params["seed_limit"]]
+        
+        # seeds = initial_results[:params["seed_limit"]]
+        seeds = _select_seeds( initial_results, params["seed_limit"] )
 
         # Store unique passages by ID.
         passages: dict[str, dict[str, Any]] = {}
@@ -141,8 +175,14 @@ def build_reverse_search_workflow(
         for hit in initial_results:
             passages[hit["passage_id"]] = hit
 
-        warnings = list(initial["warnings"])
         edges: list[dict[str, Any]] = []
+        warnings = list(initial["warnings"])
+
+        if len(seeds) < params["seed_limit"]:
+            warnings.append(
+                f"Requested {params['seed_limit']} seeds, but found only "
+                f"{len(seeds)} distinct documents in the initial results."
+            )
 
         # ---------------------------------------------------------
         # 2. Historical retrieval from each seed

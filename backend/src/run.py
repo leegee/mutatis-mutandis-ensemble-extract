@@ -104,6 +104,33 @@ for edge in result["edges"]:
         ),
     )
 
+logger.info("Historical passages:")
+
+seen = set()
+
+for edge in result["edges"]:
+    passage_id = edge["target_passage_id"]
+
+    if passage_id in seen:
+        continue
+
+    seen.add(passage_id)
+    passage = passages_by_id[passage_id]
+
+    logger.info(
+        "%s | %s | %s | distance=%.4f",
+        passage_id[:12],
+        passage.get("pub_year"),
+        passage.get("title"),
+        edge["distance"],
+    )
+
+    logger.info(
+        "%s",
+        (passage.get("text") or "").replace("\n", " "),
+    )
+    logger.info("")
+
 if result["warnings"]:
     logger.warning("Search warnings:")
     for warning in result["warnings"]:

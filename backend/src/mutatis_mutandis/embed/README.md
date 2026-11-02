@@ -5,7 +5,7 @@ $ python src/tier0/tier0_0_text2db.py --file enoch_charles_1917.xml --corpus mis
 2026-10-28 08:48:08 [tier0] Found 1 XML files
 2026-10-28 08:48:08 [tier0] Example: G:\corpus\misc\enoch_charles_1917.xml
 2026-10-28 08:48:08 [tier0 worker 12496] received 1 misc files
-2026-10-28 08:48:08 [tier0] enoch_charles_1917: year 1917 taken from publicationStmt(no usable imprint date)
+2026-10-28 08:48:08 [tier0] enoch_charles_1917: year 1917 taken from publicationStmt (no usable imprint date)
 2026-10-28 08:48:09 [tier0 worker 12496] finished: 1 docs processed
 
 $ python src/passage_search_pipeline/ingest/passages_1_export_full.py --force-doc-id enoch_charles_1917
