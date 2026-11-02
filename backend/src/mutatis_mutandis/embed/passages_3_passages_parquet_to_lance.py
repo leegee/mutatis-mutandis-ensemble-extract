@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-passages_3_passages_parquet_to_lance.py
+passages_3_passages_parquet_to_lance.py - generate embeddings from (Colab-produced) parquet
 """
 
 from __future__ import annotations
