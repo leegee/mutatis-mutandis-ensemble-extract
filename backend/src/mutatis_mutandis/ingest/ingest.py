@@ -61,6 +61,10 @@ XML_ID = "{http://www.w3.org/XML/1998/namespace}id"
 # hand-written </p><p> or </l><l> with no whitespace cannot fuse words.
 BLOCK_TAGS = {"p", "l", "lg", "head", "div", "ab", "item", "sp", "speaker", "stage"}
 
+WINDOW_WORDS = 100
+WINDOW_LEFT  = WINDOW_WORDS // 2
+WINDOW_RIGHT = WINDOW_WORDS - WINDOW_LEFT - 1
+
 
 def whiteness_seed_score(
     tokens: list[str],
@@ -123,6 +127,36 @@ def normalize_early_modern(text: str) -> str:
     text = re.sub(r"\s+", " ", text)
 
     return text.strip()
+
+
+def extract_sparse_windows(
+    tokens: list[str],
+    left: int = WINDOW_LEFT,
+    right: int = WINDOW_RIGHT,
+) -> list[tuple[int, str]]:
+    """
+    Return (token_idx, token) pairs for every token that falls inside
+    any ±window around a WHITENESS seed.  Indices are the original
+    positions in the full document (sparse, not re-indexed).
+    """
+    if not tokens:
+        return []
+
+    hits = [
+        i for i, tok in enumerate(tokens)
+        if tok.lower() in WHITENESS
+    ]
+    if not hits:
+        return []
+
+    n = len(tokens)
+    covered: set[int] = set()
+    for h in hits:
+        start = max(0, h - left)
+        end   = min(n, h + right + 1)
+        covered.update(range(start, end))
+
+    return [(i, tokens[i]) for i in sorted(covered)]
 
 
 def parse_tei(xml_path):
@@ -645,7 +679,7 @@ def process_misc_file(tree, xml_path):
         return None
 
     if date_source != "imprint":
-        logger.info( f"[tier0] {doc_id}: year {pub_year} taken from {date_source}(no usable imprint date)" )
+        logger.info( f"[tier0] {doc_id}: year {pub_year} taken from {date_source} (no usable imprint date)" )
 
     source_date_raw = date_raw
     if composition_raw:
@@ -887,7 +921,14 @@ def filter_existing_docs(rows, corpus):
     ]
 
 
-def _worker_ingest(files, batch_docs, batch_tokens, skip_existing_docs, corpus):
+def _worker_ingest(
+    files,
+    batch_docs,
+    batch_tokens,
+    skip_existing_docs,
+    corpus,
+    use_windows: bool = False,
+):
     logger.info(f"[tier0 worker {os.getpid()}] received {len(files)} {corpus} files")
 
     pending = []          # list of (doc_row, token_rows)
@@ -926,7 +967,6 @@ def _worker_ingest(files, batch_docs, batch_tokens, skip_existing_docs, corpus):
             meta["corpus"] = corpus
 
             if meta["doc_id"] in seen_ids:
-                # A copy-pasted xml:id in the source is the usual cause; fix it there.
                 new_id = f'{meta["doc_id"]}__{fp.stem}'
                 logger.warning(
                     f"[tier0] Duplicate doc_id {meta['doc_id']} in {fp}; using {new_id}"
@@ -934,7 +974,30 @@ def _worker_ingest(files, batch_docs, batch_tokens, skip_existing_docs, corpus):
                 meta["doc_id"] = new_id
             seen_ids.add(meta["doc_id"])
 
-            rows = [(corpus, meta["doc_id"], i, t) for i, t in enumerate(tokens)]
+            if use_windows:
+                # Force the albinism/whiteness filter for every corpus
+                if not passes_whiteness_filter(meta["doc_id"], tokens):
+                    logger.debug(
+                        f"[tier0] Rejecting {meta['doc_id']}: not enough extreme-whiteness hits"
+                    )
+                    continue
+
+                windowed = extract_sparse_windows(tokens)
+                if not windowed:
+                    continue
+
+                rows = [
+                    (corpus, meta["doc_id"], idx, tok)
+                    for idx, tok in windowed
+                ]
+                meta["token_count"] = len(windowed)
+            else:
+                # Original behaviour (ECCO already filtered inside process_ecco_file)
+                rows = [
+                    (corpus, meta["doc_id"], i, t)
+                    for i, t in enumerate(tokens)
+                ]
+
             pending.append((to_doc_row(meta), rows))
             pending_tokens += len(rows)
             docs_seen += 1
@@ -943,7 +1006,10 @@ def _worker_ingest(files, batch_docs, batch_tokens, skip_existing_docs, corpus):
                 flush()
 
             if docs_seen % LOG_EVERY_N_DOCS == 0:
-                logger.info(f"[tier0 worker {os.getpid()}] ingested {docs_seen} docs")
+                logger.info(
+                    f"[tier0 worker {os.getpid()}] ingested {docs_seen} docs"
+                    + (" (windows)" if use_windows else "")
+                )
         except Exception:
             logger.error(f"[tier0] FAILED FILE: {fp}")
             logger.error(traceback.format_exc())
@@ -993,6 +1059,7 @@ def ingest_xml_parallel(
     corpus: str          = None,
     doc_id: str | None   = None,
     file: Path | None    = None,
+    use_windows: bool    = False,
 ):
     if file is not None:
         xml_files = [file]
@@ -1038,7 +1105,7 @@ def ingest_xml_parallel(
 
     with ProcessPoolExecutor(max_workers=max_workers) as ex:
         futures = [
-            ex.submit(_worker_ingest, chunk, batch_docs, batch_tokens, SKIP_EXISTING_DOCS, corpus )
+            ex.submit(_worker_ingest, chunk, batch_docs, batch_tokens, SKIP_EXISTING_DOCS, corpus, use_windows )
             for chunk in chunks
         ]
         for f in futures:
@@ -1070,6 +1137,7 @@ def main():
     parser.add_argument( "--doc-id", default=None, help="Process only the specified document ID." )
     parser.add_argument( "--replace", action="store_true", help="Replace an existing document when used with --doc-id." )
     parser.add_argument("--file", default=None, help="Ingest only this XML file (requires --corpus). Path may be absolute, relative to cwd, to the corpus input dir, or to CORPUS_ROOT_DIR.")
+    parser.add_argument( "--windows", action="store_true", help=( "Store only sparse token windows (±50 tokens) around whiteness/albinism seed terms instead of full documents. Applies the whiteness filter to every corpus." ) )
 
     args = parser.parse_args()
 
@@ -1120,13 +1188,14 @@ def main():
                 parser.error( f"Input directory for {corpus} does not exist: {xml_dir}" )
 
             ingest_xml_parallel(
-                xml_dir=xml_dir,
-                max_workers=NUM_WORKERS,
-                batch_docs=BATCH_DOCS,
-                batch_tokens=BATCH_TOKENS,
-                corpus=corpus,
-                doc_id=args.doc_id,
-                file=target_file,
+                xml_dir      = xml_dir,
+                max_workers  = NUM_WORKERS,
+                batch_docs   = BATCH_DOCS,
+                batch_tokens = BATCH_TOKENS,
+                corpus       = corpus,
+                doc_id       = args.doc_id,
+                file         = target_file,
+                use_windows  = args.windows,
             )
 
     with corpus_db.get_connection() as conn:
