@@ -21,6 +21,8 @@ CONCEPT_SETS: CanonicalRules = {
             "whit",
             "hwit",
             "whyte",
+            "whiyte",
+            "whiyte",
             "whight",
             "whyt", "whyte", "hwyte",
             "whitt",
@@ -42,12 +44,15 @@ PHRASE_SETS: CanonicalRules = {
             ("white", "hair"),
             ("whyte", "hair"),
             {"whyte", "heeris"},
+            {"whiyte", "heeris"},
             {"whyte", "woolle"},
             {"whyte", "woll"},
+            {"whiyte", "wolle"},
             ("hair", "as", "white", "as", "wool"),
             ("white", "as", "wool"),
             ("white", "like", "wool"),
-            ("whyte", "as", "wool"),          # early spelling
+            ("whyte", "as", "wool"),  
+            {"whiyte", "as", "wolle"},
         ],
         "false_positives": [],
     },
@@ -60,7 +65,7 @@ white_tokens AS (
     SELECT corpus, doc_id, token_idx
     FROM tokens
     WHERE lower(token) IN (
-        'white', 'whyte', 'whight', 'whit',
+        'white', 'whyte', 'whight', 'whit', 'whiyte',
         'whyt', 'wight', 'wite', 'whiet'
     )
 ),
@@ -219,7 +224,7 @@ ORDER BY t.corpus, t.doc_id, t.token_idx;
 # Export terms
 
 WHITE = {
-    "white", "whyte", "whight", "whit", "whyt", "wight", "wite", "whiet",
+    "white", "whyte", "whiyte", "whight", "whit", "whyt", "wight", "wite", "whiet",
 }
 APPEARANCE = {
     "hair", "haire", "hayre", "hayr", "heare", "hoary", "hoarie", "heeris", "heer",
