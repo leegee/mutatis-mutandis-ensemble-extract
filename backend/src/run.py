@@ -7,6 +7,13 @@ from diachronic_agents.workflows.forward_search import (
 from diachronic_agents.retrieval.retrieval_graph import (
     build_retrieval_graph, merge_retrieval_graphs
 )
+from diachronic_agents.llm.groq_client import (
+    BODILY_COVERING_CONFIG,
+    classify_passages,
+)
+from diachronic_agents.retrieval.prospect_selector import (
+    select_prospects,
+)
 
 from mutatis_mutandis.lib.corpus_logging import logger
 
@@ -307,6 +314,14 @@ for index, seed_id in enumerate(result["seed_ids"], start=1):
             (passage.get("text") or "").replace("\n", " "),
         )
 
+# Warnings
+if result["warnings"]:
+    logger.warning("")
+    logger.warning("Search warnings:")
+
+    for warning in result["warnings"]:
+        logger.warning("  %s", warning)
+
 
 # Graph
 retrieval_graph = build_retrieval_graph(
@@ -333,36 +348,23 @@ logger.info(
     len(retrieval_graph["convergence"]),
 )
 
-# Warnings
-if result["warnings"]:
-    logger.warning("")
-    logger.warning("Search warnings:")
+# merged_graph = merge_retrieval_graphs(
+#     retrieval_graph,
+#     retrieval_graph,
+# )
 
-    for warning in result["warnings"]:
-        logger.warning("  %s", warning)
-
-
-merged_graph = merge_retrieval_graphs(
-    retrieval_graph,
-    retrieval_graph,
-)
-
-logger.info("GRAPH MERGE TEST")
-logger.info("  Nodes: %d", len(merged_graph["nodes"]))
-logger.info("  Edges: %d", len(merged_graph["edges"]))
-logger.info(
-    "  Searches: %d",
-    merged_graph["metadata"]["search_count"],
-)
+# logger.info("GRAPH MERGE TEST")
+# logger.info("  Nodes: %d", len(merged_graph["nodes"]))
+# logger.info("  Edges: %d", len(merged_graph["edges"]))
+# logger.info(
+#     "  Searches: %d",
+#     merged_graph["metadata"]["search_count"],
+# )
 
 # --------------------------------------------------------
 
 logger.info("LLM RESEARCH RECOMMENDATIONS")
 
-from diachronic_agents.llm.groq_client import (
-    BODILY_COVERING_CONFIG,
-    classify_passages,
-)
 
 classification_result = classify_passages(
     passages=retrieval_graph["nodes"],
@@ -379,3 +381,23 @@ for item in classification_result.classifications:
         item.passage_id[:12],
         item.reason,
     )
+
+prospects = select_prospects(
+    retrieval_graph["nodes"],
+    classification_result,
+    feature_types={"human_hair", "complexion"},
+    per_feature_limit=3,
+)
+
+logger.info("SELECTED PROSPECTS")
+
+for prospect in prospects:
+    logger.info(
+        "%-12s | %4s | rank=%-3s | %s | %s",
+        prospect["feature_type"],
+        prospect.get("pub_year"),
+        prospect.get("rank"),
+        prospect["passage_id"][:12],
+        prospect.get("title", ""),
+    )
+    logger.info(f"\t{prospect.get('text')}\n")

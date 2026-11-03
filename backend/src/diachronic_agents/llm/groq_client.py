@@ -60,9 +60,7 @@ class PassageClassification(BaseModel):
     )
 
     feature_type: FeatureType = Field(
-        description=(
-            "The kind of hair, bodily covering or complexion described."
-        )
+        description=( "The kind of hair, bodily covering or complexion described." )
     )
 
     reason: str = Field(
@@ -77,11 +75,9 @@ class ClassificationResult(BaseModel):
 BODILY_COVERING_CONFIG = ClassificationConfig(
     search_term="white hair",
     target_description=(
-        "Descriptions of unusually white or pale human hair, "
-        "human complexion, or animal bodily coverings. "
+        "Descriptions of unusually white or pale human hair, human complexion, or animal bodily coverings."
         "Human hair and complexion are primary categories. "
-        "Animal hair, fur, feathers and flaxen hair are "
-        "retained as distinct secondary categories."
+        "Animal hair, fur, feathers and flaxen hair are retained as distinct secondary categories."
     ),
     include=[
         "Human hair, including scalp hair and facial hair",
