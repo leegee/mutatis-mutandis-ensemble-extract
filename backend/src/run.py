@@ -14,6 +14,9 @@ from diachronic_agents.llm.groq_client import (
 from diachronic_agents.retrieval.prospect_selector import (
     select_prospects,
 )
+from diachronic_agents.visualization.graph_visualizer import (
+    visualise_retrieval_graph, report_isolated_nodes, 
+)
 
 from mutatis_mutandis.lib.corpus_logging import logger
 
@@ -401,3 +404,15 @@ for prospect in prospects:
         prospect.get("title", ""),
     )
     logger.info(f"\t{prospect.get('text')}\n")
+
+
+graph_path = visualise_retrieval_graph(
+    retrieval_graph,
+    output_path="out/graphs/forward_white_hair.html",
+)
+
+logger.info("\n-----------------------------------\nGraph visualisation: %s\n-----------------------------------\n", graph_path.resolve())
+
+
+report_isolated_nodes(retrieval_graph)
+

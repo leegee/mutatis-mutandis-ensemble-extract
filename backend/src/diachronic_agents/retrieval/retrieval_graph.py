@@ -51,6 +51,31 @@ def _edge_identity(edge: Mapping[str, Any]) -> str:
     return _stable_id("retrieval", identity)
 
 
+def _discovery_sources(
+    passage_id: str,
+    *,
+    seed_ids: set[str],
+    retrieved_passage_ids: set[str],
+    search_direction: str,
+) -> list[str]:
+    """
+    Identify how a passage entered this search graph.
+
+    Seeds originate in the initial text search. Retrieval targets
+    originate in the diachronic search. Unlinked, non-seed passages
+    are retained as initial-search results.
+    """
+    sources = []
+
+    if passage_id in seed_ids or passage_id not in retrieved_passage_ids:
+        sources.append("initial_search")
+
+    if passage_id in retrieved_passage_ids:
+        sources.append(f"{search_direction}_search")
+
+    return sources
+
+
 def _convergence(
     nodes: list[dict[str, Any]],
     edges: list[dict[str, Any]],
@@ -139,6 +164,12 @@ def build_retrieval_graph(
         if passage.get("passage_id")
     }
 
+    retrieved_passage_ids = {
+        edge["target_passage_id"]
+        for edge in raw_edges
+        if edge.get("target_passage_id")
+    }
+
     expanded_seed_ids = {
         edge["source_passage_id"]
         for edge in raw_edges
@@ -162,6 +193,12 @@ def build_retrieval_graph(
             ),
             "expanded_generations": (
                 [generation] if was_expanded else []
+            ),
+            "discovery_sources": _discovery_sources(
+                passage_id,
+                seed_ids=seed_ids,
+                retrieved_passage_ids=retrieved_passage_ids,
+                search_direction=search_direction,
             ),
         })
 
@@ -302,24 +339,101 @@ def merge_retrieval_graphs(
     edges_by_id: dict[str, dict[str, Any]] = {}
 
     for graph in (existing_graph, new_graph):
-        for original in graph.get("edges", []):
-            edge = dict(original)
+        graph_edges = graph.get("edges", [])
 
-            # Support both the graph schema and raw workflow schema.
-            edge.setdefault(
-                "source",
-                edge.get("source_passage_id"),
-            )
-            edge.setdefault(
-                "target",
-                edge.get("target_passage_id"),
-            )
+        incoming_directions: dict[str, set[str]] = defaultdict(set)
 
-            if not edge.get("source") or not edge.get("target"):
+        for edge in graph_edges:
+            target = edge.get("target") or edge.get("target_passage_id")
+            direction = edge.get("search_direction")
+
+            if target and direction in {"forward", "reverse"}:
+                incoming_directions[target].add(
+                    f"{direction}_search"
+                )
+
+        for original in graph.get("nodes", []):
+            node = dict(original)
+            node_id = node.get("id") or node.get("passage_id")
+
+            if not node_id:
                 continue
 
-            edge["id"] = _edge_identity(edge)
-            edges_by_id[edge["id"]] = edge
+            node["id"] = node_id
+            node.setdefault(
+                "generation",
+                0 if node.get("is_seed") else 1,
+            )
+            node.setdefault("is_seed", False)
+            node.setdefault("was_expanded", False)
+            node.setdefault(
+                "seed_generations",
+                [node["generation"]] if node["is_seed"] else [],
+            )
+            node.setdefault(
+                "expanded_generations",
+                (
+                    [node["generation"]]
+                    if node["was_expanded"]
+                    else []
+                ),
+            )
+
+            # Recover basic provenance for graphs created before
+            # discovery_sources was introduced.
+            if "discovery_sources" not in node:
+                sources = set(
+                    incoming_directions.get(node_id, set())
+                )
+
+                if node["is_seed"] or not sources:
+                    sources.add("initial_search")
+
+                node["discovery_sources"] = sorted(sources)
+
+            else:
+                node["discovery_sources"] = sorted(
+                    set(node["discovery_sources"])
+                )
+
+            if node_id not in nodes_by_id:
+                nodes_by_id[node_id] = node
+                continue
+
+            previous = nodes_by_id[node_id]
+
+            # Preserve passage data, updating only missing values.
+            for key, value in node.items():
+                if key not in previous or previous[key] is None:
+                    previous[key] = value
+
+            # Merge discovery provenance.
+            previous["discovery_sources"] = sorted(
+                set(previous.get("discovery_sources", []))
+                | set(node.get("discovery_sources", []))
+            )
+
+            # Discovery generation is the earliest known generation.
+            previous["generation"] = min(
+                previous["generation"],
+                node["generation"],
+            )
+
+            previous["is_seed"] = (
+                previous["is_seed"] or node["is_seed"]
+            )
+            previous["was_expanded"] = (
+                previous["was_expanded"] or node["was_expanded"]
+            )
+
+            previous["seed_generations"] = sorted(
+                set(previous["seed_generations"])
+                | set(node["seed_generations"])
+            )
+            previous["expanded_generations"] = sorted(
+                set(previous["expanded_generations"])
+                | set(node["expanded_generations"])
+            )
 
     nodes = sorted(
         nodes_by_id.values(),
