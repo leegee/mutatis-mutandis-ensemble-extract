@@ -13,6 +13,8 @@ A sample dataset, and indeed Lance indexes, are available upon request.
 
 ## Usage Synopsis
 
+### Ingestion
+
 To add a doc to the corpus:
 
 ```bash
@@ -36,7 +38,15 @@ To add a doc to the corpus:
     python src/mutatis_mutandis/embed/passages_3_passages_parquet_to_lance.py
 ```
 
+## API/GUI
+
 Run the search servers from the root:
 
     ./start-servers.sh
 
+## Agents
+
+```bash
+    cd backend
+    python src/run.sh
+```
