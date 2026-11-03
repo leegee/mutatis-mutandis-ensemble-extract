@@ -6,6 +6,7 @@ description = "Passage search for historical texts"
 requires-python = ">=3.11"
 dependencies = [
     "fastapi>=0.162.0",
+    "huggingface-hub>=2.3.0",
     "lancedb>=0.40.0",
     "langdetect>=1.0.9",
     "langgraph>=1.2.19",

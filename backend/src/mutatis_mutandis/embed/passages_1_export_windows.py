@@ -5,6 +5,9 @@ passages_1_export_windows.py
 As `passages_1_export_full.py` but exports sparse token windows around qualifying historical albinism targets.
 
 NB currently makes no use of the corpus SQL used in `passages_1_export_full.py`.
+
+Storage backend (Google Drive or Hugging Face) is chosen by the PASSAGES_STORAGE
+environment variable; see lib/corpus_storage.py.
 """
 
 from collections import defaultdict
@@ -16,12 +19,20 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 
 from mutatis_mutandis.lib.corpus_db import get_connection
-from mutatis_mutandis.lib.corpus_config import LANCE_INDEXES_DIR, MAPPED_GOOGLE_DRIVE, build_export_query
+from mutatis_mutandis.lib.corpus_config import LANCE_INDEXES_DIR, build_export_query
 from mutatis_mutandis.lib.corpus_logging import logger
+from mutatis_mutandis.lib.corpus_storage import clear, local_dir, publish, reset_outputs, warn_stale_outputs
 
-PARQ_OUTPUT_DIR = MAPPED_GOOGLE_DRIVE / "source_tokens"
-PARQ_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+PARQ_OUTPUT_DIR = local_dir("source_tokens")
 SHARD_PREFIX = 'tokens_'
+SHARD_GLOB = f"{SHARD_PREFIX}*.parquet"
+# Remove shards of any previous batch (locally, and from the HF repo on publish)
+# so stale shards never mix with the new export.
+CLEAR_BEFORE_EXPORT = True
+# New tokens invalidate the embeddings built from the old ones, and the Colab job
+# skips shards that already have output. Delete embeddings + checkpoints (locally
+# and in the HF repo) after a successful publish. Set False to only get a warning.
+CLEAR_OUTPUTS_ON_EXPORT = True
 
 FORCE_EXPORT_DOC_IDS = {
 #     "albinism_case_report_psaila_1972",
@@ -113,6 +124,8 @@ def main() -> None:
 
     try:
         populate_indexed_docs(conn, indexed)
+        if CLEAR_BEFORE_EXPORT:
+            clear("source_tokens", SHARD_GLOB)
         sql, params = build_export_query(TABLE, DOC_TABLE, WINDOW_LEFT, WINDOW_RIGHT)
         params.extend([sorted(FORCE_EXPORT_DOC_IDS)])
         docs: list[dict] = []
@@ -152,6 +165,11 @@ def main() -> None:
             if docs:
                 flush(docs, shard_no)
 
+        publish("source_tokens", SHARD_GLOB, prune=CLEAR_BEFORE_EXPORT)
+        if CLEAR_OUTPUTS_ON_EXPORT:
+            reset_outputs()
+        else:
+            warn_stale_outputs()
         logger.info( "Done: exported %d documents and %d token rows", exported, rows_seen, )
     finally:
         conn.close()

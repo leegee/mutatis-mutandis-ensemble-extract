@@ -991,6 +991,7 @@ version = "0.3.0"
 source = { editable = "." }
 dependencies = [
     { name = "fastapi" },
+    { name = "huggingface-hub" },
     { name = "lancedb" },
     { name = "langdetect" },
     { name = "langgraph" },
@@ -1011,6 +1012,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "fastapi", specifier = ">=0.162.0" },
+    { name = "huggingface-hub", specifier = ">=2.3.0" },
     { name = "lancedb", specifier = ">=0.40.0" },
     { name = "langdetect", specifier = ">=1.0.9" },
     { name = "langgraph", specifier = ">=1.2.19" },

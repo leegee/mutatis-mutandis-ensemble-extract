@@ -20,13 +20,14 @@ from mutatis_mutandis.lib.corpus_config import (
     LANCE_INDEXES_DIR,
     LANCE_BUCKET_SIZE,
     LANCE_MODEL_NAME,
-    MAPPED_GOOGLE_DRIVE,
     PASSAGE_SCALES,
 )
 from mutatis_mutandis.lib.corpus_logging import logger
+from mutatis_mutandis.lib.corpus_storage import fetch
 
-
-INPUT_DIR = MAPPED_GOOGLE_DRIVE / "output-passages"
+# Resolved in main(): the Drive folder, or a fresh download from Hugging Face,
+# depending on PASSAGES_STORAGE (see lib/corpus_storage.py).
+INPUT_SUBDIR = "output-passages"
 
 REPRESENTATIONS = ("l8", "last", "mean4")
 VECTOR_DIM = 768
@@ -49,7 +50,6 @@ EXPECTED_INDEXES = {
     "scale_idx",
 }
 
-logger.info("From INPUT_DIR:         %s", INPUT_DIR)
 logger.info("To   LANCE_INDEXES_DIR: %s", LANCE_INDEXES_DIR)
 
 # ---------------------------------------------------------------------------
@@ -705,7 +705,7 @@ def main() -> None:
 
     args = parser.parse_args()
 
-    input_dir = INPUT_DIR.resolve()
+    input_dir = fetch(INPUT_SUBDIR).resolve()
 
     if not input_dir.exists():
         raise SystemExit( f"Passage input directory does not exist: {input_dir}" )

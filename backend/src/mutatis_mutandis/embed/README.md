@@ -1,3 +1,9 @@
+
+2026-11-03:
+
+    cd backend
+    python -m mutatis_mutandis.lib.corpus_storage reset-outputs
+
 ```bash
 $ python src/tier0/tier0_0_text2db.py --file enoch_charles_1917.xml --corpus misc
 2026-10-28 08:48:08 [tier0] Process misc from G:\corpus\misc

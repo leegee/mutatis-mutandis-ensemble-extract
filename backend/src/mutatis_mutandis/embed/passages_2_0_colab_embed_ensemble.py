@@ -1,8 +1,16 @@
 """
 passages_2_0_colab_embed_ensemble.py
 
-Colab job: stand-alone token parquet shards (Drive) -> multi-scale passage-vector
-parquet shards (Drive).
+Colab job: stand-alone token parquet shards -> multi-scale passage-vector
+parquet shards. Storage is Google Drive or a private Hugging Face dataset repo,
+selected by STORAGE below.
+
+Hugging Face mode: needs a write-enabled token in Colab Secrets named HF_TOKEN
+(with "Notebook access" switched on). Inputs are downloaded to local disk, per-
+document checkpoints stay on local disk and are synced to the repo every
+CHECKPOINT_SYNC_SECONDS (one commit per sync, not per document), and each finished
+shard is uploaded as a single file. After a disconnect, re-running resumes from
+the synced checkpoints and skips shards already in the repo.
 
 Uses MacBERTh. Independent of PostgreSQL / LanceDB.
 
@@ -26,7 +34,6 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-from google.colab import drive
 import numpy as np
 import pyarrow as pa
 import pyarrow.parquet as pq
@@ -41,8 +48,16 @@ from transformers import AutoModel, AutoTokenizer
 RESUME_FROM_DOC = 0
 STOP_AFTER_DOC  = 9999
 
-IN_DIR = Path("/content/drive/MyDrive/passage-pipeline/source_tokens")
-OUT_DIR = Path("/content/drive/MyDrive/passage-pipeline/output-passages")
+STORAGE = "hf"                              # "drive" or "hf"
+HF_REPO_ID = "leegee23/albinism-passages"   # same dataset repo the workstation uses (hf only)
+CHECKPOINT_SYNC_SECONDS = 600               # hf only: how often to push checkpoints
+
+DRIVE_ROOT = Path("/content/drive/MyDrive/passage-pipeline")
+WORK_ROOT = Path("/content/work")           # hf mode working copy (local disk)
+
+_ROOT = DRIVE_ROOT if STORAGE == "drive" else WORK_ROOT
+IN_DIR = _ROOT / "source_tokens"
+OUT_DIR = _ROOT / "output-passages"
 CHECKPOINT_DIR = OUT_DIR / "_checkpoints"
 LOCAL_TMP = Path("/content/tmp")
 
@@ -68,6 +83,94 @@ def log(message):
         f"[{datetime.now().isoformat(timespec='seconds')}] {message}",
         flush=True,
     )
+
+
+# ---------------------------------------------------------------------------
+# Hugging Face transfer helpers (used only when STORAGE == "hf")
+# ---------------------------------------------------------------------------
+
+_hf_api = None
+_remote_done = set()
+_last_sync = 0.0
+
+
+def hf_setup():
+    """Authenticate, pull inputs + resumable checkpoints, list finished shards."""
+    global _hf_api, _remote_done, _last_sync
+    from google.colab import userdata
+    from huggingface_hub import HfApi, snapshot_download
+
+    token = userdata.get("HF_TOKEN")
+    _hf_api = HfApi(token=token)
+    _hf_api.create_repo(HF_REPO_ID, repo_type="dataset", private=True, exist_ok=True)
+
+    log(f"Downloading inputs and checkpoints from {HF_REPO_ID}")
+    snapshot_download(
+        repo_id=HF_REPO_ID,
+        repo_type="dataset",
+        token=token,
+        local_dir=str(WORK_ROOT),
+        allow_patterns=[
+            "source_tokens/*.parquet",
+            "output-passages/_checkpoints/**",
+        ],
+    )
+    _remote_done = {
+        Path(f).name
+        for f in _hf_api.list_repo_files(HF_REPO_ID, repo_type="dataset")
+        if f.startswith("output-passages/passages_") and f.endswith(".parquet")
+    }
+    log(f"{len(_remote_done)} finished shard(s) already in the repo")
+    _last_sync = time.time()
+
+
+def hf_publish_shard(final_path):
+    _hf_api.upload_file(
+        path_or_fileobj=str(final_path),
+        path_in_repo=f"output-passages/{final_path.name}",
+        repo_id=HF_REPO_ID,
+        repo_type="dataset",
+        commit_message=f"Add {final_path.name}",
+    )
+    _remote_done.add(final_path.name)
+
+
+def hf_sync_checkpoints(force=False):
+    """Push new checkpoints in one commit, at most every CHECKPOINT_SYNC_SECONDS."""
+    global _last_sync
+    if STORAGE != "hf":
+        return
+    if not force and time.time() - _last_sync < CHECKPOINT_SYNC_SECONDS:
+        return
+    _last_sync = time.time()   # also on failure, so a broken sync is not retried every document
+    if not any(CHECKPOINT_DIR.glob("*/doc_*.parquet")):
+        return
+    try:
+        _hf_api.upload_folder(
+            folder_path=str(CHECKPOINT_DIR),
+            path_in_repo="output-passages/_checkpoints",
+            repo_id=HF_REPO_ID,
+            repo_type="dataset",
+            allow_patterns=["*/doc_*.parquet"],
+            commit_message="Sync checkpoints",
+        )
+        log("Checkpoints synced to Hugging Face")
+    except Exception as exc:
+        log(f"WARNING: checkpoint sync failed (will retry later): {exc}")
+
+
+def hf_drop_checkpoints(stem):
+    """Remove a finished shard's checkpoints locally and from the repo."""
+    shutil.rmtree(CHECKPOINT_DIR / stem, ignore_errors=True)
+    try:
+        _hf_api.delete_folder(
+            path_in_repo=f"output-passages/_checkpoints/{stem}",
+            repo_id=HF_REPO_ID,
+            repo_type="dataset",
+            commit_message=f"Drop checkpoints for {stem}",
+        )
+    except Exception as exc:
+        log(f"No remote checkpoints removed for {stem}: {exc}")
 
 
 # ---------------------------------------------------------------------------
@@ -320,7 +423,7 @@ def document_table(doc, tok, model, device):
 
 
 def commit_file(local_path, final_path):
-    """Copy to Drive under a temporary name, then publish the final name."""
+    """Copy under a temporary name, then publish the final name (atomic on Drive)."""
     final_path.parent.mkdir(parents=True, exist_ok=True)
     part_path = final_path.with_name(final_path.name + ".part")
     if part_path.exists():
@@ -352,14 +455,22 @@ def process_shard(in_path, tok, model, device):
     shard_name = in_path.name.replace("tokens_", "passages_")
     final_path = OUT_DIR / shard_name
 
+    if STORAGE == "hf" and shard_name in _remote_done:
+        log(f"Already in Hugging Face repo; skipping {shard_name}")
+        return
+
     if final_path.exists():
         try:
             pq.ParquetFile(final_path).metadata
-            log(f"Already complete; skipping {shard_name}")
-            return
         except Exception:
             log(f"Existing final file is unreadable; rebuilding {shard_name}")
             final_path.unlink()
+        else:
+            if STORAGE == "hf":   # built earlier but never uploaded
+                hf_publish_shard(final_path)
+                final_path.unlink()
+            log(f"Already complete; skipping {shard_name}")
+            return
 
     shard_checkpoints = CHECKPOINT_DIR / in_path.stem
     shard_checkpoints.mkdir(parents=True, exist_ok=True)
@@ -403,6 +514,7 @@ def process_shard(in_path, tok, model, device):
             pq.write_table(table, local, compression="zstd")
             commit_file(local, checkpoint)
             local.unlink(missing_ok=True)
+            hf_sync_checkpoints()
 
             log(
                 f"Committed {doc['doc_id']}: {table.num_rows} passages "
@@ -419,6 +531,7 @@ def process_shard(in_path, tok, model, device):
         )
 
     if not ASSEMBLE_FINAL_SHARD:
+        hf_sync_checkpoints(force=True)
         print(
             f"CHECKPOINTS ONLY: {in_path.name}; "
             "skipping final-shard assembly."
@@ -463,6 +576,11 @@ def process_shard(in_path, tok, model, device):
     commit_file(local_final, final_path)
     local_final.unlink(missing_ok=True)
 
+    if STORAGE == "hf":
+        hf_publish_shard(final_path)
+        final_path.unlink(missing_ok=True)      # free local disk
+        hf_drop_checkpoints(in_path.stem)
+
     log(
         f"COMPLETE {shard_name}: {expected_rows} passages "
         f"from {total_docs} documents"
@@ -470,7 +588,13 @@ def process_shard(in_path, tok, model, device):
 
 
 def main():
-    drive.mount("/content/drive")
+    if STORAGE == "drive":
+        from google.colab import drive
+        drive.mount("/content/drive")
+    elif STORAGE == "hf":
+        hf_setup()
+    else:
+        raise SystemExit(f"STORAGE must be 'drive' or 'hf', not {STORAGE!r}")
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     CHECKPOINT_DIR.mkdir(parents=True, exist_ok=True)

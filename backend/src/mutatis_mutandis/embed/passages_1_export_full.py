@@ -2,7 +2,11 @@
 passages_1_export_full.py
 
 Exports one row per document (corpus, doc_id, pub_year, token_idx[], tokens[])
-into parquet shards of DOCS_PER_SHARD documents. Upload EMB_OUTPUT_DIR to Drive.
+into parquet shards of DOCS_PER_SHARD documents.
+
+Storage backend (Google Drive or Hugging Face) is chosen by the PASSAGES_STORAGE
+environment variable; see lib/corpus_storage.py. On the hf backend the finished
+shards are uploaded automatically at the end of the run.
 """
 from itertools import groupby
 from pathlib import Path
@@ -11,20 +15,28 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 
 from mutatis_mutandis.lib.corpus_db import get_connection
-from mutatis_mutandis.lib.corpus_config import MAPPED_GOOGLE_DRIVE
 from mutatis_mutandis.lib.corpus_logging import logger
+from mutatis_mutandis.lib.corpus_storage import clear, local_dir, publish, reset_outputs, warn_stale_outputs
 
 from mutatis_mutandis.lib.corpus_albinism import CORPUS_SQL
 
-# Local filesystem output directory
-EMB_OUTPUT_DIR = MAPPED_GOOGLE_DRIVE / Path("souroce_tokens")
-EMB_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+# Output directory (Drive folder or local staging folder, depending on backend)
+EMB_OUTPUT_DIR = local_dir("source_tokens")
 
 # PostgreSQL tables
 DOC_TABLE = "documents"
 TABLE = "tokens"
 
 DOCS_PER_SHARD = 10 # 500
+
+SHARD_GLOB = "tokens_*.parquet"
+# Remove shards of any previous batch (locally, and from the HF repo on publish)
+# so stale shards never mix with the new export.
+CLEAR_BEFORE_EXPORT = True
+# New tokens invalidate the embeddings built from the old ones, and the Colab job
+# skips shards that already have output. Delete embeddings + checkpoints (locally
+# and in the HF repo) after a successful publish. Set False to only get a warning.
+CLEAR_OUTPUTS_ON_EXPORT = True
 
 SCHEMA = pa.schema([
     ("corpus", pa.string()),
@@ -46,6 +58,9 @@ def flush(docs: list[dict], shard_no: int) -> None:
 
 def main() -> None:
     conn = get_connection(application_name="export-tokens")
+
+    if CLEAR_BEFORE_EXPORT:
+        clear("source_tokens", SHARD_GLOB)
 
     with conn.cursor(name="export_tokens") as cur:
         cur.itersize = 100_000
@@ -93,6 +108,11 @@ def main() -> None:
             flush(docs, shard_no)
 
     conn.close()
+    publish("source_tokens", SHARD_GLOB, prune=CLEAR_BEFORE_EXPORT)
+    if CLEAR_OUTPUTS_ON_EXPORT:
+        reset_outputs()
+    else:
+        warn_stale_outputs()
     logger.info("Done")
 
 
