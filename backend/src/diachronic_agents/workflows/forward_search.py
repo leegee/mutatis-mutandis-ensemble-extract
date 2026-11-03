@@ -41,6 +41,7 @@ class ForwardSearchState(TypedDict, total=False):
     seed_limit: int
     transfer_limit: int
     overlap_threshold: float
+    seed_passages: list[dict[str, Any]]
 
     # Intermediate results
     initial_results: list[dict[str, Any]]
@@ -339,8 +340,76 @@ def _select_document_diverse_edges(
 
 def _validate_inputs(inputs: dict[str, Any]) -> dict[str, Any]:
 
+    values = dict(inputs)
+
+    # Explicit-seed mode.
+    seed_passages = values.get("seed_passages")
+
+    if seed_passages:
+        seed_passages = [
+            dict(passage)
+            for passage in seed_passages
+        ]
+
+        missing_ids = [
+            passage
+            for passage in seed_passages
+            if not passage.get("passage_id")
+        ]
+
+        if missing_ids:
+            raise ValueError(
+                "Every explicit seed must have a passage_id"
+            )
+
+        # Deduplicate seed IDs without changing their order.
+        seeds_by_id = {
+            passage["passage_id"]: passage
+            for passage in seed_passages
+        }
+
+        seed_passages = list(seeds_by_id.values())
+
+        values["seed_passages"] = seed_passages
+        values["query"] = values.get("query", "explicit seeds")
+
+        seed_years = [
+            int(passage["pub_year"])
+            for passage in seed_passages
+            if passage.get("pub_year") is not None
+        ]
+
+        if seed_years:
+            values.setdefault(
+                "initial_start_year",
+                min(seed_years),
+            )
+            values.setdefault(
+                "initial_end_year",
+                max(seed_years),
+            )
+
+    else:
+        values["seed_passages"] = []
+
+        required = (
+            "query",
+            "initial_start_year",
+            "initial_end_year",
+        )
+
+        missing = [
+            name
+            for name in required
+            if name not in values
+        ]
+
+        if missing:
+            raise ValueError(
+                f"Missing workflow inputs: {', '.join(missing)}"
+            )
+
     required = (
-        "query",
         "initial_start_year",
         "initial_end_year",
         "forward_start_year",
@@ -350,7 +419,7 @@ def _validate_inputs(inputs: dict[str, Any]) -> dict[str, Any]:
     missing = [
         name
         for name in required
-        if name not in inputs
+        if name not in values
     ]
 
     if missing:
@@ -358,14 +427,7 @@ def _validate_inputs(inputs: dict[str, Any]) -> dict[str, Any]:
             f"Missing workflow inputs: {', '.join(missing)}"
         )
 
-    values = dict(inputs)
-
-    for name in (
-        "initial_start_year",
-        "initial_end_year",
-        "forward_start_year",
-        "forward_end_year",
-    ):
+    for name in required:
         values[name] = int(values[name])
 
     if values["initial_start_year"] > values["initial_end_year"]:
@@ -379,11 +441,6 @@ def _validate_inputs(inputs: dict[str, Any]) -> dict[str, Any]:
             "The forward interval must start after "
             "the initial interval ends"
         )
-
-    values["query"] = str(values["query"]).strip()
-
-    if not values["query"]:
-        raise ValueError("query cannot be empty")
 
     values.setdefault("representation", "l8")
     values.setdefault("initial_scale", "broad")
@@ -409,7 +466,10 @@ def _validate_inputs(inputs: dict[str, Any]) -> dict[str, Any]:
     if values["transfer_limit"] < 1:
         raise ValueError("transfer_limit must be positive")
 
-    if values["seed_limit"] > values["initial_limit"]:
+    if (
+        not values["seed_passages"]
+        and values["seed_limit"] > values["initial_limit"]
+    ):
         raise ValueError(
             "seed_limit cannot exceed initial_limit"
         )
@@ -419,6 +479,8 @@ def _validate_inputs(inputs: dict[str, Any]) -> dict[str, Any]:
             "overlap_threshold must be greater than 0 "
             "and no greater than 1"
         )
+
+    values["query"] = str(values["query"]).strip()
 
     return values
 
@@ -475,6 +537,16 @@ def build_forward_search_workflow(
 
         params = _validate_inputs(state)
 
+        # Explicit-seed mode: no lexical search.
+        if params["seed_passages"]:
+
+            return {
+                **params,
+                "initial_results": params["seed_passages"],
+                "warnings": [],
+            }
+
+        # Normal mode.
         outcome = retriever.search_text(
             query=params["query"],
             representation=params["representation"],
@@ -498,6 +570,20 @@ def build_forward_search_workflow(
         state: ForwardSearchState,
     ) -> dict[str, Any]:
 
+        # Explicit-seed mode.
+        if state.get("seed_passages"):
+            seeds = state["seed_passages"]
+
+            return {
+                "seeds": seeds,
+                "seed_ids": [
+                    seed["passage_id"]
+                    for seed in seeds
+                ],
+                "warnings": list(state.get("warnings", [])),
+            }
+
+        # Normal mode.
         seeds = _select_seeds(
             state["initial_results"],
             state["seed_limit"],
@@ -519,7 +605,7 @@ def build_forward_search_workflow(
             ],
             "warnings": warnings,
         }
-
+        
     # ---------------------------------------------------------
     # Node 3: search the forward period from one seed
     # ---------------------------------------------------------

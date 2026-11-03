@@ -19,6 +19,56 @@ FEATURE_PRIORITY = (
 )
 
 
+
+def rank_prospects_by_convergence(
+    prospects: list[dict[str, Any]],
+    retrieval_graph: dict[str, Any],
+) -> list[dict[str, Any]]:
+    """
+    Enrich prospects with incoming retrieval evidence.
+
+    Distinct source passages are counted separately from edge observations.
+    """
+    incoming: dict[str, dict[str, Any]] = defaultdict(
+        lambda: {
+            "source_ids": set(),
+            "edge_ids": [],
+            "search_ids": set(),
+        }
+    )
+
+    for edge in retrieval_graph["edges"]:
+        target_id = edge["target"]
+
+        evidence = incoming[target_id]
+        evidence["source_ids"].add(edge["source"])
+        evidence["edge_ids"].append(edge["id"])
+        evidence["search_ids"].add(edge.get("search_id"))
+
+    enriched = []
+
+    for prospect in prospects:
+        passage_id = prospect["passage_id"]
+        evidence = incoming[passage_id]
+
+        enriched.append({
+            **prospect,
+            "incoming_source_count": len(evidence["source_ids"]),
+            "incoming_edge_count": len(evidence["edge_ids"]),
+            "incoming_search_count": len(evidence["search_ids"]),
+            "incoming_source_ids": sorted(evidence["source_ids"]),
+        })
+
+    return sorted(
+        enriched,
+        key=lambda p: (
+            -p["incoming_source_count"],
+            -p["incoming_edge_count"],
+            p.get("rank") or 999999,
+        ),
+    )
+    
+    
 def select_prospects(
     passages: list[dict[str, Any]],
     classification_result: ClassificationResult,

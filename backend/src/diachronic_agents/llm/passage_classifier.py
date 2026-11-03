@@ -27,7 +27,7 @@ MAX_ESTIMATED_TOKENS = 6500
 TOKEN_SAFETY_MULTIPLIER = 1.25
 TOKEN_OVERHEAD = 300
 MAX_ESTIMATED_TOKENS = 6500
-MAX_PASSAGES_PER_BATCH = 10
+MAX_PASSAGES_PER_BATCH = 15
 
 RESERVED_CATEGORIES = {
     "other": "Relevant, but fits none of the listed categories.",
@@ -188,7 +188,7 @@ def _build_batches(prepared: list[dict], instructions: dict) -> list[list[dict]]
         ):
             current = candidate
             continue
-        
+
         if current:
             batches.append(current)
         current = [passage]

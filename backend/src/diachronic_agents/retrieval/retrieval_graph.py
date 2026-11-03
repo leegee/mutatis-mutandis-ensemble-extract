@@ -261,90 +261,42 @@ def build_retrieval_graph(
     }
 
 
+
 def merge_retrieval_graphs(
     existing_graph: Mapping[str, Any],
     new_graph: Mapping[str, Any],
 ) -> dict[str, Any]:
     """
-    Merge a new retrieval graph into an existing cumulative graph.
+    Merge retrieval graphs into a cumulative provenance-preserving graph.
 
     Nodes are merged by passage ID.
     Edges are merged by stable retrieval identity.
-    Earlier discovery generations are preserved.
-    Seed and expansion history is accumulated.
+    Earliest discovery generations are preserved.
+    Discovery sources, seed history and expansion history are accumulated.
     """
+
     nodes_by_id: dict[str, dict[str, Any]] = {}
-
-    for graph in (existing_graph, new_graph):
-        for original in graph.get("nodes", []):
-            node = dict(original)
-            node_id = node.get("id") or node.get("passage_id")
-
-            if not node_id:
-                continue
-
-            node["id"] = node_id
-            node.setdefault(
-                "generation",
-                0 if node.get("is_seed") else 1,
-            )
-            node.setdefault("is_seed", False)
-            node.setdefault("was_expanded", False)
-            node.setdefault(
-                "seed_generations",
-                [node["generation"]] if node["is_seed"] else [],
-            )
-            node.setdefault(
-                "expanded_generations",
-                (
-                    [node["generation"]]
-                    if node["was_expanded"]
-                    else []
-                ),
-            )
-
-            if node_id not in nodes_by_id:
-                nodes_by_id[node_id] = node
-                continue
-
-            previous = nodes_by_id[node_id]
-
-            # Preserve passage data, updating only missing values.
-            for key, value in node.items():
-                if key not in previous or previous[key] is None:
-                    previous[key] = value
-
-            # Discovery generation is the earliest known generation.
-            previous["generation"] = min(
-                previous["generation"],
-                node["generation"],
-            )
-
-            previous["is_seed"] = (
-                previous["is_seed"] or node["is_seed"]
-            )
-            previous["was_expanded"] = (
-                previous["was_expanded"] or node["was_expanded"]
-            )
-
-            previous["seed_generations"] = sorted(
-                set(previous["seed_generations"])
-                | set(node["seed_generations"])
-            )
-            previous["expanded_generations"] = sorted(
-                set(previous["expanded_generations"])
-                | set(node["expanded_generations"])
-            )
-
     edges_by_id: dict[str, dict[str, Any]] = {}
 
+    # ---------------------------------------------------------
+    # Merge nodes and edges from both graphs
+    # ---------------------------------------------------------
+
     for graph in (existing_graph, new_graph):
+
         graph_edges = graph.get("edges", [])
 
+        # Recover incoming search directions for older graph nodes
+        # which may not yet have discovery_sources.
         incoming_directions: dict[str, set[str]] = defaultdict(set)
 
-        for edge in graph_edges:
-            target = edge.get("target") or edge.get("target_passage_id")
+        for original_edge in graph_edges:
+            edge = dict(original_edge)
+
+            target = (
+                edge.get("target")
+                or edge.get("target_passage_id")
+            )
             direction = edge.get("search_direction")
 
             if target and direction in {"forward", "reverse"}:
@@ -352,7 +304,12 @@ def merge_retrieval_graphs(
                     f"{direction}_search"
                 )
 
+        # -----------------------------------------------------
+        # Nodes
+        # -----------------------------------------------------
+
         for original in graph.get("nodes", []):
+
             node = dict(original)
             node_id = node.get("id") or node.get("passage_id")
 
@@ -360,12 +317,14 @@ def merge_retrieval_graphs(
                 continue
 
             node["id"] = node_id
+
             node.setdefault(
                 "generation",
                 0 if node.get("is_seed") else 1,
             )
             node.setdefault("is_seed", False)
             node.setdefault("was_expanded", False)
+
             node.setdefault(
                 "seed_generations",
                 [node["generation"]] if node["is_seed"] else [],
@@ -379,8 +338,7 @@ def merge_retrieval_graphs(
                 ),
             )
 
-            # Recover basic provenance for graphs created before
-            # discovery_sources was introduced.
+            # Recover provenance for older graphs.
             if "discovery_sources" not in node:
                 sources = set(
                     incoming_directions.get(node_id, set())
@@ -402,18 +360,18 @@ def merge_retrieval_graphs(
 
             previous = nodes_by_id[node_id]
 
-            # Preserve passage data, updating only missing values.
+            # Preserve existing passage data, filling missing values.
             for key, value in node.items():
                 if key not in previous or previous[key] is None:
                     previous[key] = value
 
-            # Merge discovery provenance.
+            # Accumulate discovery provenance.
             previous["discovery_sources"] = sorted(
                 set(previous.get("discovery_sources", []))
                 | set(node.get("discovery_sources", []))
             )
 
-            # Discovery generation is the earliest known generation.
+            # Keep the earliest discovery generation.
             previous["generation"] = min(
                 previous["generation"],
                 node["generation"],
@@ -430,10 +388,53 @@ def merge_retrieval_graphs(
                 set(previous["seed_generations"])
                 | set(node["seed_generations"])
             )
+
             previous["expanded_generations"] = sorted(
                 set(previous["expanded_generations"])
                 | set(node["expanded_generations"])
             )
+
+        # -----------------------------------------------------
+        # Edges
+        # -----------------------------------------------------
+
+        for original_edge in graph_edges:
+
+            edge = dict(original_edge)
+
+            source = (
+                edge.get("source")
+                or edge.get("source_passage_id")
+            )
+            target = (
+                edge.get("target")
+                or edge.get("target_passage_id")
+            )
+
+            if not source or not target:
+                continue
+
+            edge["source"] = source
+            edge["target"] = target
+
+            # Retain existing stable IDs, or create one for older edges.
+            edge_id = edge.get("id") or _edge_identity(edge)
+            edge["id"] = edge_id
+
+            if edge_id not in edges_by_id:
+                edges_by_id[edge_id] = edge
+                continue
+
+            # Preserve existing edge data, filling missing values.
+            previous = edges_by_id[edge_id]
+
+            for key, value in edge.items():
+                if key not in previous or previous[key] is None:
+                    previous[key] = value
+
+    # ---------------------------------------------------------
+    # Finalise nodes and edges
+    # ---------------------------------------------------------
 
     nodes = sorted(
         nodes_by_id.values(),
@@ -454,6 +455,10 @@ def merge_retrieval_graphs(
         ),
     )
 
+    # ---------------------------------------------------------
+    # Recalculate graph-level relationships
+    # ---------------------------------------------------------
+
     seed_ids = sorted(
         node["id"]
         for node in nodes
@@ -468,11 +473,16 @@ def merge_retrieval_graphs(
 
     convergence = _convergence(nodes, edges)
 
+    # ---------------------------------------------------------
+    # Merge search-run metadata
+    # ---------------------------------------------------------
+
     search_runs = []
     seen_search_ids = set()
 
     for graph in (existing_graph, new_graph):
         for run in graph.get("metadata", {}).get("search_runs", []):
+
             search_id = run.get("search_id")
 
             if search_id and search_id not in seen_search_ids:
@@ -500,3 +510,4 @@ def merge_retrieval_graphs(
         ),
         "convergence": convergence,
     }
+
