@@ -1,12 +1,10 @@
 from __future__ import annotations
 
-import hashlib
 import json
 import os
-import sqlite3
 from collections import Counter
 from dataclasses import dataclass
-from pathlib import Path
+from functools import lru_cache
 from typing import Literal
 
 import tiktoken
@@ -14,17 +12,58 @@ from langchain_groq import ChatGroq
 from pydantic import BaseModel, Field
 
 from mutatis_mutandis.lib.corpus_logging import get_logger
-from mutatis_mutandis.lib.corpus_config import OUT_DIR
+
+from diachronic_agents.llm.passage_cache import ClassificationCache, make_cache_key
 
 logger = get_logger(__name__)
 
 
 CLASSIFIER_MODEL = "openai/gpt-oss-20b"
 
-DEFAULT_CACHE_PATH = Path(
-    OUT_DIR / "cache" / "passage_classifications.sqlite3"
-)
+# Conservative local request budget.
+MAX_ESTIMATED_TOKENS = 6500
+TOKEN_SAFETY_MULTIPLIER = 1.25
+TOKEN_OVERHEAD = 300
 
+SYSTEM_PROMPT = """
+Classify each historical passage using the supplied configuration.
+
+Return one result for every passage.
+
+classification:
+- relevant
+- ambiguous
+- irrelevant
+
+feature_type:
+- human_hair
+- animal_fur
+- feathers
+- flaxen_hair
+- complexion
+- other
+- uncertain
+
+Rules:
+- Human hair and human complexion are primary categories.
+- Animal hair and fur are secondary categories.
+- Feathers and plumage are secondary and distinct from hair.
+- Flaxen hair is secondary; do not automatically equate it with white.
+- Complexion is a separate feature, not hair.
+- Clothing, textiles, materials, objects and light are not bodily features.
+- Classify what the passage actually describes.
+- Do not infer historical influence or transmission.
+- Use the exact passage IDs supplied.
+- Keep reasons under 10 words.
+
+Return only valid JSON:
+{"classifications":[{"passage_id":"P001","classification":"relevant","feature_type":"human_hair","reason":"Describes white human scalp hair."}]}
+"""
+
+
+# ------------------------------------------------------------
+# Types and configuration
+# ------------------------------------------------------------
 
 FeatureType = Literal[
     "human_hair",
@@ -60,7 +99,7 @@ class PassageClassification(BaseModel):
     )
 
     feature_type: FeatureType = Field(
-        description=( "The kind of hair, bodily covering or complexion described." )
+        description="The kind of hair, bodily covering or complexion described."
     )
 
     reason: str = Field(
@@ -72,10 +111,18 @@ class ClassificationResult(BaseModel):
     classifications: list[PassageClassification]
 
 
+@dataclass
+class _CacheMiss:
+    original_id: str
+    cache_key: str
+    passage: dict
+
+
 BODILY_COVERING_CONFIG = ClassificationConfig(
     search_term="white hair",
     target_description=(
-        "Descriptions of unusually white or pale human hair, human complexion, or animal bodily coverings."
+        "Descriptions of unusually white or pale human hair, "
+        "human complexion, or animal bodily coverings. "
         "Human hair and complexion are primary categories. "
         "Animal hair, fur, feathers and flaxen hair are retained as distinct secondary categories."
     ),
@@ -107,196 +154,21 @@ def create_researcher_llm():
         temperature=0,
         max_retries=2,
         max_tokens=2048,
-        model_kwargs={
-            "response_format": {
-                "type": "json_object"
-            }
-        },
+        model_kwargs={"response_format": {"type": "json_object"}},
     )
 
 
 # ------------------------------------------------------------
-# Cache
+# Request construction and budgeting
 # ------------------------------------------------------------
 
-def get_cache_path() -> Path:
-    configured_path = os.getenv("PASSAGE_CLASSIFICATION_CACHE")
-
-    if configured_path:
-        return Path(configured_path).expanduser()
-
-    return DEFAULT_CACHE_PATH
+@lru_cache(maxsize=1)
+def _encoding() -> tiktoken.Encoding:
+    return tiktoken.get_encoding("o200k_base")
 
 
-def initialise_cache(connection: sqlite3.Connection) -> None:
-    connection.execute(
-        """
-        CREATE TABLE IF NOT EXISTS passage_classifications (
-            cache_key TEXT PRIMARY KEY,
-            classification TEXT NOT NULL,
-            feature_type TEXT NOT NULL,
-            reason TEXT NOT NULL,
-            model TEXT NOT NULL,
-            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-        )
-        """
-    )
-
-    connection.execute(
-        """
-        CREATE INDEX IF NOT EXISTS
-        idx_passage_classifications_model
-        ON passage_classifications(model)
-        """
-    )
-
-    connection.commit()
-
-
-def make_cache_key(
-    passage: dict,
-    instructions: dict,
-    system_prompt: str,
-) -> str:
-    """
-    Generate a stable key for the complete classification input.
-
-    The passage ID is deliberately excluded. Identical text and
-    metadata can therefore reuse a classification across searches.
-    """
-
-    cache_input = {
-        "model": CLASSIFIER_MODEL,
-        "system_prompt": system_prompt,
-        "configuration": instructions,
-        "passage": {
-            "pub_year": passage.get("pub_year"),
-            "title": passage.get("title"),
-            "author": passage.get("author"),
-            "text": passage.get("text") or "",
-        },
-    }
-
-    serialised = json.dumps(
-        cache_input,
-        ensure_ascii=False,
-        sort_keys=True,
-        default=str,
-    )
-
-    return hashlib.sha256(
-        serialised.encode("utf-8")
-    ).hexdigest()
-
-
-def load_cached_classification(
-    connection: sqlite3.Connection,
-    cache_key: str,
-) -> dict | None:
-
-    row = connection.execute(
-        """
-        SELECT classification, feature_type, reason
-        FROM passage_classifications
-        WHERE cache_key = ?
-        """,
-        (cache_key,),
-    ).fetchone()
-
-    if row is None:
-        return None
-
+def _config_to_instructions(config: ClassificationConfig) -> dict:
     return {
-        "classification": row[0],
-        "feature_type": row[1],
-        "reason": row[2],
-    }
-
-
-def save_cached_classification(
-    connection: sqlite3.Connection,
-    cache_key: str,
-    item: PassageClassification,
-) -> None:
-
-    connection.execute(
-        """
-        INSERT OR REPLACE INTO passage_classifications (
-            cache_key,
-            classification,
-            feature_type,
-            reason,
-            model
-        )
-        VALUES (?, ?, ?, ?, ?)
-        """,
-        (
-            cache_key,
-            item.classification,
-            item.feature_type,
-            item.reason,
-            CLASSIFIER_MODEL,
-        ),
-    )
-
-
-# ------------------------------------------------------------
-# Classification
-# ------------------------------------------------------------
-
-def classify_passages(
-    passages: list[dict],
-    config: ClassificationConfig,
-) -> ClassificationResult:
-
-    if not passages:
-        return ClassificationResult(classifications=[])
-
-    llm = create_researcher_llm()
-
-    # Conservative local request budget.
-    MAX_ESTIMATED_TOKENS = 6500
-    TOKEN_SAFETY_MULTIPLIER = 1.25
-    TOKEN_OVERHEAD = 300
-
-    encoding = tiktoken.get_encoding("o200k_base")
-
-    system_prompt = """
-Classify each historical passage using the supplied configuration.
-
-Return one result for every passage.
-
-classification:
-- relevant
-- ambiguous
-- irrelevant
-
-feature_type:
-- human_hair
-- animal_fur
-- feathers
-- flaxen_hair
-- complexion
-- other
-- uncertain
-
-Rules:
-- Human hair and human complexion are primary categories.
-- Animal hair and fur are secondary categories.
-- Feathers and plumage are secondary and distinct from hair.
-- Flaxen hair is secondary; do not automatically equate it with white.
-- Complexion is a separate feature, not hair.
-- Clothing, textiles, materials, objects and light are not bodily features.
-- Classify what the passage actually describes.
-- Do not infer historical influence or transmission.
-- Use the exact passage IDs supplied.
-- Keep reasons under 10 words.
-
-Return only valid JSON:
-{"classifications":[{"passage_id":"P001","classification":"relevant","feature_type":"human_hair","reason":"Describes white human scalp hair."}]}
-"""
-
-    instructions = {
         "search_term": config.search_term,
         "target_description": config.target_description,
         "include": config.include,
@@ -304,367 +176,250 @@ Return only valid JSON:
         "retain_ambiguous": config.retain_ambiguous,
     }
 
-    # --------------------------------------------------------
-    # Open and initialise the persistent cache.
-    # --------------------------------------------------------
 
-    cache_path = get_cache_path()
-    cache_path.parent.mkdir(parents=True, exist_ok=True)
+def _make_messages(batch: list[dict], instructions: dict) -> list[tuple[str, str]]:
+    payload = {"configuration": instructions, "passages": batch}
+    return [
+        ("system", SYSTEM_PROMPT),
+        ("human", json.dumps(payload, ensure_ascii=False, default=str)),
+    ]
 
-    connection = sqlite3.connect(
-        cache_path,
-        timeout=30,
+
+def _estimate_tokens(batch: list[dict], instructions: dict) -> int:
+    encoding = _encoding()
+    raw = sum(
+        len(encoding.encode(content))
+        for _, content in _make_messages(batch, instructions)
+    )
+    return int(raw * TOKEN_SAFETY_MULTIPLIER) + TOKEN_OVERHEAD
+
+
+def _build_batches(prepared: list[dict], instructions: dict) -> list[list[dict]]:
+    """Greedily pack passages into batches within the token budget."""
+    batches: list[list[dict]] = []
+    current: list[dict] = []
+
+    for passage in prepared:
+        candidate = current + [passage]
+        if _estimate_tokens(candidate, instructions) <= MAX_ESTIMATED_TOKENS:
+            current = candidate
+            continue
+
+        if current:
+            batches.append(current)
+        current = [passage]
+
+        estimated = _estimate_tokens(current, instructions)
+        if estimated > MAX_ESTIMATED_TOKENS:
+            raise ValueError(
+                f"Passage {passage['passage_id']} alone exceeds "
+                f"the estimated request budget ({estimated} tokens)."
+            )
+
+    if current:
+        batches.append(current)
+
+    return batches
+
+
+# ------------------------------------------------------------
+# LLM calls
+# ------------------------------------------------------------
+
+def _validate_result(
+    result: ClassificationResult,
+    expected_ids: set[str],
+    description: str,
+) -> set[str]:
+    """Raise on unexpected or duplicate IDs; return the missing IDs."""
+    returned_ids = [item.passage_id for item in result.classifications]
+    counts = Counter(returned_ids)
+
+    unexpected = set(returned_ids) - expected_ids
+    duplicates = {k: n for k, n in counts.items() if n > 1}
+
+    if unexpected or duplicates:
+        raise ValueError(
+            f"{description} ID validation failed:\n"
+            f"Unexpected: {sorted(unexpected)}\n"
+            f"Duplicates: {duplicates}"
+        )
+
+    return expected_ids - set(returned_ids)
+
+
+def _invoke_batch(
+    llm,
+    batch: list[dict],
+    instructions: dict,
+    description: str,
+) -> tuple[list[PassageClassification], set[str]]:
+    """Send one batch. Returns (classifications, missing_ids)."""
+    estimated = _estimate_tokens(batch, instructions)
+    if estimated > MAX_ESTIMATED_TOKENS:
+        raise RuntimeError(
+            f"Refusing to send {description}: estimated {estimated} tokens."
+        )
+
+    logger.info(
+        "LLM %s: %d passages, approximately %d tokens",
+        description, len(batch), estimated,
     )
 
     try:
-        initialise_cache(connection)
+        response = llm.invoke(_make_messages(batch, instructions))
+    except Exception:
+        logger.exception("Groq classification failed for %s", description)
+        raise
 
-        logger.info(
-            "Classification cache: %s",
-            cache_path.resolve(),
+    result = ClassificationResult.model_validate(json.loads(response.content))
+    missing = _validate_result(
+        result,
+        {p["passage_id"] for p in batch},
+        description,
+    )
+    return result.classifications, missing
+
+
+def _classify_batch(
+    llm,
+    batch: list[dict],
+    instructions: dict,
+    description: str,
+) -> list[PassageClassification]:
+    """Classify a batch, retrying once for any omitted passages."""
+    items, missing = _invoke_batch(llm, batch, instructions, description)
+
+    if not missing:
+        return items
+
+    logger.warning(
+        "%s omitted %d passages: %s",
+        description, len(missing), sorted(missing),
+    )
+
+    retry_batch = [p for p in batch if p["passage_id"] in missing]
+    retry_items, still_missing = _invoke_batch(
+        llm, retry_batch, instructions, f"{description} retry",
+    )
+
+    if still_missing:
+        raise ValueError(f"Retry still omitted passages: {sorted(still_missing)}")
+
+    return items + retry_items
+
+
+# ------------------------------------------------------------
+# Orchestration
+# ------------------------------------------------------------
+
+def _split_cached(
+    passages: list[dict],
+    cache: ClassificationCache,
+    instructions: dict,
+) -> tuple[dict[str, PassageClassification], list[_CacheMiss]]:
+    hits: dict[str, PassageClassification] = {}
+    misses: list[_CacheMiss] = []
+
+    for passage in passages:
+        original_id = passage["id"]
+        cache_key = make_cache_key(
+            model=CLASSIFIER_MODEL,
+            system_prompt=SYSTEM_PROMPT,
+            configuration=instructions,
+            passage=passage,
         )
 
-        # ----------------------------------------------------
-        # Check each passage against the cache.
-        # ----------------------------------------------------
+        cached = cache.get(cache_key)
+        if cached is not None:
+            hits[original_id] = PassageClassification(
+                passage_id=original_id, **cached,
+            )
+        else:
+            misses.append(_CacheMiss(original_id, cache_key, passage))
 
-        results_by_passage_id = {}
-        uncached_passages = []
+    return hits, misses
 
-        cache_hits = 0
 
-        for passage in passages:
-            original_id = passage["id"]
+def _prepare_for_llm(
+    misses: list[_CacheMiss],
+) -> tuple[list[dict], dict[str, _CacheMiss]]:
+    """Assign short IDs and trim passages to what the LLM sees."""
+    prepared: list[dict] = []
+    lookup: dict[str, _CacheMiss] = {}
 
-            cache_key = make_cache_key(
-                passage,
-                instructions,
-                system_prompt,
+    for index, miss in enumerate(misses, start=1):
+        short_id = f"P{index:03d}"
+        lookup[short_id] = miss
+        prepared.append({
+            "passage_id": short_id,
+            "pub_year": miss.passage.get("pub_year"),
+            "title": miss.passage.get("title"),
+            "author": miss.passage.get("author"),
+            "text": (miss.passage.get("text") or "")[:500],
+        })
+
+    return prepared, lookup
+
+
+def _classify_misses(
+    misses: list[_CacheMiss],
+    instructions: dict,
+    cache: ClassificationCache,
+) -> dict[str, PassageClassification]:
+    llm = create_researcher_llm()
+    prepared, lookup = _prepare_for_llm(misses)
+    batches = _build_batches(prepared, instructions)
+
+    logger.info(
+        "LLM classification: %d uncached passages in %d batches",
+        len(prepared), len(batches),
+    )
+
+    results: dict[str, PassageClassification] = {}
+
+    for number, batch in enumerate(batches, start=1):
+        description = f"batch {number}/{len(batches)}"
+
+        for item in _classify_batch(llm, batch, instructions, description):
+            miss = lookup[item.passage_id]
+            results[miss.original_id] = item.model_copy(
+                update={"passage_id": miss.original_id}
             )
 
-            cached = load_cached_classification(
-                connection,
-                cache_key,
+            cache.put(
+                miss.cache_key,
+                classification=item.classification,
+                feature_type=item.feature_type,
+                reason=item.reason,
             )
 
-            if cached is not None:
-                results_by_passage_id[original_id] = (
-                    PassageClassification(
-                        passage_id=original_id,
-                        **cached,
-                    )
-                )
+        cache.commit()
 
-                cache_hits += 1
-                continue
+    return results
 
-            uncached_passages.append({
-                "original_id": original_id,
-                "cache_key": cache_key,
-                "passage": passage,
-            })
+
+def classify_passages(
+    passages: list[dict],
+    config: ClassificationConfig,
+) -> ClassificationResult:
+    if not passages:
+        return ClassificationResult(classifications=[])
+
+    instructions = _config_to_instructions(config)
+
+    with ClassificationCache(model=CLASSIFIER_MODEL) as cache:
+        results, misses = _split_cached(passages, cache, instructions)
 
         logger.info(
             "Classification cache: %d hits, %d misses",
-            cache_hits,
-            len(uncached_passages),
+            len(results), len(misses),
         )
 
-        if not uncached_passages:
-            logger.info("All classifications served from cache")
+        if misses:
+            results.update(_classify_misses(misses, instructions, cache))
 
-            return ClassificationResult(
-                classifications=[
-                    results_by_passage_id[p["id"]]
-                    for p in passages
-                ]
-            )
-
-        # ----------------------------------------------------
-        # Prepare only uncached passages for the LLM.
-        # ----------------------------------------------------
-
-        id_map = {}
-        cache_key_map = {}
-        prepared = []
-
-        for index, record in enumerate(
-            uncached_passages,
-            start=1,
-        ):
-            short_id = f"P{index:03d}"
-
-            id_map[short_id] = record["original_id"]
-            cache_key_map[short_id] = record["cache_key"]
-
-            passage = record["passage"]
-
-            prepared.append({
-                "passage_id": short_id,
-                "pub_year": passage.get("pub_year"),
-                "title": passage.get("title"),
-                "author": passage.get("author"),
-                "text": (passage.get("text") or "")[:500],
-            })
-
-        def make_messages(
-            batch: list[dict],
-        ) -> list[tuple[str, str]]:
-
-            payload = {
-                "configuration": instructions,
-                "passages": batch,
-            }
-
-            return [
-                ("system", system_prompt),
-                (
-                    "human",
-                    json.dumps(
-                        payload,
-                        ensure_ascii=False,
-                        default=str,
-                    ),
-                ),
-            ]
-
-        def estimate_tokens(
-            messages: list[tuple[str, str]],
-        ) -> int:
-
-            raw_tokens = sum(
-                len(encoding.encode(content))
-                for _, content in messages
-            )
-
-            return int(
-                raw_tokens * TOKEN_SAFETY_MULTIPLIER
-            ) + TOKEN_OVERHEAD
-
-        def validate_result(
-            result: ClassificationResult,
-            expected_ids: set[str],
-            description: str,
-        ) -> set[str]:
-
-            returned_ids = [
-                item.passage_id
-                for item in result.classifications
-            ]
-
-            counts = Counter(returned_ids)
-
-            missing = expected_ids - set(returned_ids)
-            unexpected = set(returned_ids) - expected_ids
-
-            duplicates = {
-                key: count
-                for key, count in counts.items()
-                if count > 1
-            }
-
-            if unexpected or duplicates:
-                raise ValueError(
-                    f"{description} ID validation failed:\n"
-                    f"Unexpected: {sorted(unexpected)}\n"
-                    f"Duplicates: {duplicates}"
-                )
-
-            return missing
-
-        # ----------------------------------------------------
-        # Greedily construct batches within the local budget.
-        # ----------------------------------------------------
-
-        batches = []
-        current_batch = []
-
-        for passage in prepared:
-            candidate = current_batch + [passage]
-            candidate_messages = make_messages(candidate)
-            estimated = estimate_tokens(candidate_messages)
-
-            if estimated <= MAX_ESTIMATED_TOKENS:
-                current_batch = candidate
-                continue
-
-            if not current_batch:
-                raise ValueError(
-                    f"Passage {passage['passage_id']} alone exceeds "
-                    f"the estimated request budget ({estimated} tokens)."
-                )
-
-            batches.append(current_batch)
-            current_batch = [passage]
-
-            estimated = estimate_tokens(
-                make_messages(current_batch)
-            )
-
-            if estimated > MAX_ESTIMATED_TOKENS:
-                raise ValueError(
-                    f"Passage {passage['passage_id']} alone exceeds "
-                    f"the estimated request budget ({estimated} tokens)."
-                )
-
-        if current_batch:
-            batches.append(current_batch)
-
-        logger.info(
-            "LLM classification: %d uncached passages in %d batches",
-            len(prepared),
-            len(batches),
-        )
-
-        # ----------------------------------------------------
-        # Process batches.
-        # ----------------------------------------------------
-
-        for batch_number, batch in enumerate(
-            batches,
-            start=1,
-        ):
-            messages = make_messages(batch)
-            estimated = estimate_tokens(messages)
-
-            if estimated > MAX_ESTIMATED_TOKENS:
-                raise RuntimeError(
-                    f"Refusing to send batch {batch_number}: "
-                    f"estimated {estimated} tokens."
-                )
-
-            logger.info(
-                "LLM batch %d/%d: %d passages, approximately %d tokens",
-                batch_number,
-                len(batches),
-                len(batch),
-                estimated,
-            )
-
-            try:
-                response = llm.invoke(messages)
-            except Exception:
-                logger.exception(
-                    "Groq classification failed for batch %d/%d",
-                    batch_number,
-                    len(batches),
-                )
-                raise
-
-            result = ClassificationResult.model_validate(
-                json.loads(response.content)
-            )
-
-            expected_ids = {
-                p["passage_id"]
-                for p in batch
-            }
-
-            missing = validate_result(
-                result,
-                expected_ids,
-                f"Batch {batch_number}",
-            )
-
-            # -----------------------------------------------
-            # Retry only omitted passages.
-            # -----------------------------------------------
-
-            if missing:
-                logger.warning(
-                    "Batch %d omitted %d passages: %s",
-                    batch_number,
-                    len(missing),
-                    sorted(missing),
-                )
-
-                missing_passages = [
-                    passage
-                    for passage in batch
-                    if passage["passage_id"] in missing
-                ]
-
-                retry_messages = make_messages(
-                    missing_passages
-                )
-
-                retry_estimated = estimate_tokens(
-                    retry_messages
-                )
-
-                if retry_estimated > MAX_ESTIMATED_TOKENS:
-                    raise RuntimeError(
-                        f"Retry for batch {batch_number} exceeds "
-                        f"the estimated request budget."
-                    )
-
-                logger.info(
-                    "Retrying %d omitted passages",
-                    len(missing_passages),
-                )
-
-                retry_response = llm.invoke(retry_messages)
-
-                retry_result = ClassificationResult.model_validate(
-                    json.loads(retry_response.content)
-                )
-
-                retry_expected = {
-                    passage["passage_id"]
-                    for passage in missing_passages
-                }
-
-                retry_missing = validate_result(
-                    retry_result,
-                    retry_expected,
-                    f"Batch {batch_number} retry",
-                )
-
-                if retry_missing:
-                    raise ValueError(
-                        f"Retry still omitted passages: "
-                        f"{sorted(retry_missing)}"
-                    )
-
-                result.classifications.extend(
-                    retry_result.classifications
-                )
-
-            # -----------------------------------------------
-            # Cache validated classifications and restore IDs.
-            # -----------------------------------------------
-
-            for item in result.classifications:
-                original_id = id_map[item.passage_id]
-                cache_key = cache_key_map[item.passage_id]
-
-                restored = PassageClassification(
-                    passage_id=original_id,
-                    classification=item.classification,
-                    feature_type=item.feature_type,
-                    reason=item.reason,
-                )
-
-                results_by_passage_id[original_id] = restored
-
-                save_cached_classification(
-                    connection,
-                    cache_key,
-                    item,
-                )
-
-            connection.commit()
-
-        # ----------------------------------------------------
-        # Return results in the same order as the input.
-        # ----------------------------------------------------
-
-        return ClassificationResult(
-            classifications=[
-                results_by_passage_id[p["id"]]
-                for p in passages
-            ]
-        )
-
-    finally:
-        connection.close()
+    return ClassificationResult(
+        classifications=[results[p["id"]] for p in passages]
+    )
+    
