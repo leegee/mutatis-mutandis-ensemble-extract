@@ -26,10 +26,12 @@ CLASSIFIER_MODEL = "openai/gpt-oss-20b"
 MAX_ESTIMATED_TOKENS = 6500
 TOKEN_SAFETY_MULTIPLIER = 1.25
 TOKEN_OVERHEAD = 300
+MAX_ESTIMATED_TOKENS = 6500
+MAX_PASSAGES_PER_BATCH = 10
 
 RESERVED_CATEGORIES = {
     "other": "Relevant, but fits none of the listed categories.",
-    "uncertain": "The category cannot be determined from the passage.",
+    "uncertain": "The feature_type cannot be determined from the passage.",
 }
 
 SYSTEM_PROMPT = """
@@ -39,7 +41,7 @@ The configuration describes the query:
 - search_term: the term being researched
 - target_description: what counts as a match
 - include / exclude: further guidance on what to keep or reject
-- categories: the permitted category names, each with a description
+- categories: the permitted feature_type names, each with a description
 - rules: additional rules specific to this query
 
 For every passage, return:
@@ -58,7 +60,7 @@ General rules:
 - Use the exact passage IDs supplied.
 
 Return only valid JSON in this shape:
-{"classifications":[{"passage_id":"P001","classification":"relevant","feature_type":"<category name>","reason":"<short reason>"}]}
+{"classifications":[{"passage_id":"P001","classification":"relevant","feature_type":"<feature_type name>","reason":"<short reason>"}]}
 """
 
 
@@ -97,7 +99,7 @@ class PassageClassification(BaseModel):
     )
 
     feature_type: str = Field(
-        description="One of the category names defined in the configuration."
+        description="One of the feature_type names defined in the configuration."
     )
 
     reason: str = Field(
@@ -123,7 +125,8 @@ def create_researcher_llm():
         model=CLASSIFIER_MODEL,
         temperature=0,
         max_retries=2,
-        max_tokens=2048,
+        max_tokens=8192,
+        reasoning_effort="low",
         model_kwargs={"response_format": {"type": "json_object"}},
     )
 
@@ -179,10 +182,13 @@ def _build_batches(prepared: list[dict], instructions: dict) -> list[list[dict]]
 
     for passage in prepared:
         candidate = current + [passage]
-        if _estimate_tokens(candidate, instructions) <= MAX_ESTIMATED_TOKENS:
+        if (
+            len(candidate) <= MAX_PASSAGES_PER_BATCH
+            and _estimate_tokens(candidate, instructions) <= MAX_ESTIMATED_TOKENS
+        ):
             current = candidate
             continue
-
+        
         if current:
             batches.append(current)
         current = [passage]
@@ -226,16 +232,16 @@ def _validate_result(
     return expected_ids - set(returned_ids)
 
 
-def _check_category(
+def _check_feature_type(
     item: PassageClassification,
     allowed: set[str],
 ) -> PassageClassification:
-    """Replace a category the config doesn't define with 'uncertain'."""
+    """Replace a feature_type the config doesn't define with 'uncertain'."""
     if item.feature_type in allowed:
         return item
 
     logger.warning(
-        "Passage %s returned unknown category %r; using 'uncertain'",
+        "Passage %s returned unknown feature_type %r; using 'uncertain'",
         item.passage_id, item.feature_type,
     )
     return item.model_copy(update={"feature_type": "uncertain"})
@@ -261,8 +267,11 @@ def _invoke_batch(
 
     try:
         response = llm.invoke(_make_messages(batch, instructions))
+
     except Exception:
-        logger.exception("Groq classification failed for %s", description)
+        logger.exception("\nGroq classification failed for %s", description)
+        logger.error("\ninstructions =")
+        logger.error(instructions)
         raise
 
     result = ClassificationResult.model_validate(json.loads(response.content))
@@ -273,7 +282,7 @@ def _invoke_batch(
     )
 
     allowed = set(instructions["categories"])
-    items = [_check_category(item, allowed) for item in result.classifications]
+    items = [_check_feature_type(item, allowed) for item in result.classifications]
     return items, missing
 
 
@@ -383,7 +392,7 @@ def _classify_misses(
             cache.put(
                 miss.cache_key,
                 classification=item.classification,
-                feature_type=item.category,
+                feature_type=item.feature_type,
                 reason=item.reason,
             )
 
