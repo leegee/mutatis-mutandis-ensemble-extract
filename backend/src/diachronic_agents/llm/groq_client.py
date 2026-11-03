@@ -14,6 +14,7 @@ from langchain_groq import ChatGroq
 from pydantic import BaseModel, Field
 
 from mutatis_mutandis.lib.corpus_logging import get_logger
+from mutatis_mutandis.lib.corpus_config import OUT_DIR
 
 logger = get_logger(__name__)
 
@@ -21,7 +22,7 @@ logger = get_logger(__name__)
 CLASSIFIER_MODEL = "openai/gpt-oss-20b"
 
 DEFAULT_CACHE_PATH = Path(
-    "out/cache/passage_classifications.sqlite3"
+    OUT_DIR / "cache" / "passage_classifications.sqlite3"
 )
 
 
@@ -671,4 +672,3 @@ Return only valid JSON:
 
     finally:
         connection.close()
-        
