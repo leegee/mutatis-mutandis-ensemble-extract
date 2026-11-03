@@ -15,10 +15,12 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 
 from mutatis_mutandis.lib.corpus_db import get_connection
-from mutatis_mutandis.lib.corpus_logging import logger
+from mutatis_mutandis.lib.corpus_logging import get_logger
 from mutatis_mutandis.lib.corpus_storage import clear, local_dir, publish, reset_outputs, warn_stale_outputs
 
 from mutatis_mutandis.lib.corpus_albinism import CORPUS_SQL
+
+logger = get_logger('embed.export-full')
 
 # Output directory (Drive folder or local staging folder, depending on backend)
 EMB_OUTPUT_DIR = local_dir("source_tokens")

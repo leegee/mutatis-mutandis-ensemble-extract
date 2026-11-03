@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections import defaultdict
 from typing import Any, Iterable
 
-from diachronic_agents.llm.groq_client import ClassificationResult
+from diachronic_agents.llm.passage_classifier import ClassificationResult
 
 
 FEATURE_PRIORITY = (

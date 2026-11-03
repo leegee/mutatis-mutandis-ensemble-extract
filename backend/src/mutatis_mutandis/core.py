@@ -30,7 +30,7 @@ import numpy as np
 from mutatis_mutandis.lib.corpus_config import LANCE_MODEL_NAME, PASSAGE_SCALES
 from mutatis_mutandis.lib.corpus_logging import get_logger
 
-logger = get_logger("passage_search.core")
+logger = get_logger("mutatis.core")
 
 RESULT_COLUMNS = [
     "passage_id",

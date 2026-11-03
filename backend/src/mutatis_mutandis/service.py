@@ -31,7 +31,7 @@ from mutatis_mutandis.core import (
 from mutatis_mutandis.texts import fetch_passage_texts
 from mutatis_mutandis.text_search import search_text_passages
 
-logger = get_logger("passage_search.service")
+logger = get_logger("mutatis.service")
 
 
 @dataclass(frozen=True)

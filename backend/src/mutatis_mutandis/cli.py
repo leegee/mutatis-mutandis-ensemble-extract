@@ -24,7 +24,7 @@ from mutatis_mutandis.lib.macberth import PASSAGE_REPRESENTATIONS
 from mutatis_mutandis.service import PassageSearchService, SearchParams
 from mutatis_mutandis.years import current_year
 
-logger = get_logger("passage_search.cli")
+logger = get_logger("mutatis.cli")
 
 
 def parse_args():

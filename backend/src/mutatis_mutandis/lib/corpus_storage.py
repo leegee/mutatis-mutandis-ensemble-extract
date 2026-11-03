@@ -33,7 +33,9 @@ import shutil
 from pathlib import Path
 
 from mutatis_mutandis.lib.corpus_config import MAPPED_GOOGLE_DRIVE
-from mutatis_mutandis.lib.corpus_logging import logger
+from mutatis_mutandis.lib.corpus_logging import get_logger
+
+logger = get_logger(__name__)
 
 BACKEND = os.environ.get("PASSAGES_STORAGE", "drive").strip().lower()
 HF_REPO_ID = os.environ.get("PASSAGES_HF_REPO", "").strip()

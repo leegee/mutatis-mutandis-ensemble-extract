@@ -1,5 +1,3 @@
-# passage_cache.py 
-
 from __future__ import annotations
 
 import hashlib
@@ -17,7 +15,7 @@ logger = get_logger(__name__)
 DEFAULT_CACHE_PATH = OUT_DIR / "cache" / "passage_classifications.sqlite3"
 
 _SCHEMA = """
-CREATE TABLE IF NOT EXISTS passage_classifications (
+CREATE TABLE IF NOT EXISTS classifications (
     cache_key TEXT PRIMARY KEY,
     classification TEXT NOT NULL,
     feature_type TEXT NOT NULL,
@@ -25,8 +23,8 @@ CREATE TABLE IF NOT EXISTS passage_classifications (
     model TEXT NOT NULL,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-CREATE INDEX IF NOT EXISTS idx_passage_classifications_model
-    ON passage_classifications(model);
+CREATE INDEX IF NOT EXISTS idx_classifications_model
+    ON classifications(model);
 """
 
 
@@ -35,26 +33,27 @@ def get_cache_path() -> Path:
     return Path(configured).expanduser() if configured else DEFAULT_CACHE_PATH
 
 
-def make_cache_key(*, model: str, system_prompt: str,
-                   configuration: dict, passage: dict) -> str:
+def make_cache_key(
+    *,
+    model: str,
+    system_prompt: str,
+    configuration: dict,
+    passage: dict,
+) -> str:
     """Stable hash of everything that influences a classification.
 
-    The passage ID is deliberately excluded, so identical text and
-    metadata reuse a classification across searches.
+    `passage` is the exact view the LLM sees (minus the passage ID), so
+    identical text and metadata reuse a classification across searches.
     """
     payload = {
         "model": model,
         "system_prompt": system_prompt,
         "configuration": configuration,
-        "passage": {
-            "pub_year": passage.get("pub_year"),
-            "title": passage.get("title"),
-            "author": passage.get("author"),
-            "text": passage.get("text") or "",
-        },
+        "passage": passage,
     }
-    serialised = json.dumps(payload, ensure_ascii=False,
-                            sort_keys=True, default=str)
+    serialised = json.dumps(
+        payload, ensure_ascii=False, sort_keys=True, default=str
+    )
     return hashlib.sha256(serialised.encode("utf-8")).hexdigest()
 
 
@@ -70,8 +69,6 @@ class ClassificationCache:
         self._conn.commit()
         logger.info("Classification cache: %s", self.path.resolve())
 
-    # -- context manager -------------------------------------------------
-
     def __enter__(self) -> "ClassificationCache":
         return self
 
@@ -81,13 +78,11 @@ class ClassificationCache:
     def close(self) -> None:
         self._conn.close()
 
-    # -- operations ------------------------------------------------------
-
     def get(self, cache_key: str) -> dict | None:
         row = self._conn.execute(
             """
             SELECT classification, feature_type, reason
-            FROM passage_classifications
+            FROM classifications
             WHERE cache_key = ?
             """,
             (cache_key,),
@@ -102,11 +97,17 @@ class ClassificationCache:
             "reason": row[2],
         }
 
-    def put(self, cache_key: str, *, classification: str,
-            feature_type: str, reason: str) -> None:
+    def put(
+        self,
+        cache_key: str,
+        *,
+        classification: str,
+        feature_type: str,
+        reason: str,
+    ) -> None:
         self._conn.execute(
             """
-            INSERT OR REPLACE INTO passage_classifications
+            INSERT OR REPLACE INTO classifications
                 (cache_key, classification, feature_type, reason, model)
             VALUES (?, ?, ?, ?, ?)
             """,

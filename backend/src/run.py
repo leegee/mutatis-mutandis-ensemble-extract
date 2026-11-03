@@ -1,24 +1,16 @@
 
 from uuid import uuid4
 
-from diachronic_agents.workflows.forward_search import (
-    build_forward_search_workflow,
-)
-from diachronic_agents.retrieval.retrieval_graph import (
-    build_retrieval_graph, merge_retrieval_graphs
-)
-from diachronic_agents.llm.groq_client import (
-    BODILY_COVERING_CONFIG,
-    classify_passages,
-)
-from diachronic_agents.retrieval.prospect_selector import (
-    select_prospects,
-)
-from diachronic_agents.visualization.graph_visualizer import (
-    visualise_retrieval_graph, report_isolated_nodes, 
-)
+from diachronic_agents.workflows.forward_search import build_forward_search_workflow
+from diachronic_agents.retrieval.retrieval_graph import build_retrieval_graph, merge_retrieval_graphs
+from diachronic_agents.llm.passage_classifier import classify_passages
+from diachronic_agents.retrieval.prospect_selector import select_prospects
+from diachronic_agents.visualization.graph_visualizer import visualise_retrieval_graph, report_isolated_nodes
+from diachronic_agents.classification_configs import ALBINISM_CONFIG
 
-from mutatis_mutandis.lib.corpus_logging import logger
+from mutatis_mutandis.lib.corpus_logging import get_logger
+
+logger = get_logger("Run.py")
 
 
 def get_token_span(hit: dict) -> tuple[int, int] | None:
@@ -371,7 +363,7 @@ logger.info("LLM RESEARCH RECOMMENDATIONS")
 
 classification_result = classify_passages(
     passages=retrieval_graph["nodes"],
-    config=BODILY_COVERING_CONFIG,
+    config=ALBINISM_CONFIG,
 )
 
 logger.info("LLM PASSAGE CLASSIFICATION")

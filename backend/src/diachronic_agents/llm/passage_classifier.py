@@ -1,9 +1,11 @@
+# diachronic_agents/llm/passage_classifier.py
+
 from __future__ import annotations
 
 import json
 import os
 from collections import Counter
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from functools import lru_cache
 from typing import Literal
 
@@ -25,39 +27,38 @@ MAX_ESTIMATED_TOKENS = 6500
 TOKEN_SAFETY_MULTIPLIER = 1.25
 TOKEN_OVERHEAD = 300
 
+RESERVED_CATEGORIES = {
+    "other": "Relevant, but fits none of the listed categories.",
+    "uncertain": "The category cannot be determined from the passage.",
+}
+
 SYSTEM_PROMPT = """
-Classify each historical passage using the supplied configuration.
+You classify passages from a historical corpus for a research query.
 
-Return one result for every passage.
+The configuration describes the query:
+- search_term: the term being researched
+- target_description: what counts as a match
+- include / exclude: further guidance on what to keep or reject
+- categories: the permitted category names, each with a description
+- rules: additional rules specific to this query
 
-classification:
-- relevant
-- ambiguous
-- irrelevant
+For every passage, return:
+- classification: "relevant", "ambiguous" or "irrelevant"
+  - relevant: the passage clearly meets the target description
+  - ambiguous: it might meet it, but the passage is insufficient to decide
+  - irrelevant: it matches an exclusion or does not address the target
+- feature_type: exactly one name from configuration.categories
+- reason: under 10 words
 
-feature_type:
-- human_hair
-- animal_fur
-- feathers
-- flaxen_hair
-- complexion
-- other
-- uncertain
-
-Rules:
-- Human hair and human complexion are primary categories.
-- Animal hair and fur are secondary categories.
-- Feathers and plumage are secondary and distinct from hair.
-- Flaxen hair is secondary; do not automatically equate it with white.
-- Complexion is a separate feature, not hair.
-- Clothing, textiles, materials, objects and light are not bodily features.
-- Classify what the passage actually describes.
-- Do not infer historical influence or transmission.
+General rules:
+- Classify what the passage actually says, not what it might imply.
+- Do not infer historical influence, causation or transmission.
+- Follow every entry in configuration.rules.
+- Return one result for every passage.
 - Use the exact passage IDs supplied.
-- Keep reasons under 10 words.
 
-Return only valid JSON:
-{"classifications":[{"passage_id":"P001","classification":"relevant","feature_type":"human_hair","reason":"Describes white human scalp hair."}]}
+Return only valid JSON in this shape:
+{"classifications":[{"passage_id":"P001","classification":"relevant","feature_type":"<category name>","reason":"<short reason>"}]}
 """
 
 
@@ -65,30 +66,27 @@ Return only valid JSON:
 # Types and configuration
 # ------------------------------------------------------------
 
-FeatureType = Literal[
-    "human_hair",
-    "animal_fur",
-    "feathers",
-    "flaxen_hair",
-    "complexion",
-    "other",
-    "uncertain",
-]
-
-ClassificationType = Literal[
-    "relevant",
-    "ambiguous",
-    "irrelevant",
-]
+ClassificationType = Literal["relevant", "ambiguous", "irrelevant"]
 
 
 @dataclass
 class ClassificationConfig:
+    """Describes one research query. Contains all subject-specific content."""
+
     search_term: str
     target_description: str
     include: list[str]
     exclude: list[str]
-    retain_ambiguous: bool = True
+    categories: dict[str, str]
+    rules: list[str] = field(default_factory=list)
+    retain_ambiguous: bool = True  # for downstream filtering; not sent to the LLM
+    max_passage_chars: int = 500
+    metadata_fields: tuple[str, ...] = ("pub_year", "title", "author")
+
+    def __post_init__(self) -> None:
+        clash = set(self.categories) & set(RESERVED_CATEGORIES)
+        if clash:
+            raise ValueError(f"Categories use reserved names: {sorted(clash)}")
 
 
 class PassageClassification(BaseModel):
@@ -98,14 +96,13 @@ class PassageClassification(BaseModel):
         description="Whether the passage is relevant to the research."
     )
 
-    feature_type: FeatureType = Field(
-        description="The kind of hair, bodily covering or complexion described."
+    feature_type: str = Field(
+        description="One of the category names defined in the configuration."
     )
 
     reason: str = Field(
         description="Brief explanation of the classification."
     )
-
 
 class ClassificationResult(BaseModel):
     classifications: list[PassageClassification]
@@ -115,34 +112,7 @@ class ClassificationResult(BaseModel):
 class _CacheMiss:
     original_id: str
     cache_key: str
-    passage: dict
-
-
-BODILY_COVERING_CONFIG = ClassificationConfig(
-    search_term="white hair",
-    target_description=(
-        "Descriptions of unusually white or pale human hair, "
-        "human complexion, or animal bodily coverings. "
-        "Human hair and complexion are primary categories. "
-        "Animal hair, fur, feathers and flaxen hair are retained as distinct secondary categories."
-    ),
-    include=[
-        "Human hair, including scalp hair and facial hair",
-        "Human complexion, including unusually pale complexion",
-        "Animal hair, fur, coats and manes",
-        "Feathers and plumage as animal bodily coverings",
-        "Mythological, symbolic and allegorical animals",
-        "Descriptions of hair or bodily-covering colour even when "
-        "the creature is fictional",
-        "Flaxen or similarly pale hair, recorded separately from white hair",
-    ],
-    exclude=[
-        "White garments, clothing and robes",
-        "White fabric, wool as a material, silk and textiles",
-        "White paint, stone, buildings and other objects",
-        "White light and radiance without a bodily description",
-    ],
-)
+    view: dict  # exactly what the LLM sees, minus the short ID
 
 
 def create_researcher_llm():
@@ -173,8 +143,16 @@ def _config_to_instructions(config: ClassificationConfig) -> dict:
         "target_description": config.target_description,
         "include": config.include,
         "exclude": config.exclude,
-        "retain_ambiguous": config.retain_ambiguous,
+        "categories": {**config.categories, **RESERVED_CATEGORIES},
+        "rules": config.rules,
     }
+
+
+def _passage_view(passage: dict, config: ClassificationConfig) -> dict:
+    """The part of a passage the LLM sees. Also the basis of the cache key."""
+    view = {name: passage.get(name) for name in config.metadata_fields}
+    view["text"] = (passage.get("text") or "")[: config.max_passage_chars]
+    return view
 
 
 def _make_messages(batch: list[dict], instructions: dict) -> list[tuple[str, str]]:
@@ -248,6 +226,21 @@ def _validate_result(
     return expected_ids - set(returned_ids)
 
 
+def _check_category(
+    item: PassageClassification,
+    allowed: set[str],
+) -> PassageClassification:
+    """Replace a category the config doesn't define with 'uncertain'."""
+    if item.feature_type in allowed:
+        return item
+
+    logger.warning(
+        "Passage %s returned unknown category %r; using 'uncertain'",
+        item.passage_id, item.feature_type,
+    )
+    return item.model_copy(update={"feature_type": "uncertain"})
+
+
 def _invoke_batch(
     llm,
     batch: list[dict],
@@ -278,7 +271,10 @@ def _invoke_batch(
         {p["passage_id"] for p in batch},
         description,
     )
-    return result.classifications, missing
+
+    allowed = set(instructions["categories"])
+    items = [_check_category(item, allowed) for item in result.classifications]
+    return items, missing
 
 
 def _classify_batch(
@@ -316,6 +312,7 @@ def _classify_batch(
 def _split_cached(
     passages: list[dict],
     cache: ClassificationCache,
+    config: ClassificationConfig,
     instructions: dict,
 ) -> tuple[dict[str, PassageClassification], list[_CacheMiss]]:
     hits: dict[str, PassageClassification] = {}
@@ -323,11 +320,13 @@ def _split_cached(
 
     for passage in passages:
         original_id = passage["id"]
+        view = _passage_view(passage, config)
+
         cache_key = make_cache_key(
             model=CLASSIFIER_MODEL,
             system_prompt=SYSTEM_PROMPT,
             configuration=instructions,
-            passage=passage,
+            passage=view,
         )
 
         cached = cache.get(cache_key)
@@ -336,7 +335,7 @@ def _split_cached(
                 passage_id=original_id, **cached,
             )
         else:
-            misses.append(_CacheMiss(original_id, cache_key, passage))
+            misses.append(_CacheMiss(original_id, cache_key, view))
 
     return hits, misses
 
@@ -344,20 +343,14 @@ def _split_cached(
 def _prepare_for_llm(
     misses: list[_CacheMiss],
 ) -> tuple[list[dict], dict[str, _CacheMiss]]:
-    """Assign short IDs and trim passages to what the LLM sees."""
+    """Assign short IDs to the uncached passages."""
     prepared: list[dict] = []
     lookup: dict[str, _CacheMiss] = {}
 
     for index, miss in enumerate(misses, start=1):
         short_id = f"P{index:03d}"
         lookup[short_id] = miss
-        prepared.append({
-            "passage_id": short_id,
-            "pub_year": miss.passage.get("pub_year"),
-            "title": miss.passage.get("title"),
-            "author": miss.passage.get("author"),
-            "text": (miss.passage.get("text") or "")[:500],
-        })
+        prepared.append({"passage_id": short_id, **miss.view})
 
     return prepared, lookup
 
@@ -390,7 +383,7 @@ def _classify_misses(
             cache.put(
                 miss.cache_key,
                 classification=item.classification,
-                feature_type=item.feature_type,
+                feature_type=item.category,
                 reason=item.reason,
             )
 
@@ -409,7 +402,7 @@ def classify_passages(
     instructions = _config_to_instructions(config)
 
     with ClassificationCache(model=CLASSIFIER_MODEL) as cache:
-        results, misses = _split_cached(passages, cache, instructions)
+        results, misses = _split_cached(passages, cache, config, instructions)
 
         logger.info(
             "Classification cache: %d hits, %d misses",
@@ -422,4 +415,3 @@ def classify_passages(
     return ClassificationResult(
         classifications=[results[p["id"]] for p in passages]
     )
-    

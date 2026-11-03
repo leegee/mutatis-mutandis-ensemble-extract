@@ -178,7 +178,8 @@ ORDER BY d.pub_year NULLS LAST, d.title
 
 def select_white_corpus_doc_ids():
     from mutatis_mutandis.lib.corpus_db import get_connection
-    from mutatis_mutandis.lib.corpus_logging import logger
+    from mutatis_mutandis.lib.corpus_logging import get_logger
+    logger = get_logger(__name__)
 
     con = get_connection()
     try:

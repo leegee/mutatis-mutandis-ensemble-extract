@@ -22,8 +22,10 @@ from mutatis_mutandis.lib.corpus_config import (
     LANCE_MODEL_NAME,
     PASSAGE_SCALES,
 )
-from mutatis_mutandis.lib.corpus_logging import logger
+from mutatis_mutandis.lib.corpus_logging import get_logger
 from mutatis_mutandis.lib.corpus_storage import fetch
+
+logger = get_logger('embed.parq2lance')
 
 # Resolved in main(): the Drive folder, or a fresh download from Hugging Face,
 # depending on PASSAGES_STORAGE (see lib/corpus_storage.py).

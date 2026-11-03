@@ -32,8 +32,12 @@ import langdetect
 import mutatis_mutandis.lib.corpus_config as config
 import mutatis_mutandis.lib.corpus_db as corpus_db
 import mutatis_mutandis.lib.eebo_ocr_fixes as eebo_ocr_fixes
-from mutatis_mutandis.lib.corpus_logging import logger
+from mutatis_mutandis.lib.corpus_logging import get_logger
 from mutatis_mutandis.lib.wordlist_whiteness import WHITENESS, WHITENESS_WEIGHTS, WEAK_WHITENESS_PATTERNS
+
+
+logger = get_logger('ingester')
+
 
 MIN_WHITENESS_SCORE = 2.0
 
@@ -99,7 +103,7 @@ def passes_whiteness_filter( doc_id: str, tokens: list[str] ) -> bool:
     if score < MIN_WHITENESS_SCORE:
         return False
 
-    logger.info( f"[tier0] Whiteness filter PASS: {doc_id} score={score}, hits={dict(hits)}" )
+    logger.info( f"Whiteness filter PASS: {doc_id} score={score}, hits={dict(hits)}" )
     return True
 
 
@@ -168,7 +172,7 @@ def parse_tei(xml_path):
         tree = lxml_etree.parse(str(xml_path), parser)
         if tree.getroot() is None:
             raise
-        logger.warning(f"[tier0] RECOVERED malformed XML {xml_path}: {strict_err}")
+        logger.warning(f"RECOVERED malformed XML {xml_path}: {strict_err}")
         return tree
 
 
@@ -413,12 +417,12 @@ def get_ecco_header_index():
     """
     global _ECCO_HEADER_INDEX
     if _ECCO_HEADER_INDEX is None:
-        logger.info( f"[tier0 worker {os.getpid()}] loading ECCO header index" )
+        logger.info( f"[worker {os.getpid()}] loading ECCO header index" )
         _ECCO_HEADER_INDEX = {
             p.name.removesuffix(".hdr"): p
             for p in config.ECCO_HEADER_DIR.rglob("*.hdr")
         }
-        logger.info( f"[tier0 worker {os.getpid()}] loaded {len(_ECCO_HEADER_INDEX)} ECCO headers" )
+        logger.info( f"[worker {os.getpid()}] loaded {len(_ECCO_HEADER_INDEX)} ECCO headers" )
     return _ECCO_HEADER_INDEX
 
 
@@ -460,14 +464,14 @@ def process_ecco_file(tree, xml_path):
     idg = tree.find(".//EEBO/IDG")
 
     if idg is None:
-        logger.warning(f"[tier0] No IDG in {xml_path}")
+        logger.warning(f"No IDG in {xml_path}")
         return None
 
     doc_id = idg.attrib["ID"]
 
     header_path = find_ecco_header(doc_id)
     if header_path is None:
-        logger.warning(f"[tier0] No ECCO header for {doc_id} at {xml_path}")
+        logger.warning(f"No ECCO header for {doc_id} at {xml_path}")
         return None
 
     metadata = extract_ecco_header_metadata(header_path)
@@ -475,7 +479,7 @@ def process_ecco_file(tree, xml_path):
     pub_year = metadata["pub_year"]
 
     if pub_year is None:
-        logger.warning(f"[tier0] No pub_year in {doc_id} {xml_path}")
+        logger.warning(f"No pub_year in {doc_id} {xml_path}")
         return None
 
     if not year_in_corpus(pub_year):
@@ -484,7 +488,7 @@ def process_ecco_file(tree, xml_path):
     body = tree.findall(".//TEXT/BODY")
 
     if not body:
-        logger.warning(f"[tier0] No BODY for {doc_id} {xml_path}")
+        logger.warning(f"No BODY for {doc_id} {xml_path}")
         return None
 
     raw_text = " ".join(
@@ -500,12 +504,12 @@ def process_ecco_file(tree, xml_path):
     tokens = re.findall( r"\w+|[^\w\s]", normalized )
 
     if not passes_whiteness_filter(doc_id, tokens):
-        logger.debug( f"[tier0] Rejecting {doc_id}: not enough extreme-whiteness hits" )
+        logger.debug( f"Rejecting {doc_id}: not enough extreme-whiteness hits" )
         return None
 
     if len(tokens) > config.MAX_TOKENS_IN_DOC:
         logger.warning(
-            f"[tier0 worker {os.getpid()}] "
+            f"[worker {os.getpid()}] "
             f"ECCO document {doc_id} has {len(tokens)} which exceeds the limit of MAX_TOKENS_IN_DOC {config.MAX_TOKENS_IN_DOC}"
         )
         return None
@@ -537,7 +541,7 @@ def process_cme_file(tree, xml_path):
     """
     root = tree.getroot()
     if root.tag != "ETS":
-        logger.warning(f"[tier0] Expected root <ETS>, got <{root.tag}> in {xml_path}")
+        logger.warning(f"Expected root <ETS>, got <{root.tag}> in {xml_path}")
         return None
 
     # Prefer the ID attribute on <IDG>, fall back to <IDNO TYPE="dlps">
@@ -553,7 +557,7 @@ def process_cme_file(tree, xml_path):
 
     if not doc_id:
         doc_id = xml_path.stem
-        logger.info(f"[tier0] No reliable doc_id in {xml_path}; using stem {doc_id}")
+        logger.info(f"No reliable doc_id in {xml_path}; using stem {doc_id}")
 
     # Metadata from HEADER
     title = safe_text(root.find(".//TITLESTMT/TITLE"))
@@ -566,18 +570,18 @@ def process_cme_file(tree, xml_path):
     # For CME we usually want the modern transcription date for filtering,
     # but you may prefer to override or ignore the year check entirely.
     if pub_year is None:
-        logger.warning(f"[tier0] No pub_year for CME {doc_id} at {xml_path}")
+        logger.warning(f"No pub_year for CME {doc_id} at {xml_path}")
         # return None   # uncomment if you want strict year filtering
         pub_year = 2020  # or leave as None and adjust year_in_corpus
 
     if pub_year is not None and not year_in_corpus(pub_year):
         # Many CME files will hit this; decide whether to keep or skip
-        logger.info(f"[tier0] CME {doc_id} year {pub_year} outside corpus range – keeping anyway")
+        logger.info(f"CME {doc_id} year {pub_year} outside corpus range – keeping anyway")
         # return None
 
     body = root.findall(".//BODY")
     if not body:
-        logger.warning(f"[tier0] No BODY in CME {doc_id} at {xml_path}")
+        logger.warning(f"No BODY in CME {doc_id} at {xml_path}")
         return None
 
     # Re-use the existing EEBO-style renderer (handles <NOTE>, gaps, etc.)
@@ -588,7 +592,7 @@ def process_cme_file(tree, xml_path):
     )
 
     if len(normalized) < 50:          # CME texts can be short
-        logger.warning(f"[tier0] CME {doc_id} too short after normalization")
+        logger.warning(f"CME {doc_id} too short after normalization")
         return None
 
     tokens = re.findall(r"\w+|[^\w\s]", normalized)
@@ -640,7 +644,7 @@ def process_misc_file(tree, xml_path):
     if not root_id:
         root_id = xml_path.stem
         logger.info(
-            f"[tier0] No xml:id in {xml_path}; using filename stem {root_id!r}"
+            f"No xml:id in {xml_path}; using filename stem {root_id!r}"
         )
 
     doc_id = root_id
@@ -671,15 +675,15 @@ def process_misc_file(tree, xml_path):
     composition_raw = pick_composition_date(tree)
 
     if pub_year is None:
-        logger.warning( f"[tier0 worker {os.getpid()}] - No publication year in misc document {doc_id} at {xml_path}" )
+        logger.warning( f"[worker {os.getpid()}] - No publication year in misc document {doc_id} at {xml_path}" )
         return None
 
     if not year_in_corpus(pub_year):
-        logger.warning( f"[tier0 worker {os.getpid()}] Year not in corpus: {pub_year} for {doc_id} at {xml_path}" )
+        logger.warning( f"[worker {os.getpid()}] Year not in corpus: {pub_year} for {doc_id} at {xml_path}" )
         return None
 
     if date_source != "imprint":
-        logger.info( f"[tier0] {doc_id}: year {pub_year} taken from {date_source} (no usable imprint date)" )
+        logger.info( f"{doc_id}: year {pub_year} taken from {date_source} (no usable imprint date)" )
 
     source_date_raw = date_raw
     if composition_raw:
@@ -692,7 +696,7 @@ def process_misc_file(tree, xml_path):
 
     if not body:
         logger.warning(
-            f"[tier0 worker {os.getpid()}] "
+            f"[worker {os.getpid()}] "
             f"No BODY in misc document "
             f"{doc_id} at {xml_path}"
         )
@@ -709,7 +713,7 @@ def process_misc_file(tree, xml_path):
 
     if len(normalized) < 100:
         logger.warning(
-            f"[tier0 worker {os.getpid()}] "
+            f"[worker {os.getpid()}] "
             f"misc document {doc_id} has normalized "
             f"text length < 100 at {xml_path}"
         )
@@ -722,7 +726,7 @@ def process_misc_file(tree, xml_path):
 
     if len(tokens) > config.MAX_TOKENS_IN_DOC:
         logger.warning(
-            f"[tier0 worker {os.getpid()}] "
+            f"[worker {os.getpid()}] "
             f"misc document {doc_id} has {len(tokens)} tokens, "
             f"which exceeds MAX_TOKENS_IN_DOC "
             f"{config.MAX_TOKENS_IN_DOC}"
@@ -756,7 +760,7 @@ def process_eebo_file(tree, xml_path):
 
     if doc_id_elem is None or not doc_id_elem.text:
         logger.warning(
-            f"[tier0] process_eebo_file bailing as doc_id_elem not found in {xml_path}"
+            f"process_eebo_file bailing as doc_id_elem not found in {xml_path}"
         )
         return None
 
@@ -782,7 +786,7 @@ def process_eebo_file(tree, xml_path):
 
     if pub_year is None:
         logger.warning(
-            f"[tier0 worker {os.getpid()}] No pub_year in {doc_id} at {xml_path}"
+            f"[worker {os.getpid()}] No pub_year in {doc_id} at {xml_path}"
         )
         return None
 
@@ -793,7 +797,7 @@ def process_eebo_file(tree, xml_path):
 
     if not body:
         logger.warning(
-            f"[tier0 worker {os.getpid()} ]"
+            f"[worker {os.getpid()} ]"
             f"process_eebo_file bailing as BODY not defined in {xml_path}"
         )
         return None
@@ -806,7 +810,7 @@ def process_eebo_file(tree, xml_path):
 
     if len(normalized) < config.MIN_TOKENS_IN_DOC:
         logger.warning(
-            f"[tier0 worker {os.getpid()}] "
+            f"[worker {os.getpid()}] "
             f"process_eebo_file bailing as normalised text length < {config.MIN_TOKENS_IN_DOC} "
             f"in {xml_path}"
         )
@@ -818,7 +822,7 @@ def process_eebo_file(tree, xml_path):
 
     if len(tokens) > config.MAX_TOKENS_IN_DOC:
         logger.warning(
-            f"[tier0 worker {os.getpid()}] "
+            f"[worker {os.getpid()}] "
             f"EEBO document {doc_id} has {len(tokens)} tokens, "
             f"which exceeds MAX_TOKENS_IN_DOC "
             f"{config.MAX_TOKENS_IN_DOC}"
@@ -848,10 +852,10 @@ def process_file(xml_path: Path, corpus):
         tree = parse_tei(xml_path)
     except etree.ParseError as e:
         line, col = e.position
-        logger.warning(f"[tier0] Failed to parse {xml_path}: {e} (line {line}, col {col})")
+        logger.warning(f"Failed to parse {xml_path}: {e} (line {line}, col {col})")
         return None
     except Exception as e:
-        logger.warning(f"[tier0] Failed to read {xml_path}: {e!r}")
+        logger.warning(f"Failed to read {xml_path}: {e!r}")
         return None
 
     if corpus == "eebo":
@@ -863,7 +867,7 @@ def process_file(xml_path: Path, corpus):
     elif corpus == "misc":
         return process_misc_file(tree, xml_path)
     else:
-        logger.warning(f"[tier0] Unknown corpus {corpus} - ignoring path {xml_path}")
+        logger.warning(f"Unknown corpus {corpus} - ignoring path {xml_path}")
         return None
 
 
@@ -929,7 +933,7 @@ def _worker_ingest(
     corpus,
     use_windows: bool = False,
 ):
-    logger.info(f"[tier0 worker {os.getpid()}] received {len(files)} {corpus} files")
+    logger.info(f"[worker {os.getpid()}] received {len(files)} {corpus} files")
 
     pending = []          # list of (doc_row, token_rows)
     pending_tokens = 0
@@ -969,7 +973,7 @@ def _worker_ingest(
             if meta["doc_id"] in seen_ids:
                 new_id = f'{meta["doc_id"]}__{fp.stem}'
                 logger.warning(
-                    f"[tier0] Duplicate doc_id {meta['doc_id']} in {fp}; using {new_id}"
+                    f"Duplicate doc_id {meta['doc_id']} in {fp}; using {new_id}"
                 )
                 meta["doc_id"] = new_id
             seen_ids.add(meta["doc_id"])
@@ -978,7 +982,7 @@ def _worker_ingest(
                 # Force the albinism/whiteness filter for every corpus
                 if not passes_whiteness_filter(meta["doc_id"], tokens):
                     logger.debug(
-                        f"[tier0] Rejecting {meta['doc_id']}: not enough extreme-whiteness hits"
+                        f"Rejecting {meta['doc_id']}: not enough extreme-whiteness hits"
                     )
                     continue
 
@@ -1007,18 +1011,18 @@ def _worker_ingest(
 
             if docs_seen % LOG_EVERY_N_DOCS == 0:
                 logger.info(
-                    f"[tier0 worker {os.getpid()}] ingested {docs_seen} docs"
+                    f"[worker {os.getpid()}] ingested {docs_seen} docs"
                     + (" (windows)" if use_windows else "")
                 )
         except Exception:
-            logger.error(f"[tier0] FAILED FILE: {fp}")
+            logger.error(f"FAILED FILE: {fp}")
             logger.error(traceback.format_exc())
 
     try:
         flush()
     except Exception:
         logger.error(traceback.format_exc())
-    logger.info(f"[tier0 worker {os.getpid()}] finished: {docs_seen} docs processed")
+    logger.info(f"[worker {os.getpid()}] finished: {docs_seen} docs processed")
 
 
 def resolve_input_file(file_arg: str, corpus: str) -> Path:
@@ -1086,16 +1090,16 @@ def ingest_xml_parallel(
         with corpus_db.get_connection( application_name="tier0-replace" ) as conn:
             deleted = corpus_db.delete_document( conn, doc_id, corpus=corpus, )
         if not deleted:
-            logger.warning( "[tier0] --replace requested, but document %s does not currently exist in corpus %s", doc_id, corpus, )
+            logger.warning( "--replace requested, but document %s does not currently exist in corpus %s", doc_id, corpus, )
 
         # Only reprocess the targeted file, not the whole directory.
         xml_files = [xml_file]
 
-    logger.info(f"[tier0] Input directory: {xml_dir}")
-    logger.info(f"[tier0] Found {len(xml_files)} XML files")
+    logger.info(f"Input directory: {xml_dir}")
+    logger.info(f"Found {len(xml_files)} XML files")
 
     for x in xml_files[:5]:
-        logger.info(f"[tier0] Example: {x}")
+        logger.info(f"Example: {x}")
 
     if MAX_DOCS is not None:
         xml_files = xml_files[:MAX_DOCS]
@@ -1173,7 +1177,7 @@ def main():
         conn.commit()
 
     if args.justindex:
-        logger.info("[tier0] === Just indexing the DB, not parsing or ingesting files ===")
+        logger.info("=== Just indexing the DB, not parsing or ingesting files ===")
     else:
         corpora = (
             {args.corpus: config.CORPUS_INPUT_DIRS[args.corpus]}
@@ -1182,7 +1186,7 @@ def main():
         )
 
         for corpus, xml_dir in corpora.items():
-            logger.info(f"[tier0] Process {corpus} from {xml_dir}")
+            logger.info(f"Process {corpus} from {xml_dir}")
 
             if not xml_dir.is_dir():
                 parser.error( f"Input directory for {corpus} does not exist: {xml_dir}" )

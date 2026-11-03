@@ -20,8 +20,10 @@ import pyarrow.parquet as pq
 
 from mutatis_mutandis.lib.corpus_db import get_connection
 from mutatis_mutandis.lib.corpus_config import LANCE_INDEXES_DIR, build_export_query
-from mutatis_mutandis.lib.corpus_logging import logger
 from mutatis_mutandis.lib.corpus_storage import clear, local_dir, publish, reset_outputs, warn_stale_outputs
+from mutatis_mutandis.lib.corpus_logging import get_logger
+
+logger = get_logger('embed.export-windows')
 
 PARQ_OUTPUT_DIR = local_dir("source_tokens")
 SHARD_PREFIX = 'tokens_'
