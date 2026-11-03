@@ -21,6 +21,7 @@ FeatureType = Literal[
     "animal_fur",
     "feathers",
     "flaxen_hair",
+    "complexion",
     "other",
     "uncertain",
 ]
@@ -50,7 +51,7 @@ class PassageClassification(BaseModel):
 
     feature_type: FeatureType = Field(
         description=(
-            "The kind of hair or bodily covering described."
+            "The kind of hair, bodily covering or complexion described."
         )
     )
 
@@ -66,17 +67,19 @@ class ClassificationResult(BaseModel):
 BODILY_COVERING_CONFIG = ClassificationConfig(
     search_term="white hair",
     target_description=(
-        "Descriptions of unusually white or pale hair or bodily "
-        "coverings. Human hair is the primary research category. "
-        "Animal hair, fur, feathers and flaxen hair are retained "
-        "as distinct secondary categories."
+        "Descriptions of unusually white or pale human hair, "
+        "human complexion, or animal bodily coverings. "
+        "Human hair and complexion are primary categories. "
+        "Animal hair, fur, feathers and flaxen hair are "
+        "retained as distinct secondary categories."
     ),
     include=[
         "Human hair, including scalp hair and facial hair",
+        "Human complexion, including unusually pale complexion",
         "Animal hair, fur, coats and manes",
         "Feathers and plumage as animal bodily coverings",
         "Mythological, symbolic and allegorical animals",
-        "Descriptions of hair or bodily covering colour even when "
+        "Descriptions of hair or bodily-covering colour even when "
         "the creature is fictional",
         "Flaxen or similarly pale hair, recorded separately from white hair",
     ],
@@ -84,10 +87,7 @@ BODILY_COVERING_CONFIG = ClassificationConfig(
         "White garments, clothing and robes",
         "White fabric, wool as a material, silk and textiles",
         "White paint, stone, buildings and other objects",
-        "White light, radiance and luminous bodies without a hair "
-        "or bodily-covering description",
-        "White complexion or skin without a relevant hair or "
-        "bodily-covering description",
+        "White light and radiance without a bodily description",
     ],
 )
 
@@ -126,38 +126,38 @@ def classify_passages(
 
     encoding = tiktoken.get_encoding("o200k_base")
 
-
     system_prompt = """
 Classify each historical passage using the supplied configuration.
 
 Return one result for every passage.
 
-classification must be one of:
+classification:
 - relevant
 - ambiguous
 - irrelevant
 
-feature_type must be one of:
+feature_type:
 - human_hair
 - animal_fur
 - feathers
 - flaxen_hair
+- complexion
 - other
 - uncertain
 
 Rules:
-- Human hair is the primary category.
-- Animal hair and fur, including mythological creatures, are secondary.
+- Human hair and human complexion are primary categories.
+- Animal hair and fur are secondary categories.
 - Feathers and plumage are secondary and distinct from hair.
-- Flaxen hair is secondary; do not automatically equate flaxen with white.
-- Clothing, textiles, materials, objects, light and complexion alone
-  are not hair or bodily-covering descriptions.
+- Flaxen hair is secondary; do not automatically equate it with white.
+- Complexion is a separate feature, not hair.
+- Clothing, textiles, materials, objects and light are not bodily features.
 - Classify what the passage actually describes.
 - Do not infer historical influence or transmission.
 - Use the exact passage IDs supplied.
-- Give a very brief reason, preferably under 10 words.
+- Keep reasons under 10 words.
 
-Return only valid JSON in this form:
+Return only valid JSON:
 {"classifications":[{"passage_id":"P001","classification":"relevant","feature_type":"human_hair","reason":"Describes white human scalp hair."}]}
 """
 
@@ -254,7 +254,7 @@ Return only valid JSON in this form:
 
     all_classifications = []
 
-    # Send each batch only after its size has been checked.
+    # Process each batch independently.
     for batch_number, batch in enumerate(batches, start=1):
         messages = make_messages(batch)
         estimated = estimate_tokens(messages)
@@ -287,92 +287,109 @@ Return only valid JSON in this form:
             json.loads(response.content)
         )
 
-            
-    expected_ids = {p["passage_id"] for p in batch}
-    returned_ids = [
-        item.passage_id
-        for item in result.classifications
-    ]
+        # Validate returned passage IDs.
+        expected_ids = {p["passage_id"] for p in batch}
 
-    counts = Counter(returned_ids)
-
-    missing = expected_ids - set(returned_ids)
-    unexpected = set(returned_ids) - expected_ids
-    duplicates = {
-        key: count
-        for key, count in counts.items()
-        if count > 1
-    }
-
-    if unexpected or duplicates:
-        raise ValueError(
-            f"Batch {batch_number} ID validation failed:\n"
-            f"Unexpected: {sorted(unexpected)}\n"
-            f"Duplicates: {duplicates}"
-        )
-
-    if missing:
-        logger.warning(
-            "Batch %d omitted %d passages: %s",
-            batch_number,
-            len(missing),
-            sorted(missing),
-        )
-
-        missing_passages = [
-            passage
-            for passage in batch
-            if passage["passage_id"] in missing
-        ]
-
-        retry_messages = make_messages(missing_passages)
-
-        logger.info(
-            "Retrying %d omitted passages individually",
-            len(missing_passages),
-        )
-
-        retry_response = llm.invoke(retry_messages)
-
-        retry_result = ClassificationResult.model_validate(
-            json.loads(retry_response.content)
-        )
-
-        retry_ids = [
+        returned_ids = [
             item.passage_id
-            for item in retry_result.classifications
+            for item in result.classifications
         ]
 
-        retry_counts = Counter(retry_ids)
+        counts = Counter(returned_ids)
 
-        retry_expected = {
-            passage["passage_id"]
-            for passage in missing_passages
-        }
+        missing = expected_ids - set(returned_ids)
+        unexpected = set(returned_ids) - expected_ids
 
-        retry_missing = retry_expected - set(retry_ids)
-        retry_unexpected = set(retry_ids) - retry_expected
-        retry_duplicates = {
+        duplicates = {
             key: count
-            for key, count in retry_counts.items()
+            for key, count in counts.items()
             if count > 1
         }
 
-        if retry_missing or retry_unexpected or retry_duplicates:
+        if unexpected or duplicates:
             raise ValueError(
-                f"Retry validation failed:\n"
-                f"Missing: {sorted(retry_missing)}\n"
-                f"Unexpected: {sorted(retry_unexpected)}\n"
-                f"Duplicates: {retry_duplicates}"
+                f"Batch {batch_number} ID validation failed:\n"
+                f"Unexpected: {sorted(unexpected)}\n"
+                f"Duplicates: {duplicates}"
             )
 
-        result.classifications.extend(
-            retry_result.classifications
-        )
+        # Retry only omitted passages.
+        if missing:
+            logger.warning(
+                "Batch %d omitted %d passages: %s",
+                batch_number,
+                len(missing),
+                sorted(missing),
+            )
 
-    for item in result.classifications:
-        item.passage_id = id_map[item.passage_id]
-        all_classifications.append(item)
+            missing_passages = [
+                passage
+                for passage in batch
+                if passage["passage_id"] in missing
+            ]
+
+            retry_messages = make_messages(missing_passages)
+
+            retry_estimated = estimate_tokens(retry_messages)
+
+            if retry_estimated > MAX_ESTIMATED_TOKENS:
+                raise RuntimeError(
+                    f"Retry for batch {batch_number} exceeds "
+                    f"the estimated request budget."
+                )
+
+            logger.info(
+                "Retrying %d omitted passages",
+                len(missing_passages),
+            )
+
+            retry_response = llm.invoke(retry_messages)
+
+            retry_result = ClassificationResult.model_validate(
+                json.loads(retry_response.content)
+            )
+
+            retry_ids = [
+                item.passage_id
+                for item in retry_result.classifications
+            ]
+
+            retry_counts = Counter(retry_ids)
+
+            retry_expected = {
+                passage["passage_id"]
+                for passage in missing_passages
+            }
+
+            retry_missing = retry_expected - set(retry_ids)
+            retry_unexpected = set(retry_ids) - retry_expected
+
+            retry_duplicates = {
+                key: count
+                for key, count in retry_counts.items()
+                if count > 1
+            }
+
+            if (
+                retry_missing
+                or retry_unexpected
+                or retry_duplicates
+            ):
+                raise ValueError(
+                    f"Retry validation failed:\n"
+                    f"Missing: {sorted(retry_missing)}\n"
+                    f"Unexpected: {sorted(retry_unexpected)}\n"
+                    f"Duplicates: {retry_duplicates}"
+                )
+
+            result.classifications.extend(
+                retry_result.classifications
+            )
+
+        # Restore original passage IDs and accumulate results.
+        for item in result.classifications:
+            item.passage_id = id_map[item.passage_id]
+            all_classifications.append(item)
 
     return ClassificationResult(
         classifications=all_classifications
