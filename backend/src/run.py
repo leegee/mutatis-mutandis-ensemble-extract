@@ -10,6 +10,17 @@ from mutatis_mutandis.lib.corpus_logging import logger
 
 workflow = build_reverse_search_workflow()
 
+workflow = build_reverse_search_workflow()
+
+logger.info("LangGraph workflow:")
+# logger.info("\n%s", workflow.get_graph().draw_mermaid())
+
+graph = workflow.get_graph()
+for node in graph.nodes:
+    logger.info("  node: %s", node)
+for edge in graph.edges:
+    logger.info("  edge: %s -> %s", edge.source, edge.target)
+
 result = workflow.invoke(
     {
         "query": "white hair",

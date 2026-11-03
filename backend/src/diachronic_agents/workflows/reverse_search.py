@@ -1,20 +1,59 @@
-# diachronic_agents/workflows/reverse_search.py
+# diachronic_agents/workflows/reverse_search.py.py
 
 from __future__ import annotations
 
-from typing import Any
+import operator
+from typing import Annotated, Any, TypedDict
 
+from langgraph.types import Send
 from langgraph.checkpoint.memory import InMemorySaver
-from langgraph.func import entrypoint, task
+from langgraph.graph import END, START, StateGraph
 
-from diachronic_agents.retrieval.passage_retriever import (
-    PassageRetriever,
-)
+from diachronic_agents.retrieval.passage_retriever import PassageRetriever
+
+
+class HistoricalSearchTask(TypedDict):
+    seed: dict[str, Any]
+    seed_index: int
+    representation: str
+    historical_start_year: int
+    historical_end_year: int
+    transfer_limit: int
+    historical_scale: str
+
+
+class ReverseSearchState(TypedDict, total=False):
+    # Inputs
+    query: str
+    initial_start_year: int
+    initial_end_year: int
+    historical_start_year: int
+    historical_end_year: int
+    representation: str
+    initial_scale: str
+    historical_scale: str
+    initial_limit: int
+    seed_limit: int
+    transfer_limit: int
+
+    # Intermediate results
+    initial_results: list[dict[str, Any]]
+    seeds: list[dict[str, Any]]
+    historical_results: Annotated[
+        list[dict[str, Any]],
+        operator.add,
+    ]
+    warnings: list[str]
+
+    # Final output
+    seed_ids: list[str]
+    passages: list[dict[str, Any]]
+    edges: list[dict[str, Any]]
+    initial_period: list[int]
+    historical_period: list[int]
 
 
 def _validate_inputs(inputs: dict[str, Any]) -> dict[str, Any]:
-    """Validate and normalise the workflow's public inputs."""
-
     required = (
         "query",
         "initial_start_year",
@@ -23,11 +62,7 @@ def _validate_inputs(inputs: dict[str, Any]) -> dict[str, Any]:
         "historical_end_year",
     )
 
-    missing = [
-        name for name in required
-        if name not in inputs
-    ]
-
+    missing = [name for name in required if name not in inputs]
     if missing:
         raise ValueError(
             f"Missing workflow inputs: {', '.join(missing)}"
@@ -56,16 +91,12 @@ def _validate_inputs(inputs: dict[str, Any]) -> dict[str, Any]:
         )
 
     values["query"] = str(values["query"]).strip()
-
     if not values["query"]:
         raise ValueError("query cannot be empty")
 
     values.setdefault("representation", "l8")
     values.setdefault("initial_scale", "broad")
-    values.setdefault(
-        "historical_scale",
-        values["initial_scale"],
-    )
+    values.setdefault("historical_scale", values["initial_scale"])
     values.setdefault("initial_limit", 20)
     values.setdefault("seed_limit", 3)
     values.setdefault("transfer_limit", 10)
@@ -84,9 +115,7 @@ def _validate_inputs(inputs: dict[str, Any]) -> dict[str, Any]:
         raise ValueError("transfer_limit must be positive")
 
     if values["seed_limit"] > values["initial_limit"]:
-        raise ValueError(
-            "seed_limit cannot exceed initial_limit"
-        )
+        raise ValueError("seed_limit cannot exceed initial_limit")
 
     return values
 
@@ -103,12 +132,9 @@ def _select_seeds(
     for hit in results:
         doc_id = hit.get("doc_id")
 
-        # Include corpus because document IDs are not necessarily
-        # globally unique across corpora.
         if doc_id:
             document_key = (hit.get("corpus"), doc_id)
         else:
-            # Missing document identity: treat this passage separately.
             document_key = ("passage", hit["passage_id"])
 
         if document_key in seen_documents:
@@ -122,109 +148,128 @@ def _select_seeds(
 
     return selected
 
-    
+
 def build_reverse_search_workflow(
     retriever: PassageRetriever | None = None,
     *,
     checkpointer=None,
 ):
-    """
-    Build a reverse-search workflow.
-
-    A retriever can be injected for testing. In normal use, one
-    long-lived PassageRetriever is created for this workflow.
-    """
-
     retriever = retriever or PassageRetriever()
     checkpointer = checkpointer or InMemorySaver()
 
-    @task
-    def initial_search(args: dict[str, Any]) -> dict[str, Any]:
-        return retriever.search_text(**args)
+    # ---------------------------------------------------------
+    # Node 1: initial textual search
+    # ---------------------------------------------------------
 
-    @task
-    def historical_search(args: dict[str, Any]) -> dict[str, Any]:
-        return retriever.search_from_passage(**args)
+    def initial_search_node(
+        state: ReverseSearchState,
+    ) -> dict[str, Any]:
 
-    @entrypoint(checkpointer=checkpointer)
-    def reverse_search(inputs: dict[str, Any]) -> dict[str, Any]:
+        params = _validate_inputs(state)
 
-        params = _validate_inputs(inputs)
+        outcome = retriever.search_text(
+            query=params["query"],
+            representation=params["representation"],
+            start_year=params["initial_start_year"],
+            end_year=params["initial_end_year"],
+            limit=params["initial_limit"],
+            scale=params["initial_scale"],
+        )
 
-        # ---------------------------------------------------------
-        # 1. Initial text search
-        # ---------------------------------------------------------
+        return {
+            **params,
+            "initial_results": outcome["results"],
+            "warnings": list(outcome["warnings"]),
+        }
 
-        initial = initial_search({
-            "query": params["query"],
-            "representation": params["representation"],
-            "start_year": params["initial_start_year"],
-            "end_year": params["initial_end_year"],
-            "limit": params["initial_limit"],
-            "scale": params["initial_scale"],
-        }).result()
+    # ---------------------------------------------------------
+    # Node 2: select document-diverse seeds
+    # ---------------------------------------------------------
 
-        initial_results = initial["results"]
-        
-        # seeds = initial_results[:params["seed_limit"]]
-        seeds = _select_seeds( initial_results, params["seed_limit"] )
+    def select_seeds_node(
+        state: ReverseSearchState,
+    ) -> dict[str, Any]:
 
-        # Store unique passages by ID.
-        passages: dict[str, dict[str, Any]] = {}
+        seeds = _select_seeds(
+            state["initial_results"],
+            state["seed_limit"],
+        )
 
-        for hit in initial_results:
-            passages[hit["passage_id"]] = hit
+        warnings = list(state.get("warnings", []))
 
-        edges: list[dict[str, Any]] = []
-        warnings = list(initial["warnings"])
-
-        if len(seeds) < params["seed_limit"]:
+        if len(seeds) < state["seed_limit"]:
             warnings.append(
-                f"Requested {params['seed_limit']} seeds, but found only "
+                f"Requested {state['seed_limit']} seeds, but found only "
                 f"{len(seeds)} distinct documents in the initial results."
             )
 
-        # ---------------------------------------------------------
-        # 2. Historical retrieval from each seed
-        # ---------------------------------------------------------
+        return {
+            "seeds": seeds,
+            "seed_ids": [
+                seed["passage_id"]
+                for seed in seeds
+            ],
+            "warnings": warnings,
+        }
 
-        futures = []
+    # ---------------------------------------------------------
+    # Node 3: search the historical period from each seed
+    # ---------------------------------------------------------
 
-        for seed in seeds:
-            futures.append(
-                historical_search({
-                    "passage_id": seed["passage_id"],
-                    "representation": params["representation"],
-                    "start_year": params["historical_start_year"],
-                    "end_year": params["historical_end_year"],
-                    "limit": params["transfer_limit"],
-                    "scale": params["historical_scale"],
-                })
-            )
+    def historical_search_node(
+        task: HistoricalSearchTask,
+    ) -> dict[str, Any]:
+        seed = task["seed"]
 
-        # Results are collected in seed order.
-        historical_results = [
-            future.result()
-            for future in futures
-        ]
+        outcome = retriever.search_from_passage(
+            passage_id=seed["passage_id"],
+            representation=task["representation"],
+            start_year=task["historical_start_year"],
+            end_year=task["historical_end_year"],
+            limit=task["transfer_limit"],
+            scale=task["historical_scale"],
+        )
 
-        # ---------------------------------------------------------
-        # 3. Record passages and retrieval edges
-        # ---------------------------------------------------------
+        return {
+            "historical_results": [
+                {
+                    "seed": seed,
+                    "seed_index": task["seed_index"],
+                    "outcome": outcome,
+                }
+            ]
+        }
 
-        for seed, outcome in zip(seeds, historical_results):
+    # ---------------------------------------------------------
+    # Node 4: merge passages and preserve retrieval edges
+    # ---------------------------------------------------------
+
+    def merge_results_node(
+        state: ReverseSearchState,
+    ) -> dict[str, Any]:
+
+        passages: dict[str, dict[str, Any]] = {}
+
+        for hit in state["initial_results"]:
+            passages[hit["passage_id"]] = hit
+
+        warnings = list(state.get("warnings", []))
+        edges = []
+
+        for item in sorted(
+            state["historical_results"],
+            key=lambda item: item["seed_index"],
+        ):
+            seed = item["seed"]
+            outcome = item["outcome"]
 
             warnings.extend(outcome["warnings"])
 
             for hit in outcome["results"]:
-
                 target_id = hit["passage_id"]
 
-                # A passage is stored once, even if several seeds
-                # independently retrieve it.
                 passages.setdefault(target_id, hit)
 
-                # But every retrieval relationship is retained.
                 edges.append({
                     "source_passage_id": seed["passage_id"],
                     "target_passage_id": target_id,
@@ -232,44 +277,75 @@ def build_reverse_search_workflow(
                     "target_pub_year": hit.get("pub_year"),
                     "source_scale": seed.get("scale"),
                     "target_scale": hit.get("scale"),
-                    "representation": params["representation"],
+                    "representation": state["representation"],
                     "rank": hit.get("rank"),
                     "distance": hit.get("distance"),
                     "score": hit.get("score"),
                     "source_period": [
-                        params["initial_start_year"],
-                        params["initial_end_year"],
+                        state["initial_start_year"],
+                        state["initial_end_year"],
                     ],
                     "target_period": [
-                        params["historical_start_year"],
-                        params["historical_end_year"],
+                        state["historical_start_year"],
+                        state["historical_end_year"],
                     ],
                 })
 
-        # ---------------------------------------------------------
-        # 4. Return the complete result
-        # ---------------------------------------------------------
-
         return {
-            "query": params["query"],
-            "representation": params["representation"],
-            "initial_period": [
-                params["initial_start_year"],
-                params["initial_end_year"],
-            ],
-            "historical_period": [
-                params["historical_start_year"],
-                params["historical_end_year"],
-            ],
-            "initial_scale": params["initial_scale"],
-            "historical_scale": params["historical_scale"],
-            "seed_ids": [
-                seed["passage_id"]
-                for seed in seeds
-            ],
             "passages": list(passages.values()),
             "edges": edges,
             "warnings": warnings,
+            "initial_period": [
+                state["initial_start_year"],
+                state["initial_end_year"],
+            ],
+            "historical_period": [
+                state["historical_start_year"],
+                state["historical_end_year"],
+            ],
         }
 
-    return reverse_search
+    def dispatch_historical_searches(
+        state: ReverseSearchState,
+    ) -> list[Send] | str:
+        if not state["seeds"]:
+            return "merge_results"
+
+        return [
+            Send(
+                "historical_search",
+                {
+                    "seed": seed,
+                    "seed_index": index,
+                    "representation": state["representation"],
+                    "historical_start_year": state["historical_start_year"],
+                    "historical_end_year": state["historical_end_year"],
+                    "transfer_limit": state["transfer_limit"],
+                    "historical_scale": state["historical_scale"],
+                },
+            )
+            for index, seed in enumerate(state["seeds"])
+        ]
+
+    # ---------------------------------------------------------
+    # Assemble the graph
+    # ---------------------------------------------------------
+
+    builder = StateGraph(ReverseSearchState)
+
+    builder.add_node("initial_search", initial_search_node)
+    builder.add_node("select_seeds", select_seeds_node)
+    builder.add_node("historical_search", historical_search_node)
+    builder.add_node("merge_results", merge_results_node)
+
+    builder.add_edge(START, "initial_search")
+    builder.add_edge("initial_search", "select_seeds")
+    builder.add_conditional_edges(
+        "select_seeds",
+        dispatch_historical_searches,
+        ["historical_search", "merge_results"],
+    )
+    builder.add_edge("historical_search", "merge_results")
+    builder.add_edge("merge_results", END)
+
+    return builder.compile(checkpointer=checkpointer)
