@@ -21,13 +21,32 @@ from diachronic_agents.classification_configs import ALBINISM_CONFIG
 from mutatis_mutandis.lib.corpus_logging import get_logger
 from mutatis_mutandis.lib.corpus_config import OUT_DIR
 
+
 logger = get_logger(__name__)
+
+REPRESENTATION = "l8"
+SCALE = "broad"
+INITIAL_QUERY = "white hair"  # or "albino"
+
+INITIAL_PERIOD = (0, 1500)
+FORWARD_PERIODS = {
+    0: (1501, 1700),
+    1: (1701, 1800),
+    2: (1801, 1900),
+    3: (1901, 2000),
+}
+
+INITIAL_LIMIT = 20
+SEED_LIMIT = 3
+TRANSFER_LIMIT = 10
+EXPANSION_SEED_COUNT = 3
+PROSPECT_LIMIT = 10
 
 
 def classify_and_select_prospects(
     passages: list[dict],
     retrieval_graph: dict,
-    per_feature_limit: int = 10,
+    per_feature_limit: int = PROSPECT_LIMIT,
 ) -> tuple[object, list[dict]]:
     """Classify passages, select relevant features, and rank by convergence."""
 
@@ -69,8 +88,11 @@ def log_prospects(title: str, prospects: list[dict]) -> None:
         )
 
 
-def attach_classifications(retrieval_graph, classification_results):
-    """Attach passage classifications to the corresponding graph nodes."""
+def attach_classifications(
+    retrieval_graph: dict,
+    classification_results: list,
+) -> dict:
+    """Attach passage classifications to corresponding graph nodes."""
 
     classifications_by_id = {}
 
@@ -168,10 +190,7 @@ def log_cumulative_report(
         )
 
         if classification.get("reason"):
-            logger.info(
-                "       REASON: %s",
-                classification["reason"],
-            )
+            logger.info("       REASON: %s", classification["reason"])
 
     logger.info("=" * 100)
     logger.info("CUMULATIVE EDGE REPORT")
@@ -196,13 +215,10 @@ def log_cumulative_report(
     logger.info("CONVERGENCE REPORT")
     logger.info("=" * 100)
 
-    for item in graph["convergence"]:
-        target_id = item["target_passage_id"]
+    nodes_by_id = {node["id"]: node for node in nodes}
 
-        target = next(
-            (node for node in nodes if node["id"] == target_id),
-            None,
-        )
+    for item in graph["convergence"]:
+        target = nodes_by_id.get(item["target_passage_id"])
 
         if target is None:
             continue
@@ -215,129 +231,95 @@ def log_cumulative_report(
         )
 
     logger.info("=" * 100)
-    
 
-def main() -> None:
-    generation_2_result = None
-    generation_3_result = None
 
-    retrieval_graph_2 = None
-    retrieval_graph_3 = None
+def run_generation(
+    workflow,
+    generation: int,
+    *,
+    seed_passages: list[dict] | None = None,
+    query: str | None = None,
+) -> tuple[dict, dict, object, list[dict]]:
+    """Run one retrieval generation and its classification stage."""
 
-    classification_2 = None
-    classification_3 = None
-
-    prospects_2 = []
-    prospects_3 = []
-
-    workflow = build_forward_search_workflow()
-
-    # ---------------------------------------------------------
-    # GENERATION 0: Initial lexical search and forward retrieval
-    # ---------------------------------------------------------
-
+    start_year, end_year = FORWARD_PERIODS[generation]
     thread_id = str(uuid4())
 
     logger.info("=" * 72)
-    logger.info("GENERATION 0: INITIAL SEARCH")
+    logger.info("GENERATION %d: FORWARD SEARCH (%d–%d)", generation, start_year, end_year)
     logger.info("=" * 72)
 
-    result = workflow.invoke(
-        {
-            "query": "white hair",
-            "initial_start_year": 0,
-            "initial_end_year": 1500,
-            "forward_start_year": 1501,
-            "forward_end_year": 1700,
-            "representation": "l8",
-            "initial_scale": "broad",
-            "forward_scale": "broad",
-            "initial_limit": 20,
-            "seed_limit": 3,
-            "transfer_limit": 10,
-        },
-        config={
-            "configurable": {
-                "thread_id": thread_id,
-            }
-        },
-    )
-
-    passages_by_id = {
-        passage["passage_id"]: passage
-        for passage in result["passages"]
+    inputs = {
+        "representation": REPRESENTATION,
+        "forward_scale": SCALE,
+        "transfer_limit": TRANSFER_LIMIT,
+        "forward_start_year": start_year,
+        "forward_end_year": end_year,
     }
 
-    logger.info(
-        "Initial results: %d",
-        len(result["initial_results"]),
+    if seed_passages is not None:
+        inputs["seed_passages"] = seed_passages
+    else:
+        inputs.update({
+            "query": query,
+            "initial_start_year": INITIAL_PERIOD[0],
+            "initial_end_year": INITIAL_PERIOD[1],
+            "initial_scale": SCALE,
+            "initial_limit": INITIAL_LIMIT,
+            "seed_limit": SEED_LIMIT,
+        })
+
+    result = workflow.invoke(
+        inputs,
+        config={"configurable": {"thread_id": thread_id}},
     )
+
     logger.info(
-        "Selected seeds: %d",
-        len(result["seed_ids"]),
-    )
-    logger.info(
-        "Forward passages: %d",
-        len(result["forward_results"]),
-    )
-    logger.info(
-        "Forward edges: %d",
+        "Generation %d: %d passages, %d edges",
+        generation,
+        len(result["passages"]),
         len(result["edges"]),
     )
 
-    for seed_id in result["seed_ids"]:
-        seed = passages_by_id.get(seed_id)
-        if seed:
-            logger.info(
-                "SEED | year=%s | %s | %s",
-                seed.get("pub_year"),
-                seed.get("title"),
-                seed_id,
-            )
-
-    retrieval_graph_0 = build_retrieval_graph(
+    graph = build_retrieval_graph(
         result=result,
         search_direction="forward",
-        generation=0,
+        generation=generation,
         search_id=thread_id,
     )
 
     logger.info(
-        "Generation 0 graph: %d nodes, %d edges",
-        len(retrieval_graph_0["nodes"]),
-        len(retrieval_graph_0["edges"]),
+        "Generation %d graph: %d nodes, %d edges",
+        generation,
+        len(graph["nodes"]),
+        len(graph["edges"]),
     )
 
-    # ---------------------------------------------------------
-    # GENERATION 0: Classification and prospect selection
-    # ---------------------------------------------------------
-
-    logger.info("=" * 72)
-    logger.info("GENERATION 0: CLASSIFICATION AND PROSPECT SELECTION")
-    logger.info("=" * 72)
-
-    classification_0, prospects_0 = classify_and_select_prospects(
-        passages=retrieval_graph_0["nodes"],
-        retrieval_graph=retrieval_graph_0,
-        per_feature_limit=10,
+    classification, prospects = classify_and_select_prospects(
+        passages=graph["nodes"],
+        retrieval_graph=graph,
     )
 
-    log_prospects(
-        "GENERATION 0 PROSPECTS",
-        prospects_0,
-    )
+    log_prospects(f"GENERATION {generation} PROSPECTS", prospects)
 
-    # ---------------------------------------------------------
-    # Select expansion seeds
-    # ---------------------------------------------------------
+    return result, graph, classification, prospects
 
-    expansion_seed_count = 3
 
-    expansion_prospects = prospects_0[:expansion_seed_count]
+def select_expansion_seeds(
+    prospects: list[dict],
+    passages: list[dict],
+    count: int = EXPANSION_SEED_COUNT,
+) -> list[dict]:
+    """Select passages from a generation's results for the next expansion."""
 
-    expansion_seeds = []
+    passages_by_id = {
+        passage["passage_id"]: passage
+        for passage in passages
+    }
 
-    for prospect in expansion_prospects:
+    seeds = []
+
+    for prospect in prospects[:count]:
         passage_id = prospect["passage_id"]
         passage = passages_by_id.get(passage_id)
 
@@ -348,13 +330,11 @@ def main() -> None:
             )
             continue
 
-        expansion_seeds.append(passage)
+        seeds.append(passage)
 
-    logger.info("=" * 72)
-    logger.info("GENERATION 1 EXPANSION SEEDS")
-    logger.info("=" * 72)
+    logger.info("Expansion seeds: %d", len(seeds))
 
-    for seed in expansion_seeds:
+    for seed in seeds:
         logger.info(
             "EXPANSION SEED | year=%s | %s | %s",
             seed.get("pub_year"),
@@ -362,317 +342,93 @@ def main() -> None:
             seed.get("passage_id"),
         )
 
-    if not expansion_seeds:
-        logger.warning("No expansion seeds selected; stopping.")
-        return
-
-    # ---------------------------------------------------------
-    # GENERATION 1: Forward search from selected prospects
-    # ---------------------------------------------------------
-
-    generation_1_thread_id = str(uuid4())
-
-    logger.info("=" * 72)
-    logger.info("GENERATION 1: FORWARD EXPANSION")
-    logger.info("=" * 72)
-
-    generation_1_result = workflow.invoke(
-        {
-            "seed_passages": expansion_seeds,
-            "forward_start_year": 1701,
-            "forward_end_year": 1800,
-            "representation": "l8",
-            "forward_scale": "broad",
-            "transfer_limit": 10,
-        },
-        config={
-            "configurable": {
-                "thread_id": generation_1_thread_id,
-            }
-        },
-    )
-
-    logger.info(
-        "Generation 1 passages: %d",
-        len(generation_1_result["passages"]),
-    )
-    logger.info(
-        "Generation 1 edges: %d",
-        len(generation_1_result["edges"]),
-    )
-
-    retrieval_graph_1 = build_retrieval_graph(
-        result=generation_1_result,
-        search_direction="forward",
-        generation=1,
-        search_id=generation_1_thread_id,
-    )
-
-    logger.info(
-        "Generation 1 graph: %d nodes, %d edges",
-        len(retrieval_graph_1["nodes"]),
-        len(retrieval_graph_1["edges"]),
-    )
-
-    # ---------------------------------------------------------
-    # GENERATION 1: Classification and prospect selection
-    # ---------------------------------------------------------
-
-    logger.info("=" * 72)
-    logger.info("GENERATION 1: CLASSIFICATION AND PROSPECT SELECTION")
-    logger.info("=" * 72)
-
-    classification_1, prospects_1 = classify_and_select_prospects(
-        passages=retrieval_graph_1["nodes"],
-        retrieval_graph=retrieval_graph_1,
-        per_feature_limit=10,
-    )
-
-    log_prospects(
-        "GENERATION 1 PROSPECTS",
-        prospects_1,
-    )
+    return seeds
 
 
+def merge_all_graphs(graphs: dict[int, dict]) -> dict:
+    """Merge all generation graphs into one cumulative graph."""
 
-    # ---------------------------------------------------------
-    # GENERATION 2: Forward expansion, 1801–1900
-    # ---------------------------------------------------------
+    cumulative_graph = None
 
-    generation_2_seed_count = 3
-    generation_2_prospects = prospects_1[:generation_2_seed_count]
+    for generation in sorted(graphs):
+        graph = graphs[generation]
 
-    generation_2_seeds = []
-
-    # Include only passages actually discovered in Generation 1.
-    generation_1_passages_by_id = {
-        passage["passage_id"]: passage
-        for passage in generation_1_result["passages"]
-    }
-
-    for prospect in generation_2_prospects:
-        passage_id = prospect["passage_id"]
-        passage = generation_1_passages_by_id.get(passage_id)
-
-        if passage is None:
-            logger.warning(
-                "Cannot expand Generation 1 prospect %s: passage not found",
-                passage_id,
+        if cumulative_graph is None:
+            cumulative_graph = graph
+        else:
+            cumulative_graph = merge_retrieval_graphs(
+                cumulative_graph,
+                graph,
             )
-            continue
 
-        generation_2_seeds.append(passage)
+    return cumulative_graph
 
-    logger.info("=" * 72)
-    logger.info("GENERATION 2 EXPANSION SEEDS")
-    logger.info("=" * 72)
 
-    for seed in generation_2_seeds:
-        logger.info(
-            "EXPANSION SEED | year=%s | %s | %s",
-            seed.get("pub_year"),
-            seed.get("title"),
-            seed.get("passage_id"),
-        )
+def main() -> None:
+    workflow = build_forward_search_workflow()
 
-    if not generation_2_seeds:
-        logger.warning("No Generation 2 seeds selected; skipping.")
-    else:
-        generation_2_thread_id = str(uuid4())
-
-        logger.info("=" * 72)
-        logger.info("GENERATION 2: FORWARD EXPANSION (1801–1900)")
-        logger.info("=" * 72)
-
-        generation_2_result = workflow.invoke(
-            {
-                "seed_passages": generation_2_seeds,
-                "forward_start_year": 1801,
-                "forward_end_year": 1900,
-                "representation": "l8",
-                "forward_scale": "broad",
-                "transfer_limit": 10,
-            },
-            config={
-                "configurable": {
-                    "thread_id": generation_2_thread_id,
-                }
-            },
-        )
-
-        logger.info(
-            "Generation 2 passages: %d",
-            len(generation_2_result["passages"]),
-        )
-        logger.info(
-            "Generation 2 edges: %d",
-            len(generation_2_result["edges"]),
-        )
-
-        retrieval_graph_2 = build_retrieval_graph(
-            result=generation_2_result,
-            search_direction="forward",
-            generation=2,
-            search_id=generation_2_thread_id,
-        )
-
-        logger.info(
-            "Generation 2 graph: %d nodes, %d edges",
-            len(retrieval_graph_2["nodes"]),
-            len(retrieval_graph_2["edges"]),
-        )
-
-        # Classify and rank Generation 2 discoveries.
-        classification_2, prospects_2 = classify_and_select_prospects(
-            passages=retrieval_graph_2["nodes"],
-            retrieval_graph=retrieval_graph_2,
-            per_feature_limit=10,
-        )
-
-        log_prospects(
-            "GENERATION 2 PROSPECTS",
-            prospects_2,
-        )
-
-    if generation_2_result is None:
-        logger.warning(
-            "Generation 2 did not run; cannot perform Generation 3."
-        )
-        return
+    # Results are retained by generation number.
+    results = {}
+    graphs = {}
+    classifications = {}
+    prospects = {}
 
     # ---------------------------------------------------------
-    # GENERATION 3: Forward expansion, 1901–2000
+    # GENERATION 0: Initial query and first forward retrieval
     # ---------------------------------------------------------
 
-    generation_3_seed_count = 3
-    generation_3_prospects = prospects_2[:generation_3_seed_count]
+    (
+        results[0],
+        graphs[0],
+        classifications[0],
+        prospects[0],
+    ) = run_generation(
+        workflow,
+        generation=0,
+        query=INITIAL_QUERY,
+    )
 
-    generation_3_passages_by_id = {
-        passage["passage_id"]: passage
-        for passage in generation_2_result["passages"]
-    }
+    # ---------------------------------------------------------
+    # GENERATIONS 1–3: Forward expansion
+    # ---------------------------------------------------------
 
-    generation_3_seeds = []
+    for generation in range(1, max(FORWARD_PERIODS) + 1):
+        seed_passages = select_expansion_seeds(
+            prospects=prospects[generation - 1],
+            passages=results[generation - 1]["passages"],
+        )
 
-    for prospect in generation_3_prospects:
-        passage_id = prospect["passage_id"]
-        passage = generation_3_passages_by_id.get(passage_id)
-
-        if passage is None:
+        if not seed_passages:
             logger.warning(
-                "Cannot expand Generation 2 prospect %s: passage not found",
-                passage_id,
+                "No expansion seeds for Generation %d; stopping.",
+                generation,
             )
-            continue
+            break
 
-        generation_3_seeds.append(passage)
-
-    logger.info("=" * 72)
-    logger.info("GENERATION 3 EXPANSION SEEDS")
-    logger.info("=" * 72)
-
-    for seed in generation_3_seeds:
-        logger.info(
-            "EXPANSION SEED | year=%s | %s | %s",
-            seed.get("pub_year"),
-            seed.get("title"),
-            seed.get("passage_id"),
+        (
+            results[generation],
+            graphs[generation],
+            classifications[generation],
+            prospects[generation],
+        ) = run_generation(
+            workflow,
+            generation=generation,
+            seed_passages=seed_passages,
         )
-
-    if not generation_3_seeds:
-        logger.warning("No Generation 3 seeds selected; skipping.")
-    else:
-        generation_3_thread_id = str(uuid4())
-
-        logger.info("=" * 72)
-        logger.info("GENERATION 3: FORWARD EXPANSION (1901–2000)")
-        logger.info("=" * 72)
-
-        generation_3_result = workflow.invoke(
-            {
-                "seed_passages": generation_3_seeds,
-                "forward_start_year": 1901,
-                "forward_end_year": 2000,
-                "representation": "l8",
-                "forward_scale": "broad",
-                "transfer_limit": 10,
-            },
-            config={
-                "configurable": {
-                    "thread_id": generation_3_thread_id,
-                }
-            },
-        )
-
-        logger.info(
-            "Generation 3 passages: %d",
-            len(generation_3_result["passages"]),
-        )
-        logger.info(
-            "Generation 3 edges: %d",
-            len(generation_3_result["edges"]),
-        )
-
-        retrieval_graph_3 = build_retrieval_graph(
-            result=generation_3_result,
-            search_direction="forward",
-            generation=3,
-            search_id=generation_3_thread_id,
-        )
-
-        logger.info(
-            "Generation 3 graph: %d nodes, %d edges",
-            len(retrieval_graph_3["nodes"]),
-            len(retrieval_graph_3["edges"]),
-        )
-
-        classification_3, prospects_3 = classify_and_select_prospects(
-            passages=retrieval_graph_3["nodes"],
-            retrieval_graph=retrieval_graph_3,
-            per_feature_limit=10,
-        )
-
-        log_prospects(
-            "GENERATION 3 PROSPECTS",
-            prospects_3,
-        )
-
 
     # ---------------------------------------------------------
     # MERGE ALL GENERATIONS
     # ---------------------------------------------------------
 
-    cumulative_graph = merge_retrieval_graphs(
-        retrieval_graph_0,
-        retrieval_graph_1,
-    )
-
-    if retrieval_graph_2 is not None:
-        cumulative_graph = merge_retrieval_graphs(
-            cumulative_graph,
-            retrieval_graph_2,
-        )
-
-    if retrieval_graph_3 is not None:
-        cumulative_graph = merge_retrieval_graphs(
-            cumulative_graph,
-            retrieval_graph_3,
-        )
+    cumulative_graph = merge_all_graphs(graphs)
 
     # ---------------------------------------------------------
     # CUMULATIVE CLASSIFICATION DATA
     # ---------------------------------------------------------
 
-    all_classification_results = [
-        classification_0,
-        classification_1,
-        classification_2,
-        classification_3,
-    ]
-
     attach_classifications(
         retrieval_graph=cumulative_graph,
-        classification_results=all_classification_results,
+        classification_results=list(classifications.values()),
     )
 
     # ---------------------------------------------------------
@@ -681,7 +437,7 @@ def main() -> None:
 
     log_cumulative_report(
         graph=cumulative_graph,
-        classification_results=all_classification_results,
+        classification_results=list(classifications.values()),
     )
 
     # ---------------------------------------------------------
@@ -702,23 +458,10 @@ def main() -> None:
     logger.info("=" * 72)
     logger.info("COMPLETE CUMULATIVE RETRIEVAL GRAPH")
     logger.info("=" * 72)
-
-    logger.info(
-        "Total nodes: %d",
-        len(cumulative_graph["nodes"]),
-    )
-    logger.info(
-        "Total edges: %d",
-        len(cumulative_graph["edges"]),
-    )
-    logger.info(
-        "Searches: %d",
-        cumulative_graph["metadata"]["search_count"],
-    )
-    logger.info(
-        "Convergence points: %d",
-        len(cumulative_graph["convergence"]),
-    )
+    logger.info("Total nodes: %d", len(cumulative_graph["nodes"]))
+    logger.info("Total edges: %d", len(cumulative_graph["edges"]))
+    logger.info("Searches: %d", cumulative_graph["metadata"]["search_count"])
+    logger.info("Convergence points: %d", len(cumulative_graph["convergence"]))
 
     logger.info("-" * 72)
     logger.info("NODE CONNECTIVITY")
@@ -742,10 +485,6 @@ def main() -> None:
             node.get("title", "Untitled"),
         )
 
-    # ---------------------------------------------------------
-    # ISOLATED NODE REPORT
-    # ---------------------------------------------------------
-
     report_isolated_nodes(cumulative_graph)
 
     # ---------------------------------------------------------
@@ -764,7 +503,7 @@ def main() -> None:
     logger.info("VISUALISATION COMPLETE")
     logger.info("=" * 72)
     logger.info("Complete graph: %s", graph_path)
-    
+
 
 if __name__ == "__main__":
     main()
