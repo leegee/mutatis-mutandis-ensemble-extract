@@ -586,6 +586,30 @@ def run_diachronic_search(
 
     graph_path = None
 
+    searched_periods = periods[:len(results)]
+
+    if direction == "reverse":
+        search_start = min(
+            period[0] for period in searched_periods
+        )
+        search_end = max(
+            initial_end,
+            max(period[1] for period in searched_periods),
+        )
+    else:
+        search_start = min(
+            initial_start,
+            min(period[0] for period in searched_periods),
+        )
+        search_end = max(
+            period[1] for period in searched_periods
+        )
+
+    cumulative_graph.setdefault("metadata", {})["search_range"] = {
+        "start": search_start,
+        "end": search_end,
+    }
+
     if visualise:
         if output_path is None:
             graph_dir = OUT_DIR / "graphs"

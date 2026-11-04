@@ -35,6 +35,19 @@ def _stable_id(prefix: str, payload: Any) -> str:
     return f"{prefix}-{digest}"
 
 
+def _target_period(
+    result: Mapping[str, Any],
+    search_direction: str,
+) -> Any:
+    if search_direction == "forward":
+        return result.get("forward_period")
+
+    return (
+        result.get("reverse_period")
+        or result.get("historical_period")
+    )
+
+
 def _edge_identity(edge: Mapping[str, Any]) -> str:
     """
     Identify a retrieval observation.
@@ -149,11 +162,7 @@ def build_retrieval_graph(
                 "generation": generation,
                 "representation": result.get("representation"),
                 "initial_period": result.get("initial_period"),
-                "target_period": (
-                    result.get("forward_period")
-                    if search_direction == "forward"
-                    else result.get("historical_period")
-                ),
+                "target_period": _target_period(result, search_direction),
                 "seed_ids": sorted(seed_ids),
             },
         )
@@ -225,11 +234,7 @@ def build_retrieval_graph(
 
     convergence = _convergence(nodes, edges)
 
-    target_period = (
-        result.get("forward_period")
-        if search_direction == "forward"
-        else result.get("historical_period")
-    )
+    target_period = _target_period(result, search_direction)
 
     search_run = {
         "search_id": search_id,

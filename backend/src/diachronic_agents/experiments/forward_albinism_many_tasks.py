@@ -288,6 +288,17 @@ def run_generation(
         search_id=thread_id,
     )
 
+    graph.setdefault("metadata", {})["search_range"] = {
+        "start": min(
+            int(initial_period[0]),
+            int(target_period[0]),
+        ),
+        "end": max(
+            int(initial_period[1]),
+            int(target_period[1]),
+        ),
+    }
+
     logger.info(
         "Generation %d graph: %d nodes, %d edges",
         generation,
