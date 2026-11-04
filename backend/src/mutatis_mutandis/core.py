@@ -150,7 +150,7 @@ def load_passage_vector(db, passage_id: str, representation: str) -> np.ndarray:
     table_name, row = matches[0]
     vector = normalise_vector(row["vector"], "Stored passage vector")
 
-    logger.info(
+    logger.debug(
         "Loaded vector %s from %s (doc_id=%s, year=%s)",
         passage_id,
         table_name,
