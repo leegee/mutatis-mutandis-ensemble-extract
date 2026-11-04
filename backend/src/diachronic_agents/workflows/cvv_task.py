@@ -83,7 +83,6 @@ def create_csv(
     node_fields = [
         "id",
         "passage_id",
-        "title",
         "pub_year",
         "generation",
         "seed",
@@ -91,6 +90,8 @@ def create_csv(
         "classification",
         "feature_type",
         "classification_reason",
+        "title",
+        "text",
     ]
 
     edge_fields = [
