@@ -49,15 +49,11 @@ def create_graph(
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    logger.info("Creating retrieval graph")
-    logger.info("Query: %s", search_result.query)
-    logger.info("Direction: %s", search_result.direction)
-    logger.info(
-        "Nodes: %d | Edges: %d",
-        len(retrieval_graph["nodes"]),
-        len(retrieval_graph["edges"]),
-    )
-    logger.info("Output: %s", output_path)
+    logger.debug("Creating retrieval graph")
+    logger.debug("Query: %s", search_result.query)
+    logger.debug("Direction: %s", search_result.direction)
+    logger.debug( "Nodes: %d | Edges: %d", len(retrieval_graph["nodes"]), len(retrieval_graph["edges"]), )
+    logger.debug("Output: %s", output_path)
 
     graph_path = visualise_retrieval_graph(
         retrieval_graph,
@@ -70,6 +66,6 @@ def create_graph(
         y_spacing=y_spacing,
     )
 
-    logger.info("Graph created: %s", graph_path)
+    logger.debug("Graph created: %s", graph_path)
 
     return graph_path
