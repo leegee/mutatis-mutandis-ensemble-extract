@@ -7,7 +7,8 @@
 From a Postgres database of document metadata and tokens extracted from TEI XML and plain text, 
 uses various layers of various scales of embeddings created by Manjavacas and Fonteyn's historical BERT model 
 [MacBERTh](https://aclanthology.org/2021.nlp4dh-1.4/) that are stored in and searched through Lance via a Python 
-FastAPI/SolidJS application.
+FastAPI/SolidJS application and a LangGraph-based diachronic semantic retrieval pipeline, with LangChain integrations 
+for LLM classification.
 
 A sample dataset, and indeed Lance indexes, are available upon request.
 
