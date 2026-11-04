@@ -553,7 +553,7 @@ def run_diachronic_search(
     retriever: PassageRetriever | None = None,
     checkpointer: Any = None,
     log_report: bool = True,
-) -> dict:
+) -> SearchResult:
     """
     Run a multi-period forward or reverse diachronic search.
 
