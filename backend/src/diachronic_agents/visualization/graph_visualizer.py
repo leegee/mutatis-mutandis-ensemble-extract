@@ -95,8 +95,6 @@ def _add_generation_boundaries(
 ) -> None:
     """Add vertical lines and labels for period and search boundaries."""
 
-    logger.info("Adding generation boundaries")
-
     metadata = retrieval_graph.get("metadata", {})
     search_runs = metadata.get("search_runs", [])
     search_range = metadata.get("search_range")
@@ -193,7 +191,7 @@ def _add_generation_boundaries(
         # Invisible anchors define the ends of the vertical line.
         net.add_node(
             f"{boundary_id}_top",
-            label=" ",
+            label=f"Gen {boundary.get('generation')}",
             x=x,
             y=top_y,
             fixed=True,
@@ -251,17 +249,9 @@ def _add_generation_boundaries(
             },
         )
 
-        logger.info(
-            "  Boundary: year=%s generation=%s x=%.1f",
-            boundary_year,
-            boundary.get("generation"),
-            x,
-        )
+        logger.debug( "  Boundary: year=%s generation=%s x=%.1f", boundary_year, boundary.get("generation"), x, )
 
-    logger.info(
-        "Added %s unique period/search boundaries",
-        len(boundaries),
-    )
+    logger.debug( "Added %s unique period/search boundaries", len(boundaries), )
 
 
 def _assign_chronological_positions(
@@ -470,8 +460,6 @@ def _add_html_generation_label_overlay(
     html_content: str,
 ) -> str:
     """Add zoom-independent HTML labels for generation boundaries."""
-    logger.info("Enter _add_html_generation_label_overlay")
-
     marker = "new vis.Network("
     marker_position = html_content.find(marker)
 
@@ -598,7 +586,6 @@ def _add_html_generation_label_overlay(
     requestAnimationFrame(updateGenerationLabels);
     """
 
-    logger.info("Leave _add_html_generation_label_overlay")
     return (
         html_content[:insertion_position]
         + "\n"
@@ -647,7 +634,7 @@ def visualise_retrieval_graph(
             if data.get("y") is not None
         ]
 
-        logger.info(
+        logger.debug(
             "CHRONOLOGICAL LAYOUT: y_min=%.1f y_max=%.1f y_range=%.1f",
             min(y_values),
             max(y_values),
@@ -800,6 +787,7 @@ def visualise_retrieval_graph(
     with output_path.open("w", encoding="utf-8") as file:
         file.write(html_content)
 
+    logger.debug("Graph written to %s", output_path)
     return output_path
 
 
