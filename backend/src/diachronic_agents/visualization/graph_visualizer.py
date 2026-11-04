@@ -193,7 +193,7 @@ def _add_generation_boundaries(
         # Invisible anchors define the ends of the vertical line.
         net.add_node(
             f"{boundary_id}_top",
-            label="",
+            label=" ",
             x=x,
             y=top_y,
             fixed=True,
@@ -207,7 +207,7 @@ def _add_generation_boundaries(
 
         net.add_node(
             f"{boundary_id}_bottom",
-            label="",
+            label=" ",
             x=x,
             y=bottom_y,
             fixed=True,
@@ -226,7 +226,7 @@ def _add_generation_boundaries(
                 "color": "#FFFFFF77",
                 "highlight": "#FFFFFFAA",
             },
-            width=10,
+            width=5,
             dashes=False,
             smooth=False,
             arrows="",
