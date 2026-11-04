@@ -2,7 +2,8 @@
 
 Built upon [mutatis-mutandis-passage-search](https://github.com/leegee/mutatis-mutandis-passage-search)
 
-[Case study](./docs/case_study.md).
+> [!NOTE]  
+> [Case study](./docs/case_study.md).
 
 From a Postgres database of document metadata and tokens extracted from TEI XML and plain text, 
 uses various layers of various scales of embeddings created by Manjavacas and Fonteyn's historical BERT model 
@@ -10,6 +11,13 @@ uses various layers of various scales of embeddings created by Manjavacas and Fo
 FastAPI/SolidJS application.
 
 A sample dataset, and indeed Lance indexes, are available upon request.
+
+## Motivation
+
+> We all declare for liberty but in using the same word we do not all mean the same thing
+> -- Abraham Lincoln, Address at the Sanitary Fair in Baltimore, Maryland, on April 18, 1864
+
+**How can historical references be found to the people - like yours truly - who modern clinicians refer to as albinos, when the term was not coined until at earliest the 1650s?**
 
 ## Usage Synopsis
 
