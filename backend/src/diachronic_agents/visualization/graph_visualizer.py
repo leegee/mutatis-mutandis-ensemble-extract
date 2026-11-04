@@ -147,11 +147,12 @@ def _add_generation_boundaries(
         if not period_has_passages:
             continue
 
-        boundary_year = (
-            period_end + 1
-            if direction == "reverse"
-            else period_start
-        )
+        # boundary_year = (
+        #     period_end + 1
+        #     if direction == "reverse"
+        #     else period_start
+        # )
+        boundary_year = period_start
 
         boundaries.setdefault(
             boundary_year,
@@ -257,8 +258,8 @@ def _add_generation_boundaries(
 def _assign_chronological_positions(
     graph: nx.DiGraph,
     *,
-    x_spacing: float = 2.0,
-    y_spacing: float = 80.0,
+    x_spacing: float,
+    y_spacing: float,
 ) -> None:
     """
     Position nodes chronologically from left to right.
@@ -602,7 +603,7 @@ def visualise_retrieval_graph(
     physics: bool = False,
     layout: str = "chronological",
     x_spacing: float = 20.0,
-    y_spacing: float = 300.0,
+    y_spacing: float = 400.0,
 ) -> Path:
     """
     Generate an interactive HTML visualisation of a retrieval graph.

@@ -145,10 +145,10 @@ def log_prospects(
 ) -> None:
     """Log ranked prospects."""
 
-    logger.info(title)
+    logger.debug(title)
 
     for index, prospect in enumerate(prospects, start=1):
-        logger.info(
+        logger.debug(
             "%02d | %s | %s | year=%s | feature=%s | "
             "sources=%s | edges=%s | %s",
             index,
@@ -224,7 +224,7 @@ def collect_expansion_candidates(
             candidate_passages[passage_id] = passage
             seen_ids.add(passage_id)
 
-    logger.info(
+    logger.debug(
         "Expansion candidates: %d from periods %s",
         len(candidate_prospects),
         period_indices,
@@ -260,10 +260,10 @@ def select_expansion_seeds(
 
         seeds.append(passage)
 
-    logger.info("Expansion seeds: %d", len(seeds))
+    logger.debug("Expansion seeds: %d", len(seeds))
 
     for seed in seeds:
-        logger.info(
+        logger.debug(
             "EXPANSION SEED | year=%s | %s | %s",
             seed.get("pub_year"),
             seed.get("title"),
@@ -350,15 +350,15 @@ def log_cumulative_report(
         ),
     )
 
-    logger.info("=" * 100)
-    logger.info("CUMULATIVE CHRONOLOGICAL PASSAGE REPORT")
-    logger.info("=" * 100)
+    logger.debug("=" * 100)
+    logger.debug("CUMULATIVE CHRONOLOGICAL PASSAGE REPORT")
+    logger.debug("=" * 100)
 
     for node in nodes:
         passage_id = node.get("passage_id", node["id"])
         classification = classifications_by_id.get(passage_id, {})
 
-        logger.info(
+        logger.debug(
             "%4s | GEN %s | %-12s | %-12s | IN=%2d | OUT=%2d | %s",
             node.get("pub_year", "?"),
             node.get("generation", "?"),
@@ -370,20 +370,20 @@ def log_cumulative_report(
         )
 
         if classification.get("reason"):
-            logger.info("       REASON: %s", classification["reason"])
+            logger.debug("       REASON: %s", classification["reason"])
 
-    logger.info("=" * 100)
-    logger.info("CUMULATIVE EDGE REPORT")
-    logger.info("=" * 100)
+    logger.debug("=" * 100)
+    logger.debug("CUMULATIVE EDGE REPORT")
+    logger.debug("=" * 100)
 
     nodes_by_id = {
         node["id"]: node
         for node in graph["nodes"]
     }
 
-    logger.info("=" * 100)
-    logger.info("CROSS-GENERATION EDGE REPORT")
-    logger.info("=" * 100)
+    logger.debug("=" * 100)
+    logger.debug("CROSS-GENERATION EDGE REPORT")
+    logger.debug("=" * 100)
 
     for edge in graph["edges"]:
         source = nodes_by_id.get(edge["source"])
@@ -397,7 +397,7 @@ def log_cumulative_report(
         edge_generation = edge.get("generation", "?")
 
         if source_generation != target_generation:
-            logger.info(
+            logger.debug(
                 "CROSS-GENERATION EDGE | "
                 "edge_gen=%s | source_gen=%s | target_gen=%s | "
                 "%s (%s) -> %s (%s)",
@@ -409,10 +409,72 @@ def log_cumulative_report(
                 target.get("pub_year", "?"),
                 target.get("title", "Untitled"),
             )
-            
-    logger.info("=" * 100)
-    logger.info("CONVERGENCE REPORT")
-    logger.info("=" * 100)
+
+
+    logger.debug("=" * 100)
+    logger.debug("GENERATION CONNECTIVITY REPORT")
+    logger.debug("=" * 100)
+
+    connectivity_counts = {
+        "adjacent": 0,
+        "older_source": 0,
+        "other": 0,
+    }
+
+    for edge in graph["edges"]:
+        source = nodes_by_id.get(edge["source"])
+        target = nodes_by_id.get(edge["target"])
+
+        if source is None or target is None:
+            continue
+
+        source_generation = source.get("generation")
+        target_generation = target.get("generation")
+        edge_generation = edge.get("generation")
+
+        if (
+            source_generation == edge_generation
+            and target_generation == edge_generation + 1
+        ):
+            connectivity = "ADJACENT"
+            connectivity_counts["adjacent"] += 1
+
+        elif (
+            isinstance(source_generation, int)
+            and isinstance(edge_generation, int)
+            and source_generation < edge_generation
+        ):
+            connectivity = "OLDER SOURCE"
+            connectivity_counts["older_source"] += 1
+
+        else:
+            connectivity = "OTHER"
+            connectivity_counts["other"] += 1
+
+        if connectivity != "ADJACENT":
+            logger.debug(
+                "%s | edge_gen=%s | source_gen=%s | target_gen=%s | "
+                "%s (%s) -> %s (%s)",
+                connectivity,
+                edge_generation,
+                source_generation,
+                target_generation,
+                source.get("pub_year", "?"),
+                source.get("title", "Untitled"),
+                target.get("pub_year", "?"),
+                target.get("title", "Untitled"),
+            )
+
+    logger.debug(
+        "CONNECTIVITY TOTALS | adjacent=%d | older_source=%d | other=%d",
+        connectivity_counts["adjacent"],
+        connectivity_counts["older_source"],
+        connectivity_counts["other"],
+    )
+
+    logger.debug("=" * 100)
+    logger.debug("CONVERGENCE REPORT")
+    logger.debug("=" * 100)
 
     nodes_by_id = {node["id"]: node for node in nodes}
 
@@ -422,14 +484,14 @@ def log_cumulative_report(
         if target is None:
             continue
 
-        logger.info(
+        logger.debug(
             "CONVERGENCE | %s | %s | %d incoming sources",
             target.get("pub_year", "?"),
             target.get("title", "Untitled"),
             item["source_count"],
         )
 
-    logger.info("=" * 100)
+    logger.debug("=" * 100)
 
 
 def merge_all_graphs(graphs: dict[int, dict]) -> dict:
@@ -552,30 +614,30 @@ def run_diachronic_search(
     classifications = {}
     prospects = {}
 
-    logger.info("=" * 80)
-    logger.info("DIACHRONIC SEARCH")
-    logger.info("=" * 80)
-    logger.info("Direction: %s", direction.upper())
-    logger.info("Query: %s", query)
-    logger.info("Initial period: %d–%d", initial_start, initial_end)
-    logger.info("Target period: %d–%d", target_start, target_end)
-    logger.info("Generated periods: %s", periods)
-    logger.info("Seed strategy: %s", seed_strategy)
-    logger.info("Representation: %s", representation)
-    logger.info("Scale: %s", scale)
+    logger.debug("=" * 80)
+    logger.debug("DIACHRONIC SEARCH")
+    logger.debug("=" * 80)
+    logger.debug("Direction: %s", direction.upper())
+    logger.debug("Query: %s", query)
+    logger.debug("Initial period: %d–%d", initial_start, initial_end)
+    logger.debug("Target period: %d–%d", target_start, target_end)
+    logger.debug("Generated periods: %s", periods)
+    logger.debug("Seed strategy: %s", seed_strategy)
+    logger.debug("Representation: %s", representation)
+    logger.debug("Scale: %s", scale)
 
     for period_index, (period_start, period_end) in enumerate(periods):
         thread_id = str(uuid4())
 
-        logger.info("=" * 80)
-        logger.info(
+        logger.debug("=" * 80)
+        logger.debug(
             "PERIOD %d: %s SEARCH (%d–%d)",
             period_index,
             direction.upper(),
             period_start,
             period_end,
         )
-        logger.info("=" * 80)
+        logger.debug("=" * 80)
 
         # The lower-level workflows share the same common state fields,
         # but use direction-specific period and scale field names.
@@ -639,7 +701,7 @@ def run_diachronic_search(
 
         results[period_index] = result
 
-        logger.info(
+        logger.debug(
             "Period %d results: %d passages, %d edges",
             period_index,
             len(result["passages"]),
@@ -655,7 +717,7 @@ def run_diachronic_search(
 
         graphs[period_index] = graph
 
-        logger.info(
+        logger.debug(
             "Period %d graph: %d nodes, %d edges",
             period_index,
             len(graph["nodes"]),
@@ -696,24 +758,42 @@ def run_diachronic_search(
 
     graph_path = None
 
+    # Preserve the requested range as search provenance.
     searched_periods = periods[:len(results)]
 
     if direction == "reverse":
-        search_start = min(
+        requested_start = min(
             period[0] for period in searched_periods
         )
-        search_end = max(
-            initial_end,
-            max(period[1] for period in searched_periods),
-        )
+        requested_end = max(initial_end, max(
+            period[1] for period in searched_periods
+        ))
     else:
-        search_start = min(
-            initial_start,
-            min(period[0] for period in searched_periods),
-        )
-        search_end = max(
+        requested_start = min(initial_start, min(
+            period[0] for period in searched_periods
+        ))
+        requested_end = max(
             period[1] for period in searched_periods
         )
+
+    # Use actual dated evidence for the visual boundaries.
+    dated_years = [
+        int(node["pub_year"])
+        for node in cumulative_graph["nodes"]
+        if node.get("pub_year") is not None
+    ]
+
+    if dated_years:
+        search_start = min(dated_years)
+        search_end = max(dated_years)
+    else:
+        search_start = requested_start
+        search_end = requested_end
+
+    cumulative_graph.setdefault("metadata", {})["requested_search_range"] = {
+        "start": requested_start,
+        "end": requested_end,
+    }
 
     cumulative_graph["metadata"]["seed_strategy"] = seed_strategy
     cumulative_graph["metadata"]["query"] = query
@@ -740,20 +820,20 @@ def run_diachronic_search(
             output_path=output_path,
         )
 
-        logger.info("Complete graph: %s", graph_path)
+        logger.debug("Complete graph: %s", graph_path)
 
-    logger.info("=" * 80)
-    logger.info("DIACHRONIC SEARCH COMPLETE")
-    logger.info("=" * 80)
-    logger.info("Direction: %s", direction.upper())
-    logger.info("Periods completed: %d / %d", len(results), len(periods))
-    logger.info("Total nodes: %d", len(cumulative_graph["nodes"]))
-    logger.info("Total edges: %d", len(cumulative_graph["edges"]))
-    logger.info(
+    logger.debug("=" * 80)
+    logger.debug("DIACHRONIC SEARCH COMPLETE")
+    logger.debug("=" * 80)
+    logger.debug("Direction: %s", direction.upper())
+    logger.debug("Periods completed: %d / %d", len(results), len(periods))
+    logger.debug("Total nodes: %d", len(cumulative_graph["nodes"]))
+    logger.debug("Total edges: %d", len(cumulative_graph["edges"]))
+    logger.debug(
         "Searches: %d",
         cumulative_graph["metadata"]["search_count"],
     )
-    logger.info(
+    logger.debug(
         "Convergence points: %d",
         len(cumulative_graph["convergence"]),
     )
