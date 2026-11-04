@@ -17,6 +17,76 @@ from mutatis_mutandis.lib.corpus_config import OUT_DIR
 logger = get_logger(__name__)
 
 
+def _add_graph_title_overlay(
+    html_content: str,
+    retrieval_graph: dict,
+) -> str:
+    """Add a fixed, bottom-centred graph title."""
+
+    metadata = retrieval_graph.get("metadata", {})
+
+    query = metadata.get("query", "Diachronic Semantic Search")
+    direction = metadata.get("direction", "").capitalize()
+    search_range = metadata.get("search_range", {})
+
+    start = search_range.get("start", "?")
+    end = search_range.get("end", "?")
+
+    subtitle = (
+        f"Diachronic semantic search"
+        f" · {direction}"
+        f" · {start}–{end}"
+    )
+
+    title_html = f"""
+    <div id="graph-title-overlay">
+        <div class="graph-title"><small style="opacity:50%;font-variant:small-caps">term:</small> “{query}”</div>
+        <div class="graph-subtitle">{subtitle}</div>
+    </div>
+
+    <style>
+        #graph-title-overlay {{
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 200;
+            pointer-events: none;
+            text-align: center;
+            padding: 12px 24px;
+            background: rgba(23, 25, 35, 0.88);
+            border-radius: 8px;
+            white-space: nowrap;
+            font-family: Arial, sans-serif;
+        }}
+
+        #graph-title-overlay .graph-title {{
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }}
+
+        #graph-title-overlay .graph-subtitle {{
+            color: #cbd5e1;
+            font-size: 13px;
+        }}
+    </style>
+    """
+
+    marker = '<div id="mynetwork"'
+    position = html_content.find(marker)
+
+    if position == -1:
+        raise RuntimeError("Could not find graph container in generated HTML")
+
+    return (
+        html_content[:position]
+        + title_html
+        + html_content[position:]
+    )
+
+
 def _add_generation_boundaries(
     net: Network,
     retrieval_graph: dict,
@@ -715,15 +785,17 @@ def visualise_retrieval_graph(
             "improvedLayout": False,
         }
 
-    # net.options = json.dumps(options)
     net.set_options(json.dumps(options))
 
     html_content = net.generate_html(notebook=False)
 
     if layout == "chronological":
-        html_content = _add_html_generation_label_overlay(
-            html_content
-        )
+        html_content = _add_html_generation_label_overlay(html_content)
+
+    html_content = _add_graph_title_overlay(
+        html_content,
+        retrieval_graph,
+    )
 
     with output_path.open("w", encoding="utf-8") as file:
         file.write(html_content)

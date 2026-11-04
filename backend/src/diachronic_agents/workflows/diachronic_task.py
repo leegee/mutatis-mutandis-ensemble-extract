@@ -605,6 +605,9 @@ def run_diachronic_search(
             period[1] for period in searched_periods
         )
 
+    cumulative_graph["metadata"]["query"] = query
+    cumulative_graph["metadata"]["direction"] = direction
+
     cumulative_graph.setdefault("metadata", {})["search_range"] = {
         "start": search_start,
         "end": search_end,
