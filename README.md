@@ -54,5 +54,10 @@ Run the search servers from the root:
     python src/diachronic_agents/experiments/forward_albinism.py 
 ```
 
-![](./docs/task_reverse_albino.png)
-![](./docs/task_forward_albino.png)
+# [reverse_albinism.py](backend/src/diachronic_agents/experiments/reverse_albinism.py)
+
+![backend/src/diachronic_agents/experiments/reverse_albinism.py](./docs/task_reverse_albino.png)
+
+# [forward_albinism.py](backend/src/diachronic_agents/experiments/forward_albinism.py)
+
+![backend/src/diachronic_agents/experiments/forward_albinism.py](./docs/task_forward_albino.png)
