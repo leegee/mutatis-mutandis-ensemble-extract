@@ -46,7 +46,13 @@ Run the search servers from the root:
 
 ## Agents
 
+
+
 ```bash
     cd backend
-    python src/run.sh
+    python src/diachronic_agents/experiments/reverse_albinism.py 
+    python src/diachronic_agents/experiments/forward_albinism.py 
 ```
+
+![](./docs/task_reverse_albino.png)
+![](./docs/task_forward_albino.png)

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from typing import Any
+from dataclasses import dataclass
 from uuid import uuid4
 
 from diachronic_agents.workflows.forward_search import build_forward_search_workflow
@@ -18,6 +19,20 @@ from mutatis_mutandis.lib.corpus_config import OUT_DIR
 
 
 logger = get_logger(__name__)
+
+
+@dataclass
+class SearchResult:
+    query: str
+    direction: str
+    initial_period: tuple[int, int]
+    target_period: tuple[int, int]
+    periods: list[tuple[int, int]]
+    results: dict[int, dict]
+    graphs: dict[int, dict]
+    classifications: dict[int, Any]
+    prospects: dict[int, list[dict]]
+    cumulative_graph: dict
 
 
 def generate_periods(
@@ -537,8 +552,6 @@ def run_diachronic_search(
     workflow: Any = None,
     retriever: PassageRetriever | None = None,
     checkpointer: Any = None,
-    visualise: bool = True,
-    output_path: str | Path | None = None,
     log_report: bool = True,
 ) -> dict:
     """
@@ -756,8 +769,6 @@ def run_diachronic_search(
 
         report_isolated_nodes(cumulative_graph)
 
-    graph_path = None
-
     # Preserve the requested range as search provenance.
     searched_periods = periods[:len(results)]
 
@@ -804,24 +815,6 @@ def run_diachronic_search(
         "end": search_end,
     }
 
-    if visualise:
-        if output_path is None:
-            graph_dir = OUT_DIR / "graphs"
-            graph_dir.mkdir(parents=True, exist_ok=True)
-            output_path = (
-                graph_dir / f"retrieval_graph_{direction}.html"
-            )
-        else:
-            output_path = Path(output_path)
-            output_path.parent.mkdir(parents=True, exist_ok=True)
-
-        graph_path = visualise_retrieval_graph(
-            cumulative_graph,
-            output_path=output_path,
-        )
-
-        logger.debug("Complete graph: %s", graph_path)
-
     logger.debug("=" * 80)
     logger.debug("DIACHRONIC SEARCH COMPLETE")
     logger.debug("=" * 80)
@@ -838,17 +831,16 @@ def run_diachronic_search(
         len(cumulative_graph["convergence"]),
     )
 
-    return {
-        "query": query,
-        "direction": direction,
-        "initial_period": initial_period,
-        "target_period": target_period,
-        "periods": periods,
-        "seed_strategy": seed_strategy,
-        "results": results,
-        "graphs": graphs,
-        "classifications": classifications,
-        "prospects": prospects,
-        "cumulative_graph": cumulative_graph,
-        "visualisation_path": graph_path,
-    }
+    return SearchResult(
+        query=query,
+        direction=direction,
+        initial_period=initial_period,
+        target_period=target_period,
+        periods=periods,
+        results=results,
+        graphs=graphs,
+        classifications=classifications,
+        prospects=prospects,
+        cumulative_graph=cumulative_graph,
+    )
+
