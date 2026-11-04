@@ -162,6 +162,77 @@ def log_prospects(
         )
 
 
+def collect_expansion_candidates(
+    results: dict[int, dict],
+    prospects: dict[int, list[dict]],
+    period_indices: list[int],
+) -> tuple[list[dict], list[dict]]:
+    """
+    Collect prospects that were actually discovered in the specified
+    periods, excluding passages that were merely input seeds.
+
+    Periods should be supplied newest first. This makes all_previous
+    prefer more recently discovered passages.
+    """
+
+    candidate_prospects = []
+    candidate_passages = {}
+
+    seen_ids = set()
+
+    for period_index in period_indices:
+        result = results[period_index]
+
+        # A passage is a discovery in this period only if it was
+        # retrieved as the target of an actual retrieval edge.
+        discovered_ids = {
+            edge["target_passage_id"]
+            for edge in result.get("edges", [])
+            if edge.get("target_passage_id")
+        }
+
+        passages_by_id = {
+            passage["passage_id"]: passage
+            for passage in result.get("passages", [])
+            if passage.get("passage_id")
+        }
+
+        for prospect in prospects.get(period_index, []):
+            passage_id = prospect.get("passage_id")
+
+            if not passage_id:
+                continue
+
+            if passage_id not in discovered_ids:
+                continue
+
+            if passage_id in seen_ids:
+                continue
+
+            passage = passages_by_id.get(passage_id)
+
+            if passage is None:
+                logger.warning(
+                    "Cannot use prospect %s from period %d: "
+                    "passage not found",
+                    passage_id,
+                    period_index,
+                )
+                continue
+
+            candidate_prospects.append(prospect)
+            candidate_passages[passage_id] = passage
+            seen_ids.add(passage_id)
+
+    logger.info(
+        "Expansion candidates: %d from periods %s",
+        len(candidate_prospects),
+        period_indices,
+    )
+
+    return candidate_prospects, list(candidate_passages.values())
+
+   
 def select_expansion_seeds(
     prospects: list[dict],
     passages: list[dict],
@@ -305,21 +376,40 @@ def log_cumulative_report(
     logger.info("CUMULATIVE EDGE REPORT")
     logger.info("=" * 100)
 
-    for generation in sorted({
-        edge.get("generation", 0)
-        for edge in graph["edges"]
-    }):
-        generation_edges = [
-            edge for edge in graph["edges"]
-            if edge.get("generation", 0) == generation
-        ]
+    nodes_by_id = {
+        node["id"]: node
+        for node in graph["nodes"]
+    }
 
-        logger.info(
-            "GENERATION %s: %d retrieval edges",
-            generation,
-            len(generation_edges),
-        )
+    logger.info("=" * 100)
+    logger.info("CROSS-GENERATION EDGE REPORT")
+    logger.info("=" * 100)
 
+    for edge in graph["edges"]:
+        source = nodes_by_id.get(edge["source"])
+        target = nodes_by_id.get(edge["target"])
+
+        if source is None or target is None:
+            continue
+
+        source_generation = source.get("generation", "?")
+        target_generation = target.get("generation", "?")
+        edge_generation = edge.get("generation", "?")
+
+        if source_generation != target_generation:
+            logger.info(
+                "CROSS-GENERATION EDGE | "
+                "edge_gen=%s | source_gen=%s | target_gen=%s | "
+                "%s (%s) -> %s (%s)",
+                edge_generation,
+                source_generation,
+                target_generation,
+                source.get("pub_year", "?"),
+                source.get("title", "Untitled"),
+                target.get("pub_year", "?"),
+                target.get("title", "Untitled"),
+            )
+            
     logger.info("=" * 100)
     logger.info("CONVERGENCE REPORT")
     logger.info("=" * 100)
@@ -369,7 +459,7 @@ def run_diachronic_search(
     query: str,
     initial_period: tuple[int, int],
     target_period: tuple[int, int],
-    period_size: int,
+    period_size: int = 50,
     direction: str = "forward",
     first_period_size: int | None = None,
     representation: str = "l8",
@@ -378,6 +468,7 @@ def run_diachronic_search(
     seed_limit: int = 3,
     transfer_limit: int = 10,
     expansion_seed_count: int = 3,
+    seed_strategy: str = "previous_period",
     prospect_limit: int = 10,
     feature_types: set[str] | None = None,
     classification_config: Any = ALBINISM_CONFIG,
@@ -427,6 +518,9 @@ def run_diachronic_search(
     if expansion_seed_count < 1:
         raise ValueError("expansion_seed_count must be positive")
 
+    if seed_strategy not in {"previous_period", "all_previous"}:
+        raise ValueError( "seed_strategy must be 'previous_period' or 'all_previous'" )
+        
     if initial_limit < 1 or seed_limit < 1 or transfer_limit < 1:
         raise ValueError("Search limits must be positive")
 
@@ -466,6 +560,7 @@ def run_diachronic_search(
     logger.info("Initial period: %d–%d", initial_start, initial_end)
     logger.info("Target period: %d–%d", target_start, target_end)
     logger.info("Generated periods: %s", periods)
+    logger.info("Seed strategy: %s", seed_strategy)
     logger.info("Representation: %s", representation)
     logger.info("Scale: %s", scale)
 
@@ -507,9 +602,24 @@ def run_diachronic_search(
             })
 
         else:
+            if seed_strategy == "previous_period":
+                candidate_periods = [period_index - 1]
+            else:
+                candidate_periods = list(
+                    range(period_index - 1, -1, -1)
+                )
+
+            candidate_prospects, candidate_passages = (
+                collect_expansion_candidates(
+                    results=results,
+                    prospects=prospects,
+                    period_indices=candidate_periods,
+                )
+            )
+
             seed_passages = select_expansion_seeds(
-                prospects=prospects[period_index - 1],
-                passages=results[period_index - 1]["passages"],
+                prospects=candidate_prospects,
+                passages=candidate_passages,
                 count=expansion_seed_count,
             )
 
@@ -605,6 +715,7 @@ def run_diachronic_search(
             period[1] for period in searched_periods
         )
 
+    cumulative_graph["metadata"]["seed_strategy"] = seed_strategy
     cumulative_graph["metadata"]["query"] = query
     cumulative_graph["metadata"]["direction"] = direction
 
@@ -653,6 +764,7 @@ def run_diachronic_search(
         "initial_period": initial_period,
         "target_period": target_period,
         "periods": periods,
+        "seed_strategy": seed_strategy,
         "results": results,
         "graphs": graphs,
         "classifications": classifications,
