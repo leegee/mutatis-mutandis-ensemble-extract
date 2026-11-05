@@ -77,3 +77,55 @@ def test_real_search_result_round_trip(tmp_path):
     for period_index, classification in restored.classifications.items():
         assert isinstance(classification, dict)
         assert "classifications" in classification
+
+
+def test_multi_period_search_result_round_trip(tmp_path):
+    original = run_diachronic_search(
+        query="white hair",
+        initial_period=(1900, 2000),
+        target_period=(1700, 1899),
+        period_size=100,
+        direction="reverse",
+        initial_limit=5,
+        seed_limit=2,
+        transfer_limit=3,
+        expansion_seed_count=2,
+        prospect_limit=5,
+        log_report=False,
+    )
+
+    # Confirm that the search actually covered multiple periods.
+    assert len(original.graphs) >= 2
+    assert len(original.results) >= 2
+
+    # Confirm that search-run metadata accumulated across periods.
+    metadata = original.cumulative_graph["metadata"]
+    search_runs = metadata["search_runs"]
+
+    assert metadata["search_count"] == len(search_runs)
+    assert metadata["search_count"] >= 2
+
+    search_ids = [
+        run["search_id"]
+        for run in search_runs
+    ]
+
+    assert len(search_ids) == len(set(search_ids))
+
+    # Confirm that the cumulative graph contains the merged data.
+    assert metadata["node_count"] == len(
+        original.cumulative_graph["nodes"]
+    )
+    assert metadata["edge_count"] == len(
+        original.cumulative_graph["edges"]
+    )
+
+    # Save and reload the complete result.
+    path = tmp_path / "multi_period_search_result.json"
+
+    save_search_result(original, path)
+    restored = load_search_result(path)
+
+    # Verify the complete round trip.
+    assert restored.to_dict() == original.to_dict()
+    
