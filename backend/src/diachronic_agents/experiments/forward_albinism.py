@@ -2,7 +2,11 @@ from mutatis_mutandis.lib.corpus_config import OUT_DIR
 from diachronic_agents.workflows.diachronic_task import run_diachronic_search
 from diachronic_agents.workflows.graph_task import create_graph
 from diachronic_agents.workflows.cvv_task import create_csv
-
+from diachronic_agents.persistence.search_result_store import (
+    archive_search_result,
+    list_search_results,
+    load_search_result,
+)
 
 def main() -> None:
     search_result = run_diachronic_search(
@@ -30,6 +34,21 @@ def main() -> None:
     print(f"Graph: {graph_path}")
     print(f"Nodes: {nodes_path}")
     print(f"Edges: {edges_path}")
+
+    archive_dir = OUT_DIR / "search_results"
+
+    archive_path = archive_search_result(
+        search_result,
+        archive_dir,
+    )
+
+    print(f"Archive: {archive_path}")
+
+    loaded = load_search_result(archive_path)
+
+    # print(loaded.query)
+    # print(loaded.cumulative_graph)
+    # archive_path.unlink()
 
 
 if __name__ == "__main__":

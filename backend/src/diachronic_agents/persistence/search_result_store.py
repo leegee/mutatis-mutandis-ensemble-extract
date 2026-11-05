@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import json
 import os
+import re
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
@@ -81,7 +83,7 @@ def save_search_result(
         temporary_path.unlink(missing_ok=True)
         raise
 
-    logger.info("Saved SearchResult: %s", path)
+    logger.debug("Saved SearchResult: %s", path)
 
     return path
 
@@ -96,7 +98,7 @@ def load_search_result(
 
     result = SearchResult.from_dict(data)
 
-    logger.info("Loaded SearchResult: %s", path)
+    logger.debug("Loaded SearchResult: %s", path)
 
     return result
 
@@ -183,14 +185,78 @@ def list_search_results(
             )
 
         except Exception:
-            logger.warning(
-                "Skipping invalid SearchResult archive: %s",
-                path,
-                exc_info=True,
-            )
+            logger.warning( "Skipping invalid SearchResult archive: %s", path, exc_info=True, )
 
     return sorted(
         summaries,
         key=lambda item: item["saved_at"],
         reverse=True,
     )
+
+
+import hashlib
+import re
+
+
+def _make_query_slug(
+    query: str,
+    max_length: int = 40,
+) -> str:
+    """Create a readable, filesystem-safe query fragment."""
+
+    slug = query.lower().strip()
+    slug = re.sub(r"[^a-z0-9]+", "-", slug)
+    slug = slug.strip("-")
+
+    return slug[:max_length].rstrip("-") or "search"
+
+
+def _query_hash(query: str) -> str:
+    """Return a short hash of the complete original query."""
+
+    return hashlib.sha256(
+        query.encode("utf-8")
+    ).hexdigest()[:8]
+
+
+def build_archive_filename(result: SearchResult) -> str:
+    """Generate a unique, chronologically sortable archive filename."""
+
+    timestamp = datetime.now(timezone.utc).strftime( "%Y%m%dT%H%M%SZ" )
+
+    query_slug = _make_query_slug(result.query)
+    query_hash = _query_hash(result.query)
+
+    initial_start, initial_end = result.initial_period
+    target_start, target_end = result.target_period
+
+    unique_id = uuid4().hex[:8]
+
+    return (
+        f"{timestamp}_"
+        f"{result.direction}_"
+        f"{query_slug}_"
+        f"{query_hash}_"
+        f"{initial_start}-{initial_end}_"
+        f"to_{target_start}-{target_end}_"
+        f"{unique_id}.json"
+    )
+
+
+def archive_search_result(
+    result: SearchResult,
+    directory: str | Path,
+) -> Path:
+    """
+    Save a SearchResult using an automatically generated filename.
+
+    Returns the full path of the new archive.
+    """
+
+    directory = Path(directory)
+    filename = build_archive_filename(result)
+    path = directory / filename
+
+    return save_search_result(result, path)
+
+
