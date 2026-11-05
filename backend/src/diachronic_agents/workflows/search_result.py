@@ -1,3 +1,5 @@
+# diachronic_agents/workflows/search_result.py
+
 from dataclasses import dataclass
 from typing import Any
 
