@@ -6,6 +6,7 @@ from typing import Any
 from dataclasses import dataclass
 from uuid import uuid4
 
+from diachronic_agents.workflows.search_result import SearchResult
 from diachronic_agents.workflows.forward_search import build_forward_search_workflow
 from diachronic_agents.workflows.reverse_search import build_reverse_search_workflow
 from diachronic_agents.retrieval.passage_retriever import PassageRetriever
@@ -17,22 +18,7 @@ from diachronic_agents.classification_configs import ALBINISM_CONFIG
 from mutatis_mutandis.lib.corpus_logging import get_logger
 from mutatis_mutandis.lib.corpus_config import OUT_DIR
 
-
 logger = get_logger(__name__)
-
-
-@dataclass
-class SearchResult:
-    query: str
-    direction: str
-    initial_period: tuple[int, int]
-    target_period: tuple[int, int]
-    periods: list[tuple[int, int]]
-    results: dict[int, dict]
-    graphs: dict[int, dict]
-    classifications: dict[int, Any]
-    prospects: dict[int, list[dict]]
-    cumulative_graph: dict
 
 
 def generate_periods(
@@ -512,20 +498,17 @@ def log_cumulative_report(
 def merge_all_graphs(graphs: dict[int, dict]) -> dict:
     """Merge all period graphs into one cumulative graph."""
 
-    cumulative_graph = None
+    cumulative_graph = {}
 
     for period_index in sorted(graphs):
         graph = graphs[period_index]
 
-        if cumulative_graph is None:
-            cumulative_graph = graph
-        else:
-            cumulative_graph = merge_retrieval_graphs(
-                cumulative_graph,
-                graph,
-            )
+        cumulative_graph = merge_retrieval_graphs(
+            cumulative_graph,
+            graph,
+        )
 
-    if cumulative_graph is None:
+    if not cumulative_graph:
         raise ValueError("No retrieval graphs were produced")
 
     return cumulative_graph
@@ -755,6 +738,18 @@ def run_diachronic_search(
         )
 
     cumulative_graph = merge_all_graphs(graphs)
+    logger.debug(
+        "CUMULATIVE GRAPH METADATA: %s",
+        cumulative_graph.get("metadata"),
+    )
+
+    logger.debug(
+        "PERIOD GRAPH METADATA: %s",
+        {
+            index: graph.get("metadata")
+            for index, graph in graphs.items()
+        },
+    )
 
     attach_classifications(
         retrieval_graph=cumulative_graph,
@@ -822,14 +817,12 @@ def run_diachronic_search(
     logger.debug("Periods completed: %d / %d", len(results), len(periods))
     logger.debug("Total nodes: %d", len(cumulative_graph["nodes"]))
     logger.debug("Total edges: %d", len(cumulative_graph["edges"]))
-    logger.debug(
-        "Searches: %d",
-        cumulative_graph["metadata"]["search_count"],
-    )
-    logger.debug(
-        "Convergence points: %d",
-        len(cumulative_graph["convergence"]),
-    )
+    
+    metadata = cumulative_graph.get("metadata", {})
+    search_count = metadata.get( "search_count", len(metadata.get("search_runs", [])), )
+    logger.debug("Searches: %d", search_count)
+
+    logger.debug( "Convergence points: %d", len(cumulative_graph["convergence"]), )
 
     return SearchResult(
         query=query,

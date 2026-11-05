@@ -12,14 +12,6 @@ from diachronic_agents.workflows.base_search import (
 from diachronic_agents.retrieval.passage_retriever import PassageRetriever
 
 
-class ReverseSearchTask(SearchTask):
-    """Task dispatched for one reverse seed."""
-
-
-class ReverseSearchState(SearchState):
-    """State for reverse diachronic retrieval."""
-
-
 def build_reverse_search_workflow(
     retriever: PassageRetriever | None = None,
     *,
