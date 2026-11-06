@@ -16,6 +16,10 @@ from pydantic import BaseModel, Field
 from mutatis_mutandis.lib.corpus_logging import get_logger
 
 from diachronic_agents.llm.passage_cache import ClassificationCache, make_cache_key
+from diachronic_agents.llm.request_budget import (
+    INVESTIGATOR_MAX_OUTPUT_TOKENS,
+)
+
 
 logger = get_logger(__name__)
 
@@ -424,3 +428,22 @@ def classify_passages(
     return ClassificationResult(
         classifications=[results[p["id"]] for p in passages]
     )
+
+
+from diachronic_agents.llm.request_budget import (
+    INVESTIGATOR_MAX_OUTPUT_TOKENS,
+)
+
+
+def create_investigator_llm():
+    if not os.getenv("GROQ_API_KEY"):
+        raise RuntimeError("GROQ_API_KEY is not set")
+
+    return ChatGroq(
+        model=CLASSIFIER_MODEL,
+        temperature=0,
+        max_retries=2,
+        max_tokens=INVESTIGATOR_MAX_OUTPUT_TOKENS,
+        reasoning_effort="low",
+    )
+    
