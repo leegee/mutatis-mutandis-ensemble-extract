@@ -2,11 +2,11 @@ from mutatis_mutandis.lib.corpus_config import OUT_DIR
 from diachronic_agents.workflows.diachronic_task import run_diachronic_search
 from diachronic_agents.workflows.graph_task import create_graph
 from diachronic_agents.workflows.cvv_task import create_csv
-
+from diachronic_agents.classification_configs import CLASSIFICATION_CONFIG
 
 def main() -> None:
     search_result = run_diachronic_search(
-        query="albino",
+        query                = "albino",
         initial_period       = (1900, 2000),
         target_period        = (0, 1899),
         period_size          = 100,
@@ -18,6 +18,7 @@ def main() -> None:
         transfer_limit       = 10,
         expansion_seed_count = 3,
         prospect_limit        = 10,
+        config                = CLASSIFICATION_CONFIG,
     )
 
     graph_path = create_graph(

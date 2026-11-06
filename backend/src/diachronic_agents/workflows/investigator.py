@@ -4,6 +4,10 @@ from __future__ import annotations
 
 from typing import Annotated, Any, TypedDict
 from uuid import uuid4
+import time
+import json
+
+from mutatis_mutandis.lib.corpus_logging import get_logger
 
 from langchain_core.messages import (
     AnyMessage,
@@ -16,9 +20,7 @@ from langgraph.graph import END, START, StateGraph
 from langgraph.graph.message import add_messages
 from langgraph.prebuilt import ToolNode
 
-from diachronic_agents.llm.passage_classifier import (
-    create_investigator_llm,
-)
+from diachronic_agents.llm.passage_classifier import create_investigator_llm
 from diachronic_agents.retrieval.passage_retriever import PassageRetriever
 from diachronic_agents.tools.passage_tools import build_passage_tools
 from diachronic_agents.workflows.investigation_record import build_investigation_record
@@ -28,6 +30,9 @@ from diachronic_agents.llm.request_budget import (
     GroqRequestBudget,
     investigator_request_budget,
 )
+
+
+logger = get_logger(__name__)
 
 
 SYSTEM_PROMPT = """
@@ -107,16 +112,47 @@ def build_investigator_workflow(
             max_output_tokens=INVESTIGATOR_MAX_OUTPUT_TOKENS,
         )
 
+        logger.info(
+            "Investigator request messages:\n%s",
+            "\n\n".join(
+                f"[{message.__class__.__name__}]\n{message.content}"
+                for message in model_messages
+            ),
+        )
+
+        started = time.monotonic()
         response = model_with_tools.invoke(model_messages)
+        elapsed = time.monotonic() - started
+
+        logger.info(
+            "Investigator response received in %.2fs:\n%s",
+            elapsed,
+            response.pretty_repr(),
+        )
+
         return {"messages": [response]}
         
     def call_tools(state: InvestigatorState) -> dict:
         last_message = state["messages"][-1]
         tool_calls = last_message.tool_calls
 
+        for tool_call in tool_calls:
+            logger.info(
+                "Investigator calling tool: %s\nArguments:\n%s",
+                tool_call["name"],
+                json.dumps(tool_call["args"], indent=2, ensure_ascii=False),
+            )
+
         result = tool_node.invoke({
             "messages": state["messages"],
         })
+
+        for message in result["messages"]:
+            logger.info(
+                "Investigator tool result: %s\n%s",
+                message.name,
+                message.content,
+            )
 
         return {
             "messages": result["messages"],

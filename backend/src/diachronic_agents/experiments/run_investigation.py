@@ -1,6 +1,9 @@
 from diachronic_agents.retrieval.passage_retriever import PassageRetriever
 from diachronic_agents.workflows.investigator import run_investigation
 
+from mutatis_mutandis.lib.corpus_logging import get_logger
+
+logger = get_logger("#")
 
 def main() -> None:
     retriever = PassageRetriever()
@@ -26,10 +29,10 @@ def main() -> None:
 
     record = result["investigation_record"]
 
-    print("\n=== INVESTIGATION ===\n")
-    print(result["messages"][-1].content)
+    logger.info("\n=== INVESTIGATION ===\n")
+    logger.info(result["messages"][-1].content)
 
-    print("\n=== TOOL CALLS ===\n")
+    logger.info("\n=== TOOL CALLS ===\n")
 
     for call in record["tool_calls"]:
         result_data = call["result"]
@@ -42,31 +45,31 @@ def main() -> None:
             else 0
         )
 
-        print(
+        logger.info(
             f"{call['tool_name']}: "
             f"{call['status']} "
             f"({count} passage(s))"
         )
-        print(f"  Arguments: {call['arguments']}")
+        logger.info(f"  Arguments: {call['arguments']}")
 
-    print("\n=== EVIDENCE ===\n")
+    logger.info("\n=== EVIDENCE ===\n")
 
     for item in record["evidence"]:
         observation = item["observations"][0]
 
-        print(
+        logger.info(
             f"{item['passage_id']} | "
             f"{observation.get('pub_year')} | "
             f"{observation.get('title')}"
         )
-        print(f"  Found by: {len(item['discovered_by'])} operation(s)")
+        logger.info(f"  Found by: {len(item['discovered_by'])} operation(s)")
 
-    print("\n=== WARNINGS ===\n")
+    logger.info("\n=== WARNINGS ===\n")
 
     for warning in record["warnings"]:
-        print(warning)
+        logger.info(warning)
 
-    print(
+    logger.info(
         f"\nTotal tool calls: {record['tool_call_count']}"
         f"\nDistinct passages: {len(record['evidence'])}"
     )

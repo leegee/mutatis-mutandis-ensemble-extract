@@ -1,6 +1,6 @@
 from diachronic_agents.llm.passage_classifier import ClassificationConfig
 
-ALBINISM_CONFIG = ClassificationConfig(
+_ALBINISM_CONFIG = ClassificationConfig(
     search_term="white hair",
     target_description=(
         "Descriptions of unusually white or pale human hair, "
@@ -38,7 +38,7 @@ ALBINISM_CONFIG = ClassificationConfig(
 )
 
 
-LIBERTY_CONFIG = ClassificationConfig(
+_LIBERTY_CONFIG = ClassificationConfig(
     search_term="liberty",
     target_description=(
         "Passages in which liberty or freedom is invoked, defined, "
@@ -66,3 +66,6 @@ LIBERTY_CONFIG = ClassificationConfig(
         "Record how the passage uses the term, not whether the usage is sincere.",
     ],
 )
+
+# CLASSIFICATION_CONFIG is the cannonical source to be used by consumers
+CLASSIFICATION_CONFIG = _ALBINISM_CONFIG

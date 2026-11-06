@@ -6,6 +6,7 @@ from typing import Any
 from dataclasses import dataclass
 from uuid import uuid4
 
+from diachronic_agents.llm.passage_classifier import ClassificationConfig
 from diachronic_agents.workflows.search_result import SearchResult
 from diachronic_agents.workflows.forward_search import build_forward_search_workflow
 from diachronic_agents.workflows.reverse_search import build_reverse_search_workflow
@@ -14,7 +15,6 @@ from diachronic_agents.retrieval.retrieval_graph import build_retrieval_graph, m
 from diachronic_agents.llm.passage_classifier import classify_passages
 from diachronic_agents.retrieval.prospect_selector import select_prospects, rank_prospects_by_convergence
 from diachronic_agents.visualization.graph_visualizer import visualise_retrieval_graph, report_isolated_nodes
-from diachronic_agents.classification_configs import ALBINISM_CONFIG
 from mutatis_mutandis.lib.corpus_logging import get_logger
 from mutatis_mutandis.lib.corpus_config import OUT_DIR
 
@@ -111,7 +111,7 @@ def classify_and_select_prospects(
     passages: list[dict],
     retrieval_graph: dict,
     *,
-    config: Any = ALBINISM_CONFIG,
+    config: ClassificationConfig,
     feature_types: set[str] | None = None,
     per_feature_limit: int = 10,
 ) -> tuple[Any, list[dict]]:
@@ -531,7 +531,7 @@ def run_diachronic_search(
     seed_strategy: str = "previous_period",
     prospect_limit: int = 10,
     feature_types: set[str] | None = None,
-    classification_config: Any = ALBINISM_CONFIG,
+    config: ClassificationConfig,
     workflow: Any = None,
     retriever: PassageRetriever | None = None,
     checkpointer: Any = None,
@@ -723,7 +723,7 @@ def run_diachronic_search(
         classification, period_prospects = classify_and_select_prospects(
             passages=graph["nodes"],
             retrieval_graph=graph,
-            config=classification_config,
+            config=config,
             feature_types=feature_types,
             per_feature_limit=prospect_limit,
         )

@@ -7,21 +7,23 @@ from diachronic_agents.persistence.search_result_store import (
     list_search_results,
     load_search_result,
 )
+from diachronic_agents.classification_configs import CLASSIFICATION_CONFIG
 
 def main() -> None:
     search_result = run_diachronic_search(
-        query                = "white hair",
-        initial_period       =(0, 1500),
-        target_period        = (1501, 2000),
-        period_size          = 100,
-        first_period_size    = 200,
-        representation       = "l8",
-        scale                = "broad",
-        initial_limit        = 20,
-        seed_limit           = 3,
-        transfer_limit       = 10,
-        expansion_seed_count = 3,
-        prospect_limit       = 10,
+        query                 = "white hair",
+        initial_period        =(0, 1500),
+        target_period         = (1501, 2000),
+        period_size           = 100,
+        first_period_size     = 200,
+        representation        = "l8",
+        scale                 = "broad",
+        initial_limit         = 20,
+        seed_limit            = 3,
+        transfer_limit        = 10,
+        expansion_seed_count  = 3,
+        prospect_limit        = 10,
+        config                = CLASSIFICATION_CONFIG,
     )
 
     graph_path = create_graph(

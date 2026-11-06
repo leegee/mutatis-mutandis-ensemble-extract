@@ -7,7 +7,7 @@ from diachronic_agents.persistence.search_result_store import (
     save_search_result,
     load_search_result,
 )
-
+from diachronic_agents.classification_configs import CLASSIFICATION_CONFIG
 
 def test_real_search_result_round_trip(tmp_path):
     # Run a real diachronic search.
@@ -17,7 +17,7 @@ def test_real_search_result_round_trip(tmp_path):
         target_period=(1800, 1899),
         period_size=100,
         direction="reverse",
-
+        config=CLASSIFICATION_CONFIG,
         # Keep the experiment relatively small.
         initial_limit=5,
         seed_limit=2,
@@ -86,6 +86,7 @@ def test_multi_period_search_result_round_trip(tmp_path):
         target_period=(1700, 1899),
         period_size=100,
         direction="reverse",
+        config=CLASSIFICATION_CONFIG,
         initial_limit=5,
         seed_limit=2,
         transfer_limit=3,

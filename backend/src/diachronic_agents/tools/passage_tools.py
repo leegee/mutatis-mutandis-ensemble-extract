@@ -56,7 +56,7 @@ def build_passage_tools(
         _validate_year_range(start_year, end_year)
         _validate_limit(limit)
 
-        return retriever.search_text(
+        return _compact_search_results(retriever.search_text(
             query,
             representation=representation,
             start_year=start_year,
@@ -64,7 +64,7 @@ def build_passage_tools(
             limit=limit,
             scale=scale,
             include_text=include_text,
-        )
+        ))
 
     @tool
     def search_from_passage(
@@ -87,7 +87,7 @@ def build_passage_tools(
         _validate_year_range(start_year, end_year)
         _validate_limit(limit)
 
-        return retriever.search_from_passage(
+        return _compact_search_results(retriever.search_from_passage(
             passage_id,
             representation=representation,
             start_year=start_year,
@@ -95,7 +95,7 @@ def build_passage_tools(
             limit=limit,
             scale=scale,
             include_text=include_text,
-        )
+        ))
 
     @tool
     def lexical_search(
@@ -120,13 +120,13 @@ def build_passage_tools(
         if window_tokens < 1:
             raise ValueError("window_tokens must be positive")
 
-        return retriever.search_lexical(
+        return _compact_search_results(retriever.search_lexical(
             query,
             start_year=start_year,
             end_year=end_year,
             limit=limit,
             window_tokens=window_tokens,
-        )
+        ))
 
     @tool
     def inspect_passage(
@@ -151,3 +151,26 @@ def build_passage_tools(
         lexical_search,
         inspect_passage,
     ]
+
+
+def _compact_search_results(
+    result: dict,
+    *,
+    excerpt_chars: int = 250,
+) -> dict:
+    """Return minimal passage records for investigator consumption."""
+
+    return {
+        "results": [
+            {
+                "passage_id": item["passage_id"],
+                "pub_year": item.get("pub_year"),
+                "rank": item.get("rank"),
+                "text": item.get("text", "")[:excerpt_chars],
+            }
+            for item in result.get("results", [])
+            if item.get("passage_id")
+        ],
+        "warnings": result.get("warnings", []),
+    }
+    

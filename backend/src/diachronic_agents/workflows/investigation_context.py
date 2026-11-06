@@ -6,6 +6,8 @@ from __future__ import annotations
 import json
 from typing import Any, Sequence
 
+from mutatis_mutandis.lib.corpus_logging import get_logger
+
 from langchain_core.messages import (
     AIMessage,
     BaseMessage,
@@ -14,7 +16,10 @@ from langchain_core.messages import (
 )
 
 
-DEFAULT_RECENT_ROUNDS = 2
+logger = get_logger(__name__)
+
+
+DEFAULT_RECENT_ROUNDS = 1
 DEFAULT_SEARCH_RESULTS = 5
 DEFAULT_SEARCH_EXCERPT_CHARS = 250
 DEFAULT_MEMORY_RESULTS = 15
@@ -111,12 +116,18 @@ def _compact_search_payload(
 
     compacted = {
         "results": [
-            _compact_passage(
-                result,
-                excerpt_chars=excerpt_chars,
-            )
+            {
+                "passage_id": result["passage_id"],
+                "pub_year": result.get("pub_year"),
+                "rank": result.get("rank"),
+                "text": _excerpt(
+                    result.get("text", ""),
+                    excerpt_chars,
+                ),
+            }
             for result in results[:limit]
             if isinstance(result, dict)
+            and result.get("passage_id")
         ],
         "warnings": payload.get("warnings", []),
         "compacted": True,
@@ -337,13 +348,10 @@ def compact_investigation_context(
     Recent tool-call rounds retain their call/response structure.
     """
 
-    if len(messages) <= 2:
-        return list(messages)
-
     rounds = _group_tool_rounds(messages[2:])
 
-    if not rounds:
-        return list(messages)
+    # if not rounds:
+    #     return list(messages)
 
     prefix = list(messages[:2])
 

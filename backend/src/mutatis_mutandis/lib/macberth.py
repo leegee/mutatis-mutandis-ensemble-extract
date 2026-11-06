@@ -67,6 +67,7 @@ def _load_macberth() -> MacberthModel:
     model = AutoModelForMaskedLM.from_pretrained(
         MACBERTH_MODEL_PATH,
         local_files_only=True,
+        output_loading_info=False,
     )
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
