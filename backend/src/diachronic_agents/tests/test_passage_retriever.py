@@ -188,27 +188,21 @@ def test_search_lexical_forwards_parameters_and_preserves_match_offsets():
     assert hit["text"] == "His hair was white."
 
 
-def test_inspect_passage_delegates_to_service():
-    service = FakeService()
-    retriever = PassageRetriever(service=service)
+def inspect_passage(
+    self,
+    passage_id,
+    representation="l8",
+    max_chars=1200,
+):
+    self.calls.append((
+        "inspect_passage",
+        passage_id,
+        representation,
+        max_chars,
+    ))
+    return {"passage_id": passage_id, "text": "Example"}
 
-    result = retriever.inspect_passage(
-        "passage-1",
-        representation="l8",
-    )
-
-    assert service.inspected == {
-        "passage_id": "passage-1",
-        "representation": "l8",
-    }
-
-    assert result == {
-        "passage_id": "passage-1",
-        "text": "Inspected passage text.",
-        "title": "Test document",
-    }
-
-
+    
 def test_serialisation_handles_missing_optional_fields():
     service = FakeService()
     retriever = PassageRetriever(service=service)

@@ -141,10 +141,12 @@ def test_inspect_passage_forwards_arguments(tools, retriever):
         (
             "inspect_passage",
             "passage-456",
-            {"representation": "last"},
+            {
+                "representation": "last",
+                "max_chars": 1200,
+            },
         )
     ]
-
 
 @pytest.mark.parametrize(
     ("tool_name", "arguments"),

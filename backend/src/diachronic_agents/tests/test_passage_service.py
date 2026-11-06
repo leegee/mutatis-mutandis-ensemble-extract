@@ -29,6 +29,10 @@ def test_inspect_passage_loads_record_and_fetches_text(monkeypatch):
         "char_start": 100,
         "char_end": 200,
         "table": "passage_l8__model__1600_1699",
+        "text_length": 25,
+        "text_truncated": False,
+        "text_window_start": 0,
+        "text_window_end": 25,        
     }
 
     metadata = {

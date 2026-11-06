@@ -78,7 +78,7 @@ class PassageRetriever:
         self,
         service: PassageSearchService | None = None,
         *,
-        lance_dir: Path = LANCE_INDEXES_DIR,
+        lance_dir: Path = LANCE_INDEXES_DIR
     ) -> None:
         self.service = service or PassageSearchService(
             lance_dir,
@@ -199,6 +199,7 @@ class PassageRetriever:
         passage_id: str,
         *,
         representation: str = "l8",
+        max_chars: int = 1200,
     ) -> dict[str, Any]:
         """
         Retrieve the full indexed passage and its document metadata.
@@ -208,4 +209,5 @@ class PassageRetriever:
         return self.service.inspect_passage(
             passage_id,
             representation=representation,
+            max_chars=max_chars,
         )

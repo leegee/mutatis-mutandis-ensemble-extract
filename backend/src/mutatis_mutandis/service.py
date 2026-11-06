@@ -87,6 +87,38 @@ class SearchOutcome:
     warnings: List[str] = field(default_factory=list)
 
 
+def _window_text(
+    text: str | None,
+    max_chars: int,
+) -> tuple[str | None, bool, int, int]:
+    """Return a centred excerpt and its original character offsets."""
+
+    if not text:
+        return text, False, 0, 0
+
+    if max_chars <= 0:
+        raise ValueError("max_chars must be positive")
+
+    if len(text) <= max_chars:
+        return text, False, 0, len(text)
+
+    marker = "\n[…]\n"
+    available = max_chars - len(marker)
+
+    if available <= 0:
+        raise ValueError("max_chars is too small")
+
+    start = (len(text) - available) // 2
+    end = start + available
+
+    return (
+        text[start:end],
+        True,
+        start,
+        end,
+    )
+
+    
 class PassageSearchService:
     def __init__(
         self,
@@ -260,13 +292,15 @@ class PassageSearchService:
         self,
         passage_id: str,
         representation: str = "l8",
+        max_chars: int = 1200,
     ) -> dict:
         """
-        Retrieve a persistent passage and its reconstructed text.
+        Retrieve a persistent passage and a bounded text window.
 
         The LanceDB record supplies passage identity and offsets.
-        PostgreSQL supplies the document metadata and passage text.
+        PostgreSQL supplies document metadata and passage text.
         """
+
         record = load_passage_record(
             self._db,
             passage_id,
@@ -279,11 +313,21 @@ class PassageSearchService:
             metas = fetch_passage_texts(conn, [record])
 
         meta = metas[0] if metas else {}
+        full_text = meta.get("passage_text")
+
+        text, truncated, start, end = _window_text(
+            full_text,
+            max_chars,
+        )
 
         return {
             **record,
             "title": meta.get("title"),
             "author": meta.get("author"),
             "filepath": meta.get("filepath"),
-            "text": meta.get("passage_text"),
+            "text": text,
+            "text_truncated": truncated,
+            "text_length": len(full_text) if full_text else 0,
+            "text_window_start": start,
+            "text_window_end": end,
         }
