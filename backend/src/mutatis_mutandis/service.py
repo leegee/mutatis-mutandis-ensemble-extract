@@ -256,7 +256,6 @@ class PassageSearchService:
         )
         return SearchOutcome(results=hits, warnings=[])
 
-
     def inspect_passage(
         self,
         passage_id: str,
@@ -277,7 +276,9 @@ class PassageSearchService:
         with get_connection(
             application_name=self.application_name
         ) as conn:
-            meta = fetch_passage_text(conn, record)
+            metas = fetch_passage_texts(conn, [record])
+
+        meta = metas[0] if metas else {}
 
         return {
             **record,
