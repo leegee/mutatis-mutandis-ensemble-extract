@@ -1,4 +1,3 @@
-# tools/passage_tools.py
 from __future__ import annotations
 
 from typing import Any, Literal
@@ -44,27 +43,29 @@ def build_passage_tools(
         limit: int = 10,
         include_text: bool = True,
     ) -> dict[str, Any]:
-        """Search the historical corpus semantically for a research query.
+        """Search the historical corpus semantically for  a research query.
 
-        Use this to discover passages expressing a concept, idea, or meaning,
-        including passages that may not use the query's exact words.
+        Use this to discover passages expressing relevant ideas, including
+        passages that may not use the query's exact words.
 
         Supply the publication-year range explicitly. Choose a representation
         and scale appropriate to the search. Results include passage IDs and
-        bibliographic and textual information where available.
+        textual information where available.
         """
         _validate_year_range(start_year, end_year)
         _validate_limit(limit)
 
-        return _compact_search_results(retriever.search_text(
-            query,
-            representation=representation,
-            start_year=start_year,
-            end_year=end_year,
-            limit=limit,
-            scale=scale,
-            include_text=include_text,
-        ))
+        return _compact_search_results(
+            retriever.search_text(
+                query,
+                representation=representation,
+                start_year=start_year,
+                end_year=end_year,
+                limit=limit,
+                scale=scale,
+                include_text=include_text,
+            )
+        )
 
     @tool
     def search_from_passage(
@@ -87,15 +88,17 @@ def build_passage_tools(
         _validate_year_range(start_year, end_year)
         _validate_limit(limit)
 
-        return _compact_search_results(retriever.search_from_passage(
-            passage_id,
-            representation=representation,
-            start_year=start_year,
-            end_year=end_year,
-            limit=limit,
-            scale=scale,
-            include_text=include_text,
-        ))
+        return _compact_search_results(
+            retriever.search_from_passage(
+                passage_id,
+                representation=representation,
+                start_year=start_year,
+                end_year=end_year,
+                limit=limit,
+                scale=scale,
+                include_text=include_text,
+            )
+        )
 
     @tool
     def lexical_search(
@@ -120,29 +123,39 @@ def build_passage_tools(
         if window_tokens < 1:
             raise ValueError("window_tokens must be positive")
 
-        return _compact_search_results(retriever.search_lexical(
-            query,
-            start_year=start_year,
-            end_year=end_year,
-            limit=limit,
-            window_tokens=window_tokens,
-        ))
+        return _compact_search_results(
+            retriever.search_lexical(
+                query,
+                start_year=start_year,
+                end_year=end_year,
+                limit=limit,
+                window_tokens=window_tokens,
+            )
+        )
 
     @tool
     def inspect_passage(
         passage_id: str,
         representation: Representation = "l8",
+        max_chars: int = 1200,
     ) -> dict[str, Any]:
-        """Retrieve the full stored record and text for a passage.
+        """Inspect a passage previously discovered by a corpus search.
 
-        Use this to examine a passage already discovered by a search.
-        This is useful for checking its context and metadata before deciding
-        whether it supports a research claim or is a useful seed for another
-        search.
+        Returns bibliographic metadata and a bounded text excerpt.
+        The excerpt is centred within the indexed passage.
+
+        Increase max_chars when more context is needed. Use this tool
+        before relying on a search result as substantive evidence.
         """
+        if not 200 <= max_chars <= 4000:
+            raise ValueError(
+                "max_chars must be between 200 and 4000"
+            )
+
         return retriever.inspect_passage(
             passage_id,
             representation=representation,
+            max_chars=max_chars,
         )
 
     return [
@@ -173,4 +186,3 @@ def _compact_search_results(
         ],
         "warnings": result.get("warnings", []),
     }
-    
