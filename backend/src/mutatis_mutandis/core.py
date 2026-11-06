@@ -161,6 +161,79 @@ def load_passage_vector(db, passage_id: str, representation: str) -> np.ndarray:
 
 
 # ---------------------------------------------------------------------------
+# DB Records
+# ---------------------------------------------------------------------------
+
+def load_passage_record(
+    db,
+    passage_id: str,
+    representation: str = "l8",
+) -> dict:
+    """
+    Load the stored metadata for an existing passage.
+
+    Searches all year-bucket tables for the selected representation.
+    Raises if the passage is missing or occurs more than once.
+    """
+    prefix = table_prefix(representation)
+    escaped_id = passage_id.replace("'", "''")
+
+    columns = [
+        column
+        for column in RESULT_COLUMNS
+        if column != "_distance"
+    ]
+
+    matches = []
+
+    for table_name in db.list_tables().tables:
+        if not table_name.startswith(prefix):
+            continue
+
+        table = db.open_table(table_name)
+
+        rows = (
+            table.search()
+            .where(f"passage_id = '{escaped_id}'")
+            .select(columns)
+            .limit(2)
+            .to_list()
+        )
+
+        for row in rows:
+            matches.append((table_name, row))
+
+    if not matches:
+        raise VectorNotFoundError(
+            f"No passage found for passage_id={passage_id!r}, "
+            f"representation={representation!r}"
+        )
+
+    if len(matches) > 1:
+        locations = [name for name, _ in matches]
+
+        raise ValueError(
+            f"Multiple records found for passage_id={passage_id!r}, "
+            f"representation={representation!r}: {locations}"
+        )
+
+    table_name, row = matches[0]
+
+    record = dict(row)
+    record["table"] = table_name
+
+    logger.debug(
+        "Loaded passage record %s from %s (doc_id=%s, year=%s)",
+        passage_id,
+        table_name,
+        record.get("doc_id"),
+        record.get("pub_year"),
+    )
+
+    return record
+
+
+# ---------------------------------------------------------------------------
 # Search
 # ---------------------------------------------------------------------------
 

@@ -1,5 +1,3 @@
-# diachronic_agents/retrieval/passage_retriever.py
-
 from __future__ import annotations
 
 from pathlib import Path
@@ -9,6 +7,7 @@ from mutatis_mutandis.lib.corpus_config import LANCE_INDEXES_DIR
 from mutatis_mutandis.service import (
     PassageSearchService,
     SearchParams,
+    TextSearchParams,
 )
 
 
@@ -40,6 +39,16 @@ def _serialise_hit(hit: dict[str, Any]) -> dict[str, Any]:
             if hit.get("score") is not None
             else None
         ),
+        "sim_q": (
+            float(hit["sim_q"])
+            if hit.get("sim_q") is not None
+            else None
+        ),
+        "sim_neg": (
+            float(hit["sim_neg"])
+            if hit.get("sim_neg") is not None
+            else None
+        ),
         "title": hit.get("title"),
         "author": hit.get("author"),
         "text": hit.get("text"),
@@ -49,6 +58,8 @@ def _serialise_hit(hit: dict[str, Any]) -> dict[str, Any]:
         "word_end": hit.get("word_end"),
         "token_start": hit.get("token_start"),
         "token_end": hit.get("token_end"),
+        "match_start": hit.get("match_start"),
+        "match_end": hit.get("match_end"),
         "filepath": hit.get("filepath"),
     }
 
@@ -148,4 +159,53 @@ class PassageRetriever:
             limit=limit,
             scale=scale,
             include_text=include_text,
+        )
+
+    def search_lexical(
+        self,
+        query: str,
+        *,
+        start_year: int,
+        end_year: int,
+        limit: int = 10,
+        window_tokens: int = 40,
+    ) -> dict[str, Any]:
+        """
+        Search for an exact token sequence using PostgreSQL.
+
+        These results have synthetic passage IDs and cannot be used
+        with search_from_passage().
+        """
+        params = TextSearchParams(
+            query=query,
+            start_year=start_year,
+            end_year=end_year,
+            limit=limit,
+            window_tokens=window_tokens,
+        )
+
+        outcome = self.service.text_search(params)
+
+        return {
+            "results": [
+                _serialise_hit(hit)
+                for hit in outcome.results
+            ],
+            "warnings": list(outcome.warnings),
+        }
+
+    def inspect_passage(
+        self,
+        passage_id: str,
+        *,
+        representation: str = "l8",
+    ) -> dict[str, Any]:
+        """
+        Retrieve the full indexed passage and its document metadata.
+
+        Requires a persistent LanceDB passage ID.
+        """
+        return self.service.inspect_passage(
+            passage_id,
+            representation=representation,
         )

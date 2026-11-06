@@ -24,6 +24,7 @@ from mutatis_mutandis.lib.macberth import encode_passage_query
 from mutatis_mutandis.years import current_year
 
 from mutatis_mutandis.core import (
+    load_passage_record,
     load_passage_vector,
     normalise_vector,
     search_passages,
@@ -103,7 +104,7 @@ class PassageSearchService:
         self._load_vector = lru_cache(maxsize=vector_cache_size)(
             self._load_vector_uncached
         )
-        logger.info("Lance directory: %s", self.lance_dir)
+        logger.debug("Lance directory: %s", self.lance_dir)
 
     # -- internals ---------------------------------------------------------
 
@@ -176,7 +177,7 @@ class PassageSearchService:
     def warmup(self, representation: str = "l8") -> None:
         """Load the encoder (and any lazy state) before serving traffic."""
         self._encode("warmup", representation)
-        logger.info("Encoder warm (%s)", representation)
+        logger.debug("Encoder warm (%s)", representation)
 
     def search(self, params: SearchParams) -> SearchOutcome:
         t0 = time.perf_counter()
@@ -219,7 +220,7 @@ class PassageSearchService:
             for rank, (row, meta) in enumerate(zip(rows, metas), start=1)
         ]
 
-        logger.info(
+        logger.debug(
             "search done: %d hits in %.0f ms (rep=%s scale=%s years=%s-%s negatives=%d)",
             len(hits),
             (time.perf_counter() - t0) * 1000,
@@ -230,6 +231,7 @@ class PassageSearchService:
             len(negatives),
         )
         return SearchOutcome(results=hits, warnings=warnings)
+
 
     def text_search(self, params: TextSearchParams) -> SearchOutcome:
         """Postgres phrase search over tokens; does not use Lance or the encoder."""
@@ -244,7 +246,7 @@ class PassageSearchService:
                 window_tokens=params.window_tokens,
             )
         hits = [self._to_text_hit(rank, row) for rank, row in enumerate(rows, start=1)]
-        logger.info(
+        logger.debug(
             "text_search done: %d hits in %.0f ms (years=%s-%s window=%d)",
             len(hits),
             (time.perf_counter() - t0) * 1000,
@@ -253,3 +255,34 @@ class PassageSearchService:
             params.window_tokens,
         )
         return SearchOutcome(results=hits, warnings=[])
+
+
+    def inspect_passage(
+        self,
+        passage_id: str,
+        representation: str = "l8",
+    ) -> dict:
+        """
+        Retrieve a persistent passage and its reconstructed text.
+
+        The LanceDB record supplies passage identity and offsets.
+        PostgreSQL supplies the document metadata and passage text.
+        """
+        record = load_passage_record(
+            self._db,
+            passage_id,
+            representation,
+        )
+
+        with get_connection(
+            application_name=self.application_name
+        ) as conn:
+            meta = fetch_passage_text(conn, record)
+
+        return {
+            **record,
+            "title": meta.get("title"),
+            "author": meta.get("author"),
+            "filepath": meta.get("filepath"),
+            "text": meta.get("passage_text"),
+        }
