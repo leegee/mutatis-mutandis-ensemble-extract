@@ -25,10 +25,9 @@ Supercedes [mutatis-mutandis-passage-search](https://github.com/leegee/mutatis-m
 
 ### Environment
 
-
-
 * `HF_TOKEN` - HuggingFace Token
 * `GROQ_API_KEY` - Groq API Key
+* `GEMINI_API_KEY` Gemini API key
 
 ### Ingestion
 
