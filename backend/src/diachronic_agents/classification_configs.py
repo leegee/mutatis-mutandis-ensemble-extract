@@ -20,6 +20,7 @@ _ALBINISM_CONFIG = ClassificationConfig(
         "Flaxen or similarly pale hair, recorded separately from white hair",
     ],
     exclude=[
+        "White teeth",
         "White garments, clothing and robes",
         "White fabric, wool as a material, silk and textiles",
         "White paint, stone, buildings and other objects",
@@ -28,7 +29,7 @@ _ALBINISM_CONFIG = ClassificationConfig(
     categories={
         "human_hair": "Scalp or facial hair of human beings (primary).",
         "complexion": "Human skin colour or pallor; separate from hair (primary).",
-        "animal_fur": "Hair, fur, coats or manes of animals (secondary).",
+        "animal_fur": "Animal hair, fur, coats or manes (secondary).",
         "feathers": "Feathers and plumage; distinct from hair (secondary).",
         "flaxen_hair": "Flaxen or similarly pale hair; do not equate with white (secondary).",
     },

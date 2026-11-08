@@ -1,5 +1,6 @@
 from diachronic_agents.retrieval.passage_retriever import PassageRetriever
 from diachronic_agents.workflows.investigator import run_investigation
+from diachronic_agents.llm.gemini import create_gemini_llm
 
 from mutatis_mutandis.lib.corpus_logging import get_logger
 
@@ -7,6 +8,8 @@ logger = get_logger("#")
 
 def main() -> None:
     retriever = PassageRetriever()
+
+    llm = llm = create_gemini_llm()
 
     question = """
     Investigate how extraordinary whiteness of hair and complexion
@@ -23,8 +26,9 @@ def main() -> None:
 
     result = run_investigation(
         question,
-        retriever=retriever,
-        max_tool_calls=8,
+        llm            = llm,
+        retriever      = retriever,
+        max_tool_calls = 16,
     )
 
     record = result["investigation_record"]

@@ -161,7 +161,7 @@ def build_passage_tools(
     return [
         semantic_search,
         search_from_passage,
-        lexical_search,
+        # lexical_search, uses a synthetic passage_id so fails, but why do we even need it at this stage?
         inspect_passage,
     ]
 
@@ -176,6 +176,8 @@ def _compact_search_results(
     return {
         "results": [
             {
+                "title": item["title"][:50],
+                # "author": item["author"][:50],
                 "passage_id": item["passage_id"],
                 "pub_year": item.get("pub_year"),
                 "rank": item.get("rank"),

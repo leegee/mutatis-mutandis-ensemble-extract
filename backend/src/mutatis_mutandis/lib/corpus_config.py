@@ -33,8 +33,8 @@ COLAB_MODE = (
 OUT_DIR = Path("/content/drive/MyDrive/macberth_output") if COLAB_MODE else PROJECT_ROOT / "out"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-MAPPED_GOOGLE_DRIVE = Path("E:/") / "My Drive" / "passage-pipeline"
-MAPPED_GOOGLE_DRIVE.mkdir(parents=True, exist_ok=True)
+MAPPED_GOOGLE_DRIVE = None # Path("E:/") / "My Drive" / "passage-pipeline"
+# MAPPED_GOOGLE_DRIVE.mkdir(parents=True, exist_ok=True)
 
 TMP_DIR = OUT_DIR / "tmp"
 TMP_DIR.mkdir(parents=True, exist_ok=True)

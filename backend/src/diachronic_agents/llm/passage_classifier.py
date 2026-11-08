@@ -20,7 +20,6 @@ from diachronic_agents.llm.request_budget import (
     INVESTIGATOR_MAX_OUTPUT_TOKENS,
 )
 
-
 logger = get_logger(__name__)
 
 
@@ -428,11 +427,6 @@ def classify_passages(
     return ClassificationResult(
         classifications=[results[p["id"]] for p in passages]
     )
-
-
-from diachronic_agents.llm.request_budget import (
-    INVESTIGATOR_MAX_OUTPUT_TOKENS,
-)
 
 
 def create_investigator_llm():

@@ -7,6 +7,8 @@ from uuid import uuid4
 import time
 import json
 
+from langchain_core.language_models.chat_models import BaseChatModel
+
 from mutatis_mutandis.lib.corpus_logging import get_logger
 
 from langchain_core.messages import (
@@ -20,7 +22,7 @@ from langgraph.graph import END, START, StateGraph
 from langgraph.graph.message import add_messages
 from langgraph.prebuilt import ToolNode
 
-from diachronic_agents.llm.passage_classifier import create_investigator_llm
+# from diachronic_agents.llm.passage_classifier import create_investigator_llm
 from diachronic_agents.retrieval.passage_retriever import PassageRetriever
 from diachronic_agents.tools.passage_tools import build_passage_tools
 from diachronic_agents.workflows.investigation_record import build_investigation_record
@@ -51,8 +53,8 @@ Research method:
    results and call inspect_passage to retrieve their full text before
    using them as substantive evidence. Prioritise relevance rather
    than inspecting every result.
-4. Use further calls to semantic_search, search_from_passage, and
-   lexical_search to explore questions and connections suggested by
+4. Use further calls to semantic_search and search_from_passage
+   to explore questions and connections suggested by
    the passages you have inspected.
 5. Follow unexpected but potentially relevant findings when they
    offer a useful avenue for answering the research question.
@@ -96,15 +98,18 @@ class InvestigatorState(TypedDict):
 def build_investigator_workflow(
     retriever: PassageRetriever,
     *,
-    llm: Any | None = None,
+    llm: BaseChatModel | None = None,
     checkpointer: Any | None = None,
     request_budget: GroqRequestBudget | None = None,
 ):
     """Build the corpus research investigator graph."""
 
+    if (llm == None):
+        raise ValueError("llm must not be empty but an instance of BaseChatModel")
+
     tools: list[BaseTool] = build_passage_tools(retriever)
     request_budget = request_budget or investigator_request_budget
-    llm = llm or create_investigator_llm()
+    # llm = llm or create_investigator_llm()
     model_with_tools = llm.bind_tools(tools)
 
     tool_node = ToolNode(tools)
@@ -129,6 +134,7 @@ def build_investigator_workflow(
         )
 
         started = time.monotonic()
+        logger.info("Invoking")
         response = model_with_tools.invoke(model_messages)
         elapsed = time.monotonic() - started
 
@@ -238,6 +244,7 @@ def build_investigator_workflow(
 def run_investigation(
     question: str,
     *,
+    llm: BaseChatModel | None = None,
     retriever: PassageRetriever | None = None,
     workflow: Any | None = None,
     max_tool_calls: int = 12,
@@ -257,7 +264,7 @@ def run_investigation(
                 "A PassageRetriever is required when no workflow is supplied"
             )
 
-        workflow = build_investigator_workflow(retriever)
+        workflow = build_investigator_workflow(retriever, llm=llm)
 
     state: InvestigatorState = {
         "messages": [

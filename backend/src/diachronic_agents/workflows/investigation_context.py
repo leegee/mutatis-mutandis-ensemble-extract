@@ -119,6 +119,8 @@ def _compact_search_payload(
             {
                 "passage_id": result["passage_id"],
                 "pub_year": result.get("pub_year"),
+                # "title": result.get("title"),
+                # "author": result.get("author"),
                 "rank": result.get("rank"),
                 "text": _excerpt(
                     result.get("text", ""),
