@@ -15,7 +15,7 @@ from langchain_core.tools import BaseTool
 from langchain_core.utils.function_calling import convert_to_openai_tool
 
 
-INVESTIGATOR_MAX_OUTPUT_TOKENS = 1024
+INVESTIGATOR_MAX_OUTPUT_TOKENS = 2048 #  1024
 
 GROQ_TPM_LIMIT = 8000
 

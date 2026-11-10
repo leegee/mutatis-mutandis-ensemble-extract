@@ -46,11 +46,7 @@ def _passages_from_result(result: Any) -> list[dict[str, Any]]:
 def build_investigation_record(
     state: dict[str, Any],
 ) -> dict[str, Any]:
-    """Build a JSON-serialisable evidence and tool-call record from graph state.
-
-    The record preserves the original tool results. It does not infer
-    relevance, rewrite passages, or turn model assertions into evidence.
-    """
+    """Build a JSON-serialisable record of tool activity and passage evidence."""
 
     messages = state.get("messages", [])
     tool_call_count = state.get("tool_call_count", 0)
@@ -63,11 +59,14 @@ def build_investigation_record(
 
     tool_calls: list[dict[str, Any]] = []
     evidence: dict[str, dict[str, Any]] = {}
+    search_candidates: dict[str, dict[str, Any]] = {}
+    inspected_passages: dict[str, dict[str, Any]] = {}
     warnings: list[dict[str, Any]] = []
 
     for message in messages:
         for call in getattr(message, "tool_calls", []):
             call_id = call.get("id")
+            tool_name = call.get("name")
             tool_message = tool_messages.get(call_id)
 
             result = (
@@ -84,7 +83,7 @@ def build_investigation_record(
 
             entry = {
                 "tool_call_id": call_id,
-                "tool_name": call.get("name"),
+                "tool_name": tool_name,
                 "arguments": call.get("args", {}),
                 "result": result,
                 "status": (
@@ -102,11 +101,13 @@ def build_investigation_record(
                 for warning in result.get("warnings", []):
                     warnings.append({
                         "tool_call_id": call_id,
-                        "tool_name": call.get("name"),
+                        "tool_name": tool_name,
                         "warning": warning,
                     })
 
-            for passage in _passages_from_result(result):
+            passages = _passages_from_result(result)
+
+            for passage in passages:
                 passage_id = str(passage["passage_id"])
 
                 item = evidence.setdefault(
@@ -118,25 +119,32 @@ def build_investigation_record(
                     },
                 )
 
-                # Keep distinct observations rather than silently
-                # overwriting search metadata with inspection metadata.
                 if passage not in item["observations"]:
                     item["observations"].append(passage)
 
                 source = {
                     "tool_call_id": call_id,
-                    "tool_name": call.get("name"),
+                    "tool_name": tool_name,
                     "arguments": call.get("args", {}),
                 }
 
                 if source not in item["discovered_by"]:
                     item["discovered_by"].append(source)
 
+                # Keep search candidates and inspected passages distinct.
+                if tool_name in {"semantic_search", "search_corpus"}:
+                    search_candidates.setdefault(passage_id, item)
+
+                elif tool_name == "inspect_passage":
+                    inspected_passages.setdefault(passage_id, item)
+
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "tool_call_count": tool_call_count,
         "tool_calls": tool_calls,
-        "evidence": list(evidence.values()),
+        "search_candidates": list(search_candidates.values()),
+        "inspected_passages": list(inspected_passages.values()),
+        "evidence": list(evidence.values()),  # Retained for compatibility.
         "warnings": warnings,
     }
     
