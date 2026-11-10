@@ -19,9 +19,18 @@ def _serialise_hit(hit: dict[str, Any]) -> dict[str, Any]:
     The passage ID remains the stable reference to the full record.
     """
     result = {
-        "passage_id": str(hit["passage_id"]),
+        "passage_id": (
+            str(hit["passage_id"])
+            if hit.get("passage_id") is not None
+            else None
+        ),
         "corpus": hit.get("corpus"),
         "doc_id": hit.get("doc_id"),
+        "token_idx": (
+            int(hit["token_idx"])
+            if hit.get("token_idx") is not None
+            else None
+        ),
         "pub_year": (
             int(hit["pub_year"])
             if hit.get("pub_year") is not None

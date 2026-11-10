@@ -24,9 +24,9 @@ result = run_investigation(
     llm                   = agent_llm,
     plain_llm             = plain_llm,
     retriever             = retriever,
-    start_year            = 1500,
-    end_year              = 1699,
-    period_size           = 50,
+    start_year            = 1000,
+    end_year              = 1500,
+    period_size           = 100,
     max_tool_calls        = 32,
     max_period_tool_calls = 8,
 )
@@ -41,5 +41,5 @@ logger.info(
     )
 )
 
-with open(OUT_DIR / 'run_investigation.json', 'w', encoding='utf-8',  ensure_ascii=False, default=str) as file:
+with open(OUT_DIR / 'run_investigation.json', 'w', encoding='utf-8',  default=str) as file:
     json.dump(result, file, indent=4)

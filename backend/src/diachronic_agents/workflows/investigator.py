@@ -62,34 +62,64 @@ Keep the plan concise and operational.
 
 
 PERIOD_PROMPT = """
-You are a historical corpus investigator working on one chronological period.
 
-Investigate the research question using the available corpus tools.
+You are a historical corpus investigator investigating ONE chronological period.
 
-Research method:
+Research the question using the available corpus tools. Prioritise verified evidence over search volume.
 
-1. Search semantically for relevant passages in the assigned period.
-2. Inspect promising results before treating them as evidence.
-3. Evaluate inspected passages against the research question.
-4. Refine searches or use search_from_passage to follow relevant
-   connections when useful.
-5. Pursue unexpected findings only when they may illuminate the question.
-6. Distinguish direct evidence from interpretation and hypothesis.
-7. Do not treat semantic similarity as proof.
-8. Do not invent quotations, dates, passage IDs, or bibliographic details.
+METHOD
 
-You are working on ONE period, not the entire chronology.
+1. Search broadly once using an appropriate semantic query.
+2. Inspect promising candidates. Prioritise direct evidence and unusual or significant descriptions.
+3. For relevant inspected passages, consider search_from_passage to discover semantically related material. Similarity does not establish historical connection.
+4. Refine searches only when a genuinely different query, vocabulary, representation, or scale is justified.
+5. Evaluate findings critically. Distinguish textual observation from interpretation, inspected evidence from candidates, and unsuccessful searches from evidence of absence.
 
-The research plan and summaries of preceding periods are context, not
-evidence for claims about this period.
+Do not exhaust the tool budget on searches. Inspect and understand promising passages. Report weak or absent evidence honestly, identifying supporting passage IDs.
 
-Use the tools adaptively. You do not need to inspect every search result.
-When you have investigated sufficiently, explain what you found and
-identify the passage IDs supporting your observations.
+The research plan and preceding period summaries are context, not evidence for this period.
 
-If evidence is weak or absent, say so.
+HISTORICAL VOCABULARY
 
-Do not attempt to investigate other chronological periods.
+Form queries using vocabulary appropriate to the period and language
+being investigated. Do not assume modern terminology existed in
+earlier periods. Consider historical synonyms, inflections, spelling
+variants, translations and related descriptive concepts.
+
+Do not simply combine modern subject labels, keywords and dates.
+Dates belong in the search parameters, not the query.
+
+EVIDENCE LEDGER
+
+After inspecting passages, include an <evidence_ledger_update> JSON block in your response whenever assessments or outstanding questions change:
+
+{
+  "assessments": [
+    {
+      "locator": {"passage_id": "ID"},
+      "pub_year": 1450,
+      "finding": "Concise textual observation.",
+      "interpretation": "Concise, qualified interpretation.",
+      "relevance": "high",
+      "confidence": "medium"
+    }
+  ],
+  "outstanding_questions": [
+    "Unresolved research question."
+  ]
+}
+
+For lexical results without a passage ID, use:
+{"doc_id": "ID", "token_idx": 123}
+
+Ledger rules:
+- Assess only inspected passages.
+- Use exact locators returned by tools.
+- Keep findings and interpretations distinct and concise.
+- Interpretations are hypotheses, not facts.
+- Never reproduce source text or quotations.
+- Update previous assessments when necessary.
+- Retain unresolved questions; do not emit an empty update.
 """
 
 
@@ -255,13 +285,6 @@ def _decode_tool_result(content: Any) -> Any:
 
 
 def _result_passages(result: Any) -> list[dict[str, Any]]:
-    """
-    Extract passage-shaped records from a decoded tool result.
-
-    Search tools normally return a 'results' list. inspect_passage normally
-    returns one passage directly.
-    """
-
     if not isinstance(result, dict):
         return []
 
@@ -269,13 +292,25 @@ def _result_passages(result: Any) -> list[dict[str, Any]]:
 
     if isinstance(passages, list):
         return [
-            item
-            for item in passages
-            if isinstance(item, dict)
-            and item.get("passage_id") is not None
+            passage
+            for passage in passages
+            if isinstance(passage, dict)
+            and (
+                passage.get("passage_id") is not None
+                or (
+                    passage.get("doc_id") is not None
+                    and passage.get("token_idx") is not None
+                )
+            )
         ]
 
-    if result.get("passage_id") is not None:
+    if (
+        result.get("passage_id") is not None
+        or (
+            result.get("doc_id") is not None
+            and result.get("token_idx") is not None
+        )
+    ):
         return [result]
 
     return []
@@ -577,10 +612,8 @@ def build_investigator_workflow(
                 "messages": [response],
             }
 
-        # Retain the initial instructions and question, together with
-        # the most recent interaction and relevant inspected evidence.
         context_messages = compact_investigation_context(
-            messages,
+            state["period_audit_messages"],
             recent_rounds=1,
         )
 
@@ -845,7 +878,7 @@ def build_investigator_workflow(
         inspected_passage_ids: set[str] = set()
 
         for call in inspection_calls:
-            if call.get("status") != "success":
+            if call.get("status") != "completed":
                 continue
 
             result = _decode_tool_result(call.get("result"))
