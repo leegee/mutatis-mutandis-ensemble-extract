@@ -4,7 +4,19 @@ import os
 import sys
 from pathlib import Path
 
-from mutatis_mutandis.lib.corpus_albinism import get_lance_indexes_dir, build_export_query, CORPUS_MIN_YEAR, CORPUS_MAX_YEAR, CONCEPT_SETS, PHRASE_SETS, FILTER_DOCUMENT_SIZE, MIN_TOKENS_IN_DOC, MAX_TOKENS_IN_DOC
+from mutatis_mutandis.lib.corpus_albinism import (
+    build_export_query,
+    build_setup_sql,
+    frequency_diagnostic_sql,
+    get_lance_indexes_dir,
+    CONCEPT_SETS,
+    CORPUS_MAX_YEAR,
+    CORPUS_MIN_YEAR,
+    FILTER_DOCUMENT_SIZE,
+    MAX_TOKENS_IN_DOC,
+    MIN_TOKENS_IN_DOC,
+    PHRASE_SETS,
+)
 
 LANCE_MODEL_NAME = "macberth"
 LANCE_BUCKET_SIZE = 50
