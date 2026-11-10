@@ -40,3 +40,4 @@ backend/src/lib/macberth-huggingface
 # JS
 frontend/node_modules/
 PLAN.md
+backend/src/temp.py

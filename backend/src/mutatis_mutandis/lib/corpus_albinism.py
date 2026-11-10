@@ -63,7 +63,6 @@ PHRASE_SETS: CanonicalRules = {
 
 WHITE = {
     "white", "whyte", "whiyte", "whight", "whit", "whyt", "wight", "wite", "whiet",
-
 }
 
 # OE
@@ -213,15 +212,8 @@ def _norm_prefix(value: str) -> str:
     return unicodedata.normalize("NFC", value).lower()
 
 
-def _hit_ctes(table: str, inline: bool = False) -> tuple[str, list]:
-    """
-    Shared CTEs: term_groups, [term_prefixes], target_tokens, target_hits.
-
-    The single definition of what counts as a hit. With inline=False the term
-    VALUES lists use bound parameters (returned in order: exact terms, then
-    prefixes); with inline=True the terms are rendered as escaped literals and
-    the params list is empty.
-    """
+def _term_values_sql(inline: bool = False) -> tuple[str, list]:
+    """Build VALUES list for exact terms. Returns (sql_fragment, params)."""
     values: list[str] = []
     params: list = []
     for group, terms in TERM_GROUPS.items():
@@ -231,101 +223,173 @@ def _hit_ctes(table: str, inline: bool = False) -> tuple[str, list]:
             else:
                 values.append("(%s, %s)")
                 params.extend((term, group))
+    return ", ".join(values), params
 
-    prefix_values: list[str] = []
+
+def _prefix_values_sql(inline: bool = False) -> tuple[str, list]:
+    """Build VALUES list for prefixes. Returns (sql_fragment, params)."""
+    values: list[str] = []
+    params: list = []
     for group, prefixes in PREFIX_GROUPS.items():
         for prefix in sorted({_norm_prefix(p) for p in prefixes}):
             if inline:
-                prefix_values.append(
-                    f"({_sql_literal(prefix)}, {_sql_literal(group)})"
-                )
+                values.append(f"({_sql_literal(prefix)}, {_sql_literal(group)})")
             else:
-                prefix_values.append("(%s, %s)")
+                values.append("(%s, %s)")
                 params.extend((prefix, group))
+    return ", ".join(values), params
 
-    # An empty VALUES list is a syntax error, so only emit prefix SQL if needed.
-    if prefix_values:
+
+def build_setup_sql(table: str = "tokens", inline: bool = False) -> tuple[str, list]:
+    """
+    Create the supporting temp tables:
+      - vocab          (distinct lowercased tokens + counts)
+      - term_expansion (exact terms ∪ prefix-expanded terms)
+      - target_tokens  (hits with group, indexed for proximity joins)
+
+    Call this once per connection before running the main queries.
+    """
+    term_vals, term_params = _term_values_sql(inline=inline)
+    prefix_vals, prefix_params = _prefix_values_sql(inline=inline)
+    params = term_params + prefix_params
+
+    prefix_cte = ""
+    if prefix_vals:
         prefix_cte = f"""
-        term_prefixes(prefix, grp) AS (
-            VALUES {", ".join(prefix_values)}
-        ),"""
-        prefix_select = """
-            UNION
-
-            SELECT
-                t.corpus,
-                t.doc_id,
-                t.token_idx,
-                tp.grp
-            FROM {table} AS t
-            JOIN term_prefixes AS tp
-              ON starts_with(lower(t.token), tp.prefix)""".format(table=table)
-    else:
-        prefix_cte = ""
-        prefix_select = ""
+        , term_prefixes(prefix, grp) AS (
+            VALUES {prefix_vals}
+        )
+        """
 
     sql = f"""
-        term_groups(term, grp) AS (
-            VALUES {", ".join(values)}
-        ),{prefix_cte}
-        target_tokens AS MATERIALIZED (
-            SELECT
-                t.corpus,
-                t.doc_id,
-                t.token_idx,
-                tg.grp
-            FROM {table} AS t
-            JOIN term_groups AS tg
-              ON lower(t.token) = tg.term
-            {prefix_select}
-        ),
-        target_hits AS (
-            -- Route 1: whiteness near appearance or luminosity
-            SELECT w.corpus, w.doc_id, w.token_idx
-            FROM target_tokens AS w
-            JOIN target_tokens AS a
-              ON a.corpus = w.corpus
-             AND a.doc_id = w.doc_id
-             AND a.grp = 'appearance'
-             AND a.token_idx BETWEEN w.token_idx - {PROXIMITY}
-                                 AND w.token_idx + {PROXIMITY}
-            WHERE w.grp = 'white'
+    -- 1. Vocabulary: one pass over tokens
+    CREATE TEMP TABLE vocab AS
+      SELECT lower(token) AS tok, count(*) AS n
+      FROM {table}
+      GROUP BY 1;
+    CREATE INDEX ON vocab (tok);
 
-            UNION
+    -- 2. Exact terms + prefix expansion against the small vocab
+    CREATE TEMP TABLE term_expansion AS
+      SELECT term AS tok, grp
+      FROM (VALUES {term_vals}) AS t(term, grp)
+      UNION
+      SELECT v.tok, p.grp
+      FROM vocab v
+      JOIN term_prefixes p ON starts_with(v.tok, p.prefix)
+      {prefix_cte if prefix_vals else ""};
 
-            -- Route 2: luminosity near a supernatural figure
-            SELECT l.corpus, l.doc_id, l.token_idx
-            FROM target_tokens AS l
-            JOIN target_tokens AS s
-              ON s.corpus = l.corpus
-             AND s.doc_id = l.doc_id
-             AND s.grp = 'supernatural'
-             AND s.token_idx BETWEEN l.token_idx - {PROXIMITY}
-                                 AND l.token_idx + {PROXIMITY}
-            WHERE l.grp = 'light'
-
-            UNION
-
-            -- Route 3: explicit whiteness near a supernatural figure
-            SELECT w.corpus, w.doc_id, w.token_idx
-            FROM target_tokens AS w
-            JOIN target_tokens AS s
-              ON s.corpus = w.corpus
-             AND s.doc_id = w.doc_id
-             AND s.grp = 'supernatural'
-             AND s.token_idx BETWEEN w.token_idx - {PROXIMITY}
-                                 AND w.token_idx + {PROXIMITY}
-            WHERE w.grp = 'white'
-
-            UNION
-
-            -- Route 4: explicit historical albinism-related vocabulary
-            SELECT corpus, doc_id, token_idx
-            FROM target_tokens
-            WHERE grp = 'albinism'
-        )
+    -- Wait, the CTE placement is awkward; rewrite cleanly:
     """
+    # Cleaner version without the broken CTE placement above
+    sql = f"""
+    -- 1. Vocabulary: one pass over tokens (also gives term frequencies)
+    DROP TABLE IF EXISTS vocab;
+    CREATE TEMP TABLE vocab AS
+      SELECT lower(token) AS tok, count(*) AS n
+      FROM {table}
+      GROUP BY 1;
+    CREATE INDEX ON vocab (tok);
+
+    -- 2. Exact terms + prefix expansion (small join: vocab × ~30 prefixes)
+    DROP TABLE IF EXISTS term_expansion;
+    CREATE TEMP TABLE term_expansion AS
+      SELECT term AS tok, grp
+      FROM (VALUES {term_vals}) AS tg(term, grp)
+    """
+    if prefix_vals:
+        sql += f"""
+      UNION
+      SELECT v.tok, p.grp
+      FROM vocab v
+      JOIN (VALUES {prefix_vals}) AS p(prefix, grp)
+        ON starts_with(v.tok, p.prefix)
+    """
+    sql += """
+    ;
+
+    -- 3. Hits, using equality against the expanded terms
+    DROP TABLE IF EXISTS target_tokens;
+    CREATE TEMP TABLE target_tokens AS
+      SELECT DISTINCT
+          t.corpus,
+          t.doc_id,
+          t.token_idx,
+          e.grp
+      FROM term_expansion e
+      JOIN {table} t ON lower(t.token) = e.tok;
+
+    CREATE INDEX ON target_tokens (grp, corpus, doc_id, token_idx);
+    ANALYZE target_tokens;
+    """.format(table=table)
+
     return sql, params
+
+
+def frequency_diagnostic_sql() -> str:
+    """
+    Run after build_setup_sql to inspect which expanded terms are very frequent.
+    Anything with millions of occurrences should usually be dropped or
+    restricted to a single route.
+    """
+    return """
+    SELECT e.grp, e.tok, v.n
+    FROM term_expansion e
+    JOIN vocab v USING (tok)
+    ORDER BY v.n DESC
+    LIMIT 50;
+    """
+
+
+def _hit_routes_sql() -> str:
+    """The four proximity / albinism routes, now against the indexed temp table."""
+    return f"""
+    target_hits AS (
+        -- Route 1: whiteness near appearance or luminosity
+        SELECT w.corpus, w.doc_id, w.token_idx
+        FROM target_tokens AS w
+        JOIN target_tokens AS a
+          ON a.corpus = w.corpus
+         AND a.doc_id = w.doc_id
+         AND a.grp = 'appearance'
+         AND a.token_idx BETWEEN w.token_idx - {PROXIMITY}
+                             AND w.token_idx + {PROXIMITY}
+        WHERE w.grp = 'white'
+
+        UNION
+
+        -- Route 2: luminosity near a supernatural figure
+        SELECT l.corpus, l.doc_id, l.token_idx
+        FROM target_tokens AS l
+        JOIN target_tokens AS s
+          ON s.corpus = l.corpus
+         AND s.doc_id = l.doc_id
+         AND s.grp = 'supernatural'
+         AND s.token_idx BETWEEN l.token_idx - {PROXIMITY}
+                             AND l.token_idx + {PROXIMITY}
+        WHERE l.grp = 'light'
+
+        UNION
+
+        -- Route 3: explicit whiteness near a supernatural figure
+        SELECT w.corpus, w.doc_id, w.token_idx
+        FROM target_tokens AS w
+        JOIN target_tokens AS s
+          ON s.corpus = w.corpus
+         AND s.doc_id = w.doc_id
+         AND s.grp = 'supernatural'
+         AND s.token_idx BETWEEN w.token_idx - {PROXIMITY}
+                             AND w.token_idx + {PROXIMITY}
+        WHERE w.grp = 'white'
+
+        UNION
+
+        -- Route 4: explicit historical albinism-related vocabulary
+        SELECT corpus, doc_id, token_idx
+        FROM target_tokens
+        WHERE grp = 'albinism'
+    )
+    """
 
 
 def build_corpus_query(
@@ -333,10 +397,14 @@ def build_corpus_query(
     doc_table: str = "documents",
     inline: bool = False,
 ) -> tuple[str, list]:
-    """Document-level selection built from the shared hit definition."""
-    ctes, params = _hit_ctes(table, inline=inline)
+    """
+    Document-level selection.
+    Assumes build_setup_sql() has already been executed on the connection
+    (so target_tokens exists).
+    """
+    # No longer needs the heavy CTE; just the routes against the temp table.
     sql = f"""
-        WITH {ctes},
+        WITH {_hit_routes_sql()},
         selected_docs AS (
             SELECT DISTINCT corpus, doc_id
             FROM target_hits
@@ -352,10 +420,11 @@ def build_corpus_query(
         JOIN {doc_table} AS d ON d.doc_id = s.doc_id AND d.corpus = s.corpus
         ORDER BY d.pub_year NULLS LAST, d.title
     """
-    return sql, params
+    return sql, []
 
 
-# Parameter-free SQL string (terms inlined), generated from the constant sets.
+# Parameter-free SQL string (terms inlined) – kept for compatibility,
+# but prefer the setup + query split for large corpora.
 CORPUS_SQL, _ = build_corpus_query(inline=True)
 
 
@@ -367,6 +436,15 @@ def select_white_corpus_doc_ids():
     con = get_connection()
     try:
         with con.cursor() as cur:
+            # One-time setup: vocab + term_expansion + indexed target_tokens
+            setup_sql, setup_params = build_setup_sql(inline=True)
+            cur.execute(setup_sql, setup_params)
+
+            # Optional: inspect frequencies before proceeding
+            # cur.execute(frequency_diagnostic_sql())
+            # for row in cur.fetchall():
+            #     logger.info("freq: %s", row)
+
             cur.execute(CORPUS_SQL)
             rows = cur.fetchall()
 
@@ -407,20 +485,24 @@ ORDER BY t.corpus, t.doc_id, t.token_idx;
 
 
 def build_export_query(TABLE, DOC_TABLE, WINDOW_LEFT, WINDOW_RIGHT) -> tuple[str, list]:
-    ctes, params = _hit_ctes(TABLE)
-
+    """
+    Windowed export query.
+    Assumes build_setup_sql() has already been run (target_tokens exists).
+    Uses the cleaner LEFT JOIN / UNION form instead of OR.
+    """
     sql = f"""
-        WITH {ctes},
+        WITH {_hit_routes_sql()},
         eligible_hits AS (
-            SELECT DISTINCT h.corpus, h.doc_id, h.token_idx
-            FROM target_hits AS h
-            WHERE NOT EXISTS (
-                SELECT 1
-                FROM export_indexed_docs AS ix
-                WHERE ix.corpus = h.corpus
-                  AND ix.doc_id = h.doc_id
-            )
-            OR h.doc_id = ANY(%s)
+            SELECT h.*
+            FROM target_hits h
+            LEFT JOIN export_indexed_docs ix USING (corpus, doc_id)
+            WHERE ix.doc_id IS NULL
+
+            UNION
+
+            SELECT h.*
+            FROM target_hits h
+            WHERE h.doc_id = ANY(%s)
         )
         SELECT DISTINCT
             t.corpus,
@@ -440,10 +522,8 @@ def build_export_query(TABLE, DOC_TABLE, WINDOW_LEFT, WINDOW_RIGHT) -> tuple[str
          AND d.doc_id = t.doc_id
         ORDER BY t.corpus, t.doc_id, t.token_idx
     """
-    return sql, params
-
+    return sql, []   # the ANY(%s) param is supplied by the caller
 
 
 if __name__ == "__main__":
     select_white_corpus_doc_ids()
-    

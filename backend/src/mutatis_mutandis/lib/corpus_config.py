@@ -17,10 +17,12 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent
 CORPUS_ROOT_DIR = Path("G:/") / "corpus"
 
 CORPUS_INPUT_DIRS = {
-    "misc": CORPUS_ROOT_DIR / "misc",
-    "eebo": CORPUS_ROOT_DIR / "eebo_all",
-    "ecco": CORPUS_ROOT_DIR / "ecco_all",
-    "cme":  CORPUS_ROOT_DIR / "cme_all",
+    "misc":  CORPUS_ROOT_DIR / "misc",
+    "eebo":  CORPUS_ROOT_DIR / "eebo_all",
+    "ecco":  CORPUS_ROOT_DIR / "ecco_all",
+    "cme":   CORPUS_ROOT_DIR / "cme_all",
+    "ycoe":  CORPUS_ROOT_DIR / "ycoe",
+    "clasp": CORPUS_ROOT_DIR / "clasp",
 }
 ECCO_HEADER_DIR = Path( CORPUS_ROOT_DIR / "corpus/ecco_all/ecco/headers" )
 CLMET_CORPUS_INPUT_DIR = CORPUS_ROOT_DIR / "clmet" / "corpus" / "txt" / "plain"

@@ -755,16 +755,137 @@ def process_misc_file(tree, xml_path):
     return meta, tokens
 
 
+# YCOE uses ASCII-compatible encodings for Old English characters.
+# Replace longer sequences first (+tt before +t).
+YCOE_CHAR_MAP = {
+    "+tt": "ŧ",   # barred t
+    "+T": "Þ",
+    "+t": "þ",
+    "+D": "Ð",
+    "+d": "ð",
+    "+A": "Æ",
+    "+a": "æ",
+    "+e": "ȩ",   # e-cedilla
+    "vel": "ƚ",   # barred l
+}
+
+YCOE_TAG_RE = re.compile(
+    r"^(?:[A-Z][A-Z0-9$+*-]*(?:\^[A-Z])?|[.,])$"
+)
+
+
+def decode_ycoe_form(form: str) -> str:
+    """Convert YCOE/Helsinki character encodings to Unicode."""
+    for encoded, unicode_char in YCOE_CHAR_MAP.items():
+        form = form.replace(encoded, unicode_char)
+
+    return form
+
+
+def process_ycoe_file(pos_path: Path):
+    """
+    Process one YCOE POS file.
+
+    - One file represents one Old English prose text.
+    - POS tags are stripped, lexical forms are retained.
+    - CODE and ID metadata are excluded.
+    - Punctuation is retained.
+    - Original Old English spelling and capitalisation are preserved.
+    """
+
+    try:
+        raw = pos_path.read_text(encoding="ascii")
+    except UnicodeDecodeError:
+        logger.exception(f"YCOE file is not ASCII: {pos_path}")
+        return None
+    except OSError:
+        logger.exception(f"Could not read YCOE file: {pos_path}")
+        return None
+
+    tokens = []
+    malformed = 0
+
+    for item in raw.split():
+
+        # POS files encode entries as FORM_TAG.
+        # rsplit is deliberate: it splits at the final underscore.
+        if "_" not in item:
+            malformed += 1
+            continue
+
+        form, tag = item.rsplit("_", 1)
+
+        # These are corpus annotations, not lexical material.
+        if tag in {"CODE", "ID"}:
+            continue
+
+        # Accept recognised POS tags and the punctuation tags.
+        if not YCOE_TAG_RE.fullmatch(tag):
+            malformed += 1
+            continue
+
+        form = decode_ycoe_form(form)
+
+        if not form:
+            continue
+
+        tokens.append(form)
+
+    if malformed:
+        logger.debug(
+            f"YCOE {pos_path.name}: ignored {malformed} "
+            f"unrecognised items"
+        )
+
+    if not tokens:
+        logger.warning(f"No lexical tokens extracted from {pos_path}")
+        return None
+
+    if len(tokens) > config.MAX_TOKENS_IN_DOC:
+        logger.warning(
+            f"YCOE document {pos_path.name} has {len(tokens)} tokens, "
+            f"exceeding MAX_TOKENS_IN_DOC "
+            f"{config.MAX_TOKENS_IN_DOC}"
+        )
+        return None
+
+    # YCOE filename stems are stable corpus document identifiers.
+    doc_id = pos_path.stem
+
+    meta = {
+        "doc_id": doc_id,
+        "title": doc_id,
+        "author": None,
+        "publisher": None,
+        "pub_place": None,
+
+        # Do not invent a publication/composition year.
+        # We can populate this later from YCOE bibliographic metadata.
+        "pub_year": None,
+        "source_date_raw": None,
+
+        "token_count": len(tokens),
+        "filepath": str(
+            pos_path.relative_to(config.CORPUS_ROOT_DIR).as_posix()
+        ),
+        "lang": "ang",
+    }
+
+    logger.info(
+        f"YCOE parsed {doc_id}: {len(tokens):,} tokens"
+    )
+
+    return meta, tokens
+
+
 def process_eebo_file(tree, xml_path):
     doc_id_elem = tree.find(".//tei:idno[@type='DLPS']", TEI_NS)
 
     if doc_id_elem is None or not doc_id_elem.text:
-        logger.warning(
-            f"process_eebo_file bailing as doc_id_elem not found in {xml_path}"
-        )
-        return None
-
-    doc_id = doc_id_elem.text.strip()
+        doc_id = Path(xml_path).stem
+        logger.warning( f"process_eebo_file found no doc_id_elem {xml_path}, using {doc_id}" )
+    else:
+        doc_id = doc_id_elem.text.strip()
 
     title_elem = tree.find(".//tei:teiHeader//tei:titleStmt/tei:title", TEI_NS)
     author_elem = tree.find(".//tei:teiHeader//tei:titleStmt/tei:author", TEI_NS)
@@ -848,6 +969,10 @@ def process_eebo_file(tree, xml_path):
 
 
 def process_file(xml_path: Path, corpus):
+    # YCOE is plain-text POS, not XML.
+    if corpus == "ycoe":
+        return process_ycoe_file(xml_path)
+
     try:
         tree = parse_tei(xml_path)
     except etree.ParseError as e:
@@ -858,7 +983,7 @@ def process_file(xml_path: Path, corpus):
         logger.warning(f"Failed to read {xml_path}: {e!r}")
         return None
 
-    if corpus == "eebo":
+    if corpus == "eebo" or corpus == "clasp":
         return process_eebo_file(tree, xml_path)
     elif corpus == "ecco":
         return process_ecco_file(tree, xml_path)
@@ -1055,21 +1180,23 @@ def resolve_input_file(file_arg: str, corpus: str) -> Path:
     )
 
 
-def ingest_xml_parallel(
-    xml_dir: Path | None = None,
-    max_workers: int     = 4,
-    batch_docs: int      = 50,
-    batch_tokens: int    = 50000,
-    corpus: str          = None,
-    doc_id: str | None   = None,
-    file: Path | None    = None,
-    use_windows: bool    = False,
+def ingest_file_parallel(
+    input_dir: Path | None = None,
+    max_workers: int      = 4,
+    batch_docs: int       = 50,
+    batch_tokens: int     = 50000,
+    corpus: str           = None,
+    doc_id: str | None    = None,
+    file: Path | None     = None,
+    use_windows: bool     = False,
 ):
     if file is not None:
-        xml_files = [file]
+        input_files = [file]
     else:
-        xml_files = [
-            p for p in xml_dir.rglob("*.xml")
+        extension = ".pos" if corpus == "ycoe" else ".xml"
+
+        input_files = [
+            p for p in input_dir.rglob(f"*{extension}")
             if p.name not in SKIP_FILES
         ]
 
@@ -1093,19 +1220,19 @@ def ingest_xml_parallel(
             logger.warning( "--replace requested, but document %s does not currently exist in corpus %s", doc_id, corpus, )
 
         # Only reprocess the targeted file, not the whole directory.
-        xml_files = [xml_file]
+        input_files = [xml_file]
 
-    logger.info(f"Input directory: {xml_dir}")
-    logger.info(f"Found {len(xml_files)} XML files")
+    logger.info(f"Input directory: {input_dir}")
+    logger.info(f"Found {len(input_files)} XML files")
 
-    for x in xml_files[:5]:
+    for x in input_files[:5]:
         logger.info(f"Example: {x}")
 
     if MAX_DOCS is not None:
-        xml_files = xml_files[:MAX_DOCS]
+        input_files = input_files[:MAX_DOCS]
 
-    max_workers = max(1, min(max_workers, len(xml_files)))
-    chunks = [xml_files[i::max_workers] for i in range(max_workers)]
+    max_workers = max(1, min(max_workers, len(input_files)))
+    chunks = [input_files[i::max_workers] for i in range(max_workers)]
 
     with ProcessPoolExecutor(max_workers=max_workers) as ex:
         futures = [
@@ -1140,7 +1267,7 @@ def main():
     parser.add_argument( "--corpus", choices=sorted(config.CORPUS_INPUT_DIRS.keys()), default=None, help="Process only this predefined corpus.")
     parser.add_argument( "--doc-id", default=None, help="Process only the specified document ID." )
     parser.add_argument( "--replace", action="store_true", help="Replace an existing document when used with --doc-id." )
-    parser.add_argument("--file", default=None, help="Ingest only this XML file (requires --corpus). Path may be absolute, relative to cwd, to the corpus input dir, or to CORPUS_ROOT_DIR.")
+    parser.add_argument("--file", default=None, help="Ingest only this file (requires --corpus). Path may be absolute, relative to cwd, to the corpus input dir, or to CORPUS_ROOT_DIR.")
     parser.add_argument( "--windows", action="store_true", help=( "Store only sparse token windows (±50 tokens) around whiteness/albinism seed terms instead of full documents. Applies the whiteness filter to every corpus." ) )
 
     args = parser.parse_args()
@@ -1185,14 +1312,14 @@ def main():
             else config.CORPUS_INPUT_DIRS
         )
 
-        for corpus, xml_dir in corpora.items():
-            logger.info(f"Process {corpus} from {xml_dir}")
+        for corpus, input_dir in corpora.items():
+            logger.info(f"Process {corpus} from {input_dir}")
 
-            if not xml_dir.is_dir():
-                parser.error( f"Input directory for {corpus} does not exist: {xml_dir}" )
+            if not input_dir.is_dir():
+                parser.error( f"Input directory for {corpus} does not exist: {input_dir}" )
 
-            ingest_xml_parallel(
-                xml_dir      = xml_dir,
+            ingest_file_parallel(
+                input_dir      = input_dir,
                 max_workers  = NUM_WORKERS,
                 batch_docs   = BATCH_DOCS,
                 batch_tokens = BATCH_TOKENS,

@@ -19,9 +19,14 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 
 from mutatis_mutandis.lib.corpus_db import get_connection
-from mutatis_mutandis.lib.corpus_config import LANCE_INDEXES_DIR, build_export_query
 from mutatis_mutandis.lib.corpus_storage import clear, local_dir, publish, reset_outputs, warn_stale_outputs
 from mutatis_mutandis.lib.corpus_logging import get_logger
+from mutatis_mutandis.lib.corpus_config import (
+    LANCE_INDEXES_DIR,
+    build_export_query,
+    build_setup_sql,
+    frequency_diagnostic_sql,   # optional but recommended
+)
 
 logger = get_logger('embed.export-windows')
 
@@ -126,16 +131,39 @@ def main() -> None:
 
     try:
         populate_indexed_docs(conn, indexed)
+
+        # ------------------------------------------------------------------
+        # One-time setup: vocab → term_expansion → indexed target_tokens
+        # ------------------------------------------------------------------
+        with conn.cursor() as cur:
+            setup_sql, setup_params = build_setup_sql(table=TABLE, inline=True)
+            cur.execute(setup_sql, setup_params)
+            logger.info("Created vocab / term_expansion / target_tokens")
+
+            # Optional but strongly recommended: inspect high-frequency terms
+            # before the expensive export runs.
+            cur.execute(frequency_diagnostic_sql())
+            logger.info("Top expanded terms by frequency:")
+            for grp, tok, n in cur.fetchall():
+                logger.info("  %12d  %-12s  %s", n, grp, tok)
+
         if CLEAR_BEFORE_EXPORT:
             clear("source_tokens", SHARD_GLOB)
+
+        # ------------------------------------------------------------------
+        # Export query (now uses the indexed temp table)
+        # ------------------------------------------------------------------
         sql, params = build_export_query(TABLE, DOC_TABLE, WINDOW_LEFT, WINDOW_RIGHT)
-        params.extend([sorted(FORCE_EXPORT_DOC_IDS)])
+        # The revised build_export_query expects the force-list as the sole
+        # parameter for the ANY(%s) clause.
+        params = [sorted(FORCE_EXPORT_DOC_IDS)]
+
         docs: list[dict] = []
         shard_no = 0
         exported = 0
         rows_seen = 0
 
-        logger.info("Itterate over export docs")
+        logger.info("Iterate over export docs")
         with conn.cursor(name="export_tokens") as cur:
             cur.itersize = 10_000
             cur.execute(sql, params)
@@ -162,7 +190,10 @@ def main() -> None:
                     shard_no += 1
 
                 if exported % 100 == 0:
-                    logger.info( "Exported %d documents; %d token rows", exported, rows_seen, )
+                    logger.info(
+                        "Exported %d documents; %d token rows",
+                        exported, rows_seen,
+                    )
 
             if docs:
                 flush(docs, shard_no)
@@ -172,7 +203,10 @@ def main() -> None:
             reset_outputs()
         else:
             warn_stale_outputs()
-        logger.info( "Done: exported %d documents and %d token rows", exported, rows_seen, )
+        logger.info(
+            "Done: exported %d documents and %d token rows",
+            exported, rows_seen,
+        )
     finally:
         conn.close()
 
