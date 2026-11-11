@@ -387,21 +387,12 @@ def get_document_filepath(
     with conn.cursor() as cur:
         if corpus is not None:
             cur.execute(
-                """
-                SELECT filepath
-                FROM documents
-                WHERE doc_id = %s
-                  AND corpus = %s
-                """,
+                "SELECT filepath FROM documents WHERE doc_id = %s AND corpus = %s",
                 (doc_id, corpus),
             )
         else:
             cur.execute(
-                """
-                SELECT filepath
-                FROM documents
-                WHERE doc_id = %s
-                """,
+                "SELECT filepath FROM documents WHERE doc_id = %s",
                 (doc_id,),
             )
 
@@ -409,3 +400,22 @@ def get_document_filepath(
 
     return row[0] if row else None
 
+
+def delete_corpus_documents(conn, corpus: str) -> int:
+    """Delete every document (and its tokens) belonging to a corpus.
+    Returns the number of documents removed.
+    """
+    with conn.cursor() as cur:
+        # tokens first if you have an FK; otherwise the FK drop/recreate
+        # already handled by --reindex is enough.
+        cur.execute(
+            "DELETE FROM tokens WHERE corpus = %s",
+            (corpus,),
+        )
+        cur.execute(
+            "DELETE FROM documents WHERE corpus = %s",
+            (corpus,),
+        )
+        deleted = cur.rowcount
+    conn.commit()
+    return deleted
