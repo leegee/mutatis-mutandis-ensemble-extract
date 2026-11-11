@@ -24,6 +24,7 @@ import sys
 import traceback
 import unicodedata
 
+import psycopg
 from psycopg import sql
 import xml.etree.ElementTree as etree
 from lxml import etree as lxml_etree
@@ -1078,14 +1079,28 @@ def _worker_ingest(
         if not batch:
             return
 
-        stream_copy("documents", [
-            "corpus", "doc_id", "title", "author", "pub_year",
-            "publisher", "pub_place", "source_date_raw",
-            "token_count", "filepath", "lang",
-        ], [d for d, _ in batch])
+        try:
+            stream_copy("documents", [
+                "corpus", "doc_id", "title", "author", "pub_year",
+                "publisher", "pub_place", "source_date_raw",
+                "token_count", "filepath", "lang",
+            ], [d for d, _ in batch])
 
-        stream_copy("tokens", ["corpus", "doc_id", "token_idx", "token"],
-                    [row for _, toks in batch for row in toks])
+            stream_copy("tokens", ["corpus", "doc_id", "token_idx", "token"],
+                        [row for _, toks in batch for row in toks])
+
+        except psycopg.errors.UniqueViolation:
+            # Fall back to row-by-row insert, skipping conflicts
+            for doc_row, token_rows in batch:
+                try:
+                    stream_copy("documents", [...], [doc_row])
+                    stream_copy("tokens", [...], token_rows)
+                except psycopg.errors.UniqueViolation:
+                    logger.warning(
+                        "Skipping duplicate doc_id %s (filepath=%s)",
+                        doc_row[1],
+                        doc_row[9],
+                    )
 
     for fp in files:
         try:
