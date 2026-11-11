@@ -1295,6 +1295,8 @@ def main():
         parser.error("--replace requires --doc-id or --corpus")
     if args.doc_id and not args.corpus:
         parser.error("--doc-id requires --corpus")
+    if args.replace and args.file:
+        parser.error("--replace cannot be combined with --file; use --doc-id instead")
 
     validate_corpus_years() # Eventually allow flags
 
