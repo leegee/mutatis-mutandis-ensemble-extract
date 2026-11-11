@@ -2,7 +2,7 @@
 """
 ingest.py - - Multi-process streaming EEBO TEI XML/text ingestion pipeline
 
-Formerly mutatis_mutandis/tier0/tier0_0_text2db.py (formerly tier0_0_eebo_parse_tei.py) 
+Formerly mutatis_mutandis/tier0/tier0_0_text2db.py (formerly tier0_0_eebo_parse_tei.py)
 
 Corpus roots are defined in config.CORPUS_INPUT_DIRS
 
@@ -1329,11 +1329,70 @@ def main():
                 use_windows  = args.windows,
             )
 
+    if corpus == "ycoe":
+        with corpus_db.get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    UPDATE documents
+                    SET pub_year = CASE
+                        -- Alfredian / early West Saxon
+                        WHEN doc_id LIKE 'cocura%'          THEN 890
+                        WHEN doc_id LIKE 'cobede%'          THEN 900
+                        WHEN doc_id LIKE 'cogregd%'         THEN 900
+
+                        -- Ælfric
+                        WHEN doc_id LIKE 'cocathom%'        THEN 995
+                        WHEN doc_id LIKE 'coaelive%'        THEN 1000
+                        WHEN doc_id LIKE 'coaelhom%'        THEN 1005
+
+                        -- Other named authors / works
+                        WHEN doc_id LIKE 'cobyrhtf%'        THEN 1015   -- Byrhtferth
+                        WHEN doc_id LIKE 'cochron%'         THEN 1000   -- ASC manuscripts
+                        WHEN doc_id LIKE 'colaw%'           THEN 1020   -- law codes (Cnut etc.)
+                        WHEN doc_id LIKE 'colaece%'
+                        OR doc_id LIKE 'colacnu%'        THEN 1050   -- medical
+
+                        -- Saints’ lives / dialogues / miscellaneous OE
+                        WHEN doc_id LIKE 'coapollo%'        THEN 1000
+                        WHEN doc_id LIKE 'coaugust%'        THEN 1000
+                        WHEN doc_id LIKE 'coadrian%'        THEN 1000
+                        WHEN doc_id LIKE 'coaelhom%'        THEN 1005   -- already covered, kept for clarity
+                        WHEN doc_id LIKE 'coalcuin%'        THEN 900    -- Alcuin-related material
+                        WHEN doc_id LIKE 'coalex%'          THEN 1000
+                        WHEN doc_id LIKE 'cobenrul%'        THEN 1000   -- Benedictine Rule
+                        WHEN doc_id LIKE 'coblick%'         THEN 1000
+                        WHEN doc_id LIKE 'coboeth%'         THEN 900    -- Boethius (Alfredian)
+                        WHEN doc_id LIKE 'cocanedg%'        THEN 1000
+                        WHEN doc_id LIKE 'cochad%'          THEN 1000
+                        WHEN doc_id LIKE 'cochdrul%'        THEN 1000
+                        WHEN doc_id LIKE 'cochristoph%'     THEN 1000
+                        WHEN doc_id LIKE 'codicts%'         THEN 1000
+                        WHEN doc_id LIKE 'codocu%'          THEN 1000   -- various documents
+                        WHEN doc_id LIKE 'coeluc%'          THEN 1000
+                        WHEN doc_id LIKE 'coepigen%'        THEN 1000
+                        WHEN doc_id LIKE 'coeuphr%'         THEN 1000
+                        WHEN doc_id LIKE 'coeust%'          THEN 1000
+                        WHEN doc_id LIKE 'coexodus%'        THEN 1000
+                        WHEN doc_id LIKE 'cogenesi%'        THEN 1000
+                        WHEN doc_id LIKE 'coherbar%'        THEN 1050   -- herbal
+                        WHEN doc_id LIKE 'coinspol%'        THEN 1000
+                        WHEN doc_id LIKE 'cojames%'         THEN 1000
+                        WHEN doc_id LIKE 'colacnu%'         THEN 1050
+                        WHEN doc_id LIKE 'colaece%'         THEN 1050
+
+                        -- Fallback for any remaining YCOE texts
+                        WHEN corpus = 'ycoe'                THEN 1000
+                        ELSE pub_year
+                    END
+                    WHERE pub_year IS NULL
+                    AND corpus = 'ycoe'
+                """)
+            conn.commit()
+
     with corpus_db.get_connection() as conn:
         if args.reindex:
             corpus_db.create_tokens_fk(conn)
             corpus_db.create_token_indexes(conn)
-
 
 if __name__ == "__main__":
     main()
