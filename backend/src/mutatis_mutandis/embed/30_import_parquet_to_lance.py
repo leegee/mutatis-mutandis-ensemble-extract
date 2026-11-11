@@ -1,7 +1,14 @@
 #!/usr/bin/env python
 
 """
-passages_3_passages_parquet_to_lance.py - generate embeddings from (Colab-produced) parquet
+30_import_parquet_to_lance.py - generate embeddings from (Colab-produced) parquet
+
+    # skip existing passagse
+    30_import_parquet_to_lance.py
+
+    # replace them
+    30_import_parquet_to_lance.py --replace
+
 """
 
 from __future__ import annotations
@@ -25,7 +32,7 @@ from mutatis_mutandis.lib.corpus_config import (
 from mutatis_mutandis.lib.corpus_logging import get_logger
 from mutatis_mutandis.lib.corpus_storage import fetch
 
-logger = get_logger('embed.parq2lance')
+logger = get_logger('parquet2lancee')
 
 # Resolved in main(): the Drive folder, or a fresh download from Hugging Face,
 # depending on PASSAGES_STORAGE (see lib/corpus_storage.py).
@@ -195,7 +202,7 @@ class PassageWriter:
             self.validate_schema(table, name)
         else:
             logger.info(
-                "[passages] creating Lance table %s",
+                "creating Lance table %s",
                 name,
             )
             table = self.db.create_table(
@@ -220,7 +227,7 @@ class PassageWriter:
 
         if missing:
             raise ValueError(
-                f"[passages] table {name} has an incompatible schema; "
+                f"table {name} has an incompatible schema; "
                 f"missing columns: {sorted(missing)}. "
                 "Drop and re-import the table if appropriate."
             )
@@ -243,7 +250,7 @@ class PassageWriter:
 
         if mismatched:
             raise ValueError(
-                f"[passages] table {name} has incompatible field types: "
+                f"table {name} has incompatible field types: "
                 f"{mismatched}"
             )
 
@@ -297,15 +304,19 @@ class PassageWriter:
 
         return found
 
-
     def write(
         self,
         name: str,
         rows: list[dict],
+        *,
+        replace: bool = False,
     ) -> int:
         """
-        Append new passage vectors, skipping existing identities.
+        Append new passage vectors.
 
+        When replace=False (default) existing passage_ids are skipped.
+        When replace=True  existing passage_ids are deleted and the
+        incoming rows are written in their place.
         Also deduplicates within the incoming batch.
         """
         if not rows:
@@ -316,28 +327,43 @@ class PassageWriter:
 
         new_rows = []
         batch_ids = set()
+        to_replace = set()
 
         for row in rows:
             pid = row["passage_id"]
 
-            if pid in known or pid in batch_ids:
-                continue
+            if pid in batch_ids:
+                continue                      # still dedup inside the batch
 
             batch_ids.add(pid)
-            new_rows.append(row)
 
-        if new_rows:
-            table.add(
-                new_rows,
-                mode="append",
-            )
-            # Only record the ids once the append has succeeded, so a failed
-            # write can be retried.
-            known.update(batch_ids)
+            if pid in known:
+                if replace:
+                    to_replace.add(pid)
+                    new_rows.append(row)
+                # else: skip (old behaviour)
+            else:
+                new_rows.append(row)
+
+        if not new_rows:
+            return 0
+
+        if to_replace:
+            # Delete in reasonably sized chunks
+            ordered = sorted(to_replace)
+            for i in range(0, len(ordered), 500):
+                chunk = ordered[i:i + 500]
+                quoted = ",".join(f"'{pid}'" for pid in chunk)
+                table.delete(f"passage_id IN ({quoted})")
+
+            # Keep the in-memory cache consistent
+            known -= to_replace
+
+        table.add(new_rows, mode="append")
+        known.update(batch_ids)
 
         return len(new_rows)
 
-        
     # -----------------------------------------------------------------------
     # Index management
     # -----------------------------------------------------------------------
@@ -383,7 +409,7 @@ class PassageWriter:
                 )
 
                 logger.info(
-                    "[passages] building vector index for %s: "
+                    "building vector index for %s: "
                     "%d rows, %d partitions",
                     name,
                     row_count,
@@ -419,7 +445,7 @@ class PassageWriter:
                     continue
 
                 logger.info(
-                    "[passages] building scalar index %s for %s",
+                    "building scalar index %s for %s",
                     index_name,
                     name,
                 )
@@ -456,13 +482,13 @@ class PassageWriter:
 
             if incomplete:
                 logger.warning(
-                    "[passages] indexes still incomplete for %s: %s",
+                    "indexes still incomplete for %s: %s",
                     name,
                     sorted(incomplete),
                 )
             else:
                 logger.info(
-                    "[passages] all indexes complete for %s "
+                    "all indexes complete for %s "
                     "(%d rows)",
                     name,
                     row_count,
@@ -492,6 +518,7 @@ def import_shard(
     writer: PassageWriter,
     *,
     legacy_ids: bool = False,
+    replace: bool = False,
 ) -> tuple[int, int]:
 
     parquet = pq.ParquetFile(path)
@@ -659,13 +686,13 @@ def import_shard(
                     rows_written += writer.write(
                         name,
                         buffers[name],
+                        replace=replace,
                     )
-
                     buffers[name] = []
 
             if passages_seen >= next_log:
                 logger.info(
-                    "[passages] %s: processed %d passages",
+                    "%s: processed %d passages",
                     path.name,
                     passages_seen,
                 )
@@ -676,10 +703,11 @@ def import_shard(
     rows_written += flush_buffers(
         writer,
         buffers,
+        replace=replace,
     )
 
     logger.info(
-        "[passages] %s: input passages=%d, "
+        "%s: input passages=%d, "
         "new vector rows=%d",
         path.name,
         passages_seen,
@@ -689,20 +717,24 @@ def import_shard(
     return passages_seen, rows_written
 
 
-# ---------------------------------------------------------------------------
-# Main
-# ---------------------------------------------------------------------------
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description=( "Import multi-scale passage vectors into LanceDB." )
+        description="Import multi-scale passage vectors into LanceDB."
     )
 
     parser.add_argument(
         "--legacy-ids",
         action="store_true",
         default=False,
-        help=( "Use the old passage_id formula when re-importing pre-multi-scale shards." ),
+        help="Use the old passage_id formula when re-importing pre-multi-scale shards.",
+    )
+
+    parser.add_argument(
+        "--replace",
+        action="store_true",
+        default=False,
+        help="Overwrite existing passage_ids instead of skipping them.",
     )
 
     args = parser.parse_args()
@@ -710,21 +742,20 @@ def main() -> None:
     input_dir = fetch(INPUT_SUBDIR).resolve()
 
     if not input_dir.exists():
-        raise SystemExit( f"Passage input directory does not exist: {input_dir}" )
+        raise SystemExit(f"Passage input directory does not exist: {input_dir}")
 
-    shards = sorted( input_dir.glob("passages_*.parquet") )
+    shards = sorted(input_dir.glob("passages_*.parquet"))
 
     if not shards:
-        raise SystemExit( f"No passages_*.parquet files found in {input_dir}" )
+        raise SystemExit(f"No passages_*.parquet files found in {input_dir}")
 
-    logger.info( "[passages] input: %s", input_dir, )
-    logger.info( "[passages] Lance root: %s", LANCE_INDEXES_DIR, )
-    logger.info( "[passages] found %d shard(s)", len(shards), )
-    logger.info( "[passages] legacy IDs: %s", args.legacy_ids, )
+    logger.info("input: %s", input_dir)
+    logger.info("Lance root: %s", LANCE_INDEXES_DIR)
+    logger.info("found %d shard(s)", len(shards))
+    logger.info("legacy IDs: %s", args.legacy_ids)
+    logger.info("replace existing: %s", args.replace)
 
-    writer = PassageWriter(
-        LANCE_INDEXES_DIR
-    )
+    writer = PassageWriter(LANCE_INDEXES_DIR)
 
     total_passages = 0
     total_vectors = 0
@@ -734,6 +765,7 @@ def main() -> None:
             shard,
             writer,
             legacy_ids=args.legacy_ids,
+            replace=args.replace,
         )
 
         total_passages += passages
@@ -743,17 +775,15 @@ def main() -> None:
         writer.build_indexes()
 
     logger.info(
-        "[passages] complete: passages read=%d, "
+        "complete: passages read=%d, "
         "new vector rows=%d",
         total_passages,
         total_vectors,
     )
 
-    for name, table in sorted(
-        writer.tables.items()
-    ):
+    for name, table in sorted(writer.tables.items()):
         logger.info(
-            "[passages] table %s: %d rows",
+            "table %s: %d rows",
             name,
             table.count_rows(),
         )
