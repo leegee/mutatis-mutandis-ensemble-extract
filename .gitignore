@@ -41,3 +41,5 @@ backend/src/lib/macberth-huggingface
 frontend/node_modules/
 PLAN.md
 backend/src/temp.py
+docs/kw.md
+docs/kw-2.md
