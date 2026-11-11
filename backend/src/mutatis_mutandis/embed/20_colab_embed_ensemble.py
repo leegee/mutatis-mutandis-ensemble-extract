@@ -93,6 +93,19 @@ _hf_api = None
 _remote_done = set()
 _last_sync = 0.0
 
+stats = {
+    "embedded": 0,        # embedded in this run
+    "resumed": 0,         # valid checkpoint reused
+    "empty": 0,           # no tokens / no passages produced
+    "out_of_range": 0,    # outside RESUME_FROM_DOC..STOP_AFTER_DOC
+    "skipped_shard": 0,   # whole shard already complete
+    "passages": 0,        # passages embedded in this run
+}
+
+
+def docs_accounted():
+    return sum(v for k, v in stats.items() if k != "passages")
+
 
 def hf_setup():
     """Authenticate, pull inputs + resumable checkpoints, list finished shards."""
@@ -454,8 +467,10 @@ def valid_checkpoint(path):
 def process_shard(in_path, tok, model, device):
     shard_name = in_path.name.replace("tokens_", "passages_")
     final_path = OUT_DIR / shard_name
+    total_docs = pq.ParquetFile(in_path).metadata.num_rows
 
     if STORAGE == "hf" and shard_name in _remote_done:
+        stats["skipped_shard"] += total_docs
         log(f"Already in Hugging Face repo; skipping {shard_name}")
         return
 
@@ -468,6 +483,7 @@ def process_shard(in_path, tok, model, device):
         else:
             if STORAGE == "hf":   # built earlier but never uploaded
                 hf_publish_shard(final_path)
+                stats["skipped_shard"] += total_docs
                 final_path.unlink()
             log(f"Already complete; skipping {shard_name}")
             return
@@ -487,9 +503,11 @@ def process_shard(in_path, tok, model, device):
             doc_index += 1
 
             if current_index < RESUME_FROM_DOC or current_index > STOP_AFTER_DOC:
+                stats["out_of_range"] += 1
                 continue
 
             if checkpoint.exists() and valid_checkpoint(checkpoint):
+                stats["resumed"] += 1
                 if doc_index % 25 == 0:
                     log(f"Resume: document {doc_index}/{total_docs}")
                 continue
@@ -498,18 +516,20 @@ def process_shard(in_path, tok, model, device):
                 checkpoint.unlink()
 
             if not doc["tokens"]:
+                stats["empty"] += 1
                 continue
 
-            log(
-                f"Embedding document {doc_index}/{total_docs}: "
-                f"{doc['doc_id']}"
-            )
+            log(f"Embedding document {doc_index}/{total_docs} "
+                f"(overall {docs_accounted() + 1}/{TOTAL_DOCS}): {doc['doc_id']}")
             t0 = time.perf_counter()
 
             table = document_table(doc, tok, model, device)
             if table is None:
+                stats["empty"] += 1
                 continue
 
+            stats["embedded"] += 1
+            stats["passages"] += table.num_rows
             local = LOCAL_TMP / checkpoint.name
             pq.write_table(table, local, compression="zstd")
             commit_file(local, checkpoint)
@@ -623,6 +643,21 @@ def main():
     for i, in_path in enumerate(shards, 1):
         log(f"Shard {i}/{len(shards)}")
         process_shard(in_path, tok, model, device)
+
+    global TOTAL_DOCS
+    TOTAL_DOCS = sum(pq.ParquetFile(p).metadata.num_rows for p in shards)
+    log(f"{TOTAL_DOCS} documents across {len(shards)} shards")
+
+    log(
+        "----------------------------------------------------------------------------"
+        "Summary: "
+        f"{stats['embedded']} embedded, {stats['resumed']} resumed from checkpoints, "
+        f"{stats['skipped_shard']} in already-complete shards, "
+        f"{stats['empty']} empty, {stats['out_of_range']} out of range; "
+        f"{stats['passages']} new passages"
+    )
+    if docs_accounted() != TOTAL_DOCS:
+        log(f"WARNING: accounted for {docs_accounted()} of {TOTAL_DOCS} documents")
 
     log("Done")
 
