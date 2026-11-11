@@ -1189,6 +1189,7 @@ def ingest_file_parallel(
     doc_id: str | None    = None,
     file: Path | None     = None,
     use_windows: bool     = False,
+    replace: bool         = False,
 ):
     if file is not None:
         input_files = [file]
@@ -1200,27 +1201,41 @@ def ingest_file_parallel(
             if p.name not in SKIP_FILES
         ]
 
-    if doc_id:
-        with corpus_db.get_connection(
-            application_name="tier0-target"
-        ) as conn:
-            filepath = corpus_db.get_document_filepath( conn, doc_id, corpus=corpus, )
+    if replace:
+        if doc_id:
+            # existing single-document path
+            with corpus_db.get_connection(application_name="tier0-target") as conn:
+                filepath = corpus_db.get_document_filepath(
+                    conn, doc_id, corpus=corpus
+                )
+            if filepath is None:
+                raise SystemExit(
+                    f"Document {doc_id!r} does not exist in corpus {corpus!r}"
+                )
+            xml_file = Path(config.CORPUS_ROOT_DIR / Path(filepath))
+            if not xml_file.is_file():
+                raise FileNotFoundError(
+                    f"Document {doc_id!r} is registered at {xml_file}, "
+                    "but that file does not exist."
+                )
+            with corpus_db.get_connection(application_name="tier0-replace") as conn:
+                deleted = corpus_db.delete_document(conn, doc_id, corpus=corpus)
+            if not deleted:
+                logger.warning(
+                    "--replace requested, but document %s does not currently "
+                    "exist in corpus %s", doc_id, corpus
+                )
+            input_files = [xml_file]
 
-        if filepath is None:
-            raise SystemExit( f"Document {doc_id!r} does not exist in corpus {corpus!r}" )
+        else:
+            # corpus-wide replace
+            logger.warning(
+                "Replacing entire corpus %r – deleting existing documents…", corpus
+            )
+            with corpus_db.get_connection(application_name="tier0-replace-corpus") as conn:
+                deleted = corpus_db.delete_corpus_documents(conn, corpus)
+            logger.info("Deleted %d documents from corpus %r", deleted, corpus)
 
-        xml_file = Path(config.CORPUS_ROOT_DIR / Path(filepath))
-
-        if not xml_file.is_file():
-            raise FileNotFoundError( f"Document {doc_id!r} is registered at {xml_file}, but that file does not exist." )
-
-        with corpus_db.get_connection( application_name="tier0-replace" ) as conn:
-            deleted = corpus_db.delete_document( conn, doc_id, corpus=corpus, )
-        if not deleted:
-            logger.warning( "--replace requested, but document %s does not currently exist in corpus %s", doc_id, corpus, )
-
-        # Only reprocess the targeted file, not the whole directory.
-        input_files = [xml_file]
 
     logger.info(f"Input directory: {input_dir}")
     logger.info(f"Found {len(input_files)} XML files")
@@ -1266,7 +1281,7 @@ def main():
     parser.add_argument("--reindex", action="store_true", help="Drops and recreate indexes leading to faster ingestion of larger inputs")
     parser.add_argument( "--corpus", choices=sorted(config.CORPUS_INPUT_DIRS.keys()), default=None, help="Process only this predefined corpus.")
     parser.add_argument( "--doc-id", default=None, help="Process only the specified document ID." )
-    parser.add_argument( "--replace", action="store_true", help="Replace an existing document when used with --doc-id." )
+    parser.add_argument( "--replace", action="store_true", help="Replace an existing document when used with --doc-id, or corpus when used with --corpus." )
     parser.add_argument("--file", default=None, help="Ingest only this file (requires --corpus). Path may be absolute, relative to cwd, to the corpus input dir, or to CORPUS_ROOT_DIR.")
     parser.add_argument( "--windows", action="store_true", help=( "Store only sparse token windows (±50 tokens) around whiteness/albinism seed terms instead of full documents. Applies the whiteness filter to every corpus." ) )
 
@@ -1276,8 +1291,8 @@ def main():
         parser.error("--file requires --corpus")
     if args.file and args.doc_id:
         parser.error("--file and --doc-id are mutually exclusive")
-    if args.replace and not args.doc_id:
-        parser.error("--replace requires --doc-id")
+    if args.replace and not (args.doc_id or args.corpus):
+        parser.error("--replace requires --doc-id or --corpus")
     if args.doc_id and not args.corpus:
         parser.error("--doc-id requires --corpus")
 
@@ -1327,9 +1342,22 @@ def main():
                 doc_id       = args.doc_id,
                 file         = target_file,
                 use_windows  = args.windows,
+                replace      = args.replace,
             )
 
-    if corpus == "ycoe":
+    # ------------------------------------------------------------------
+    # Conventional publication years for YCOE (only when we touched it)
+    # ------------------------------------------------------------------
+    ycoe_was_processed = (
+        not args.justindex
+        and (
+            args.corpus == "ycoe"
+            or (args.corpus is None and "ycoe" in config.CORPUS_INPUT_DIRS)
+        )
+    )
+
+    if ycoe_was_processed:
+        logger.info("Applying conventional publication years for YCOE documents as YCOE metadata still not processed")
         with corpus_db.get_connection() as conn:
             with conn.cursor() as cur:
                 cur.execute("""
@@ -1346,46 +1374,43 @@ def main():
                         WHEN doc_id LIKE 'coaelhom%'        THEN 1005
 
                         -- Other named authors / works
-                        WHEN doc_id LIKE 'cobyrhtf%'        THEN 1015   -- Byrhtferth
-                        WHEN doc_id LIKE 'cochron%'         THEN 1000   -- ASC manuscripts
-                        WHEN doc_id LIKE 'colaw%'           THEN 1020   -- law codes (Cnut etc.)
+                        WHEN doc_id LIKE 'cobyrhtf%'        THEN 1015
+                        WHEN doc_id LIKE 'cochron%'         THEN 1000
+                        WHEN doc_id LIKE 'colaw%'           THEN 1020
                         WHEN doc_id LIKE 'colaece%'
-                        OR doc_id LIKE 'colacnu%'        THEN 1050   -- medical
+                          OR doc_id LIKE 'colacnu%'        THEN 1050
 
                         -- Saints’ lives / dialogues / miscellaneous OE
                         WHEN doc_id LIKE 'coapollo%'        THEN 1000
                         WHEN doc_id LIKE 'coaugust%'        THEN 1000
                         WHEN doc_id LIKE 'coadrian%'        THEN 1000
-                        WHEN doc_id LIKE 'coaelhom%'        THEN 1005   -- already covered, kept for clarity
-                        WHEN doc_id LIKE 'coalcuin%'        THEN 900    -- Alcuin-related material
+                        WHEN doc_id LIKE 'coalcuin%'        THEN 900
                         WHEN doc_id LIKE 'coalex%'          THEN 1000
-                        WHEN doc_id LIKE 'cobenrul%'        THEN 1000   -- Benedictine Rule
+                        WHEN doc_id LIKE 'cobenrul%'        THEN 1000
                         WHEN doc_id LIKE 'coblick%'         THEN 1000
-                        WHEN doc_id LIKE 'coboeth%'         THEN 900    -- Boethius (Alfredian)
+                        WHEN doc_id LIKE 'coboeth%'         THEN 900
                         WHEN doc_id LIKE 'cocanedg%'        THEN 1000
                         WHEN doc_id LIKE 'cochad%'          THEN 1000
                         WHEN doc_id LIKE 'cochdrul%'        THEN 1000
                         WHEN doc_id LIKE 'cochristoph%'     THEN 1000
                         WHEN doc_id LIKE 'codicts%'         THEN 1000
-                        WHEN doc_id LIKE 'codocu%'          THEN 1000   -- various documents
+                        WHEN doc_id LIKE 'codocu%'          THEN 1000
                         WHEN doc_id LIKE 'coeluc%'          THEN 1000
                         WHEN doc_id LIKE 'coepigen%'        THEN 1000
                         WHEN doc_id LIKE 'coeuphr%'         THEN 1000
                         WHEN doc_id LIKE 'coeust%'          THEN 1000
                         WHEN doc_id LIKE 'coexodus%'        THEN 1000
                         WHEN doc_id LIKE 'cogenesi%'        THEN 1000
-                        WHEN doc_id LIKE 'coherbar%'        THEN 1050   -- herbal
+                        WHEN doc_id LIKE 'coherbar%'        THEN 1050
                         WHEN doc_id LIKE 'coinspol%'        THEN 1000
                         WHEN doc_id LIKE 'cojames%'         THEN 1000
-                        WHEN doc_id LIKE 'colacnu%'         THEN 1050
-                        WHEN doc_id LIKE 'colaece%'         THEN 1050
 
                         -- Fallback for any remaining YCOE texts
                         WHEN corpus = 'ycoe'                THEN 1000
                         ELSE pub_year
                     END
                     WHERE pub_year IS NULL
-                    AND corpus = 'ycoe'
+                      AND corpus = 'ycoe'
                 """)
             conn.commit()
 
