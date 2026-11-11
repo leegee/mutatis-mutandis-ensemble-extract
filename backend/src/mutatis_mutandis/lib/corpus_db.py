@@ -406,8 +406,6 @@ def delete_corpus_documents(conn, corpus: str) -> int:
     Returns the number of documents removed.
     """
     with conn.cursor() as cur:
-        # tokens first if you have an FK; otherwise the FK drop/recreate
-        # already handled by --reindex is enough.
         cur.execute(
             "DELETE FROM tokens WHERE corpus = %s",
             (corpus,),
