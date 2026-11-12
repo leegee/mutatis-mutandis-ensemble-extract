@@ -12,19 +12,17 @@ LanceDB passage index:
 
 Nothing is modified: no model, index, vectors, encoder or application code.
 
+Retrieval uses the project's search_passages() and fetch_passage_texts().
+By default it runs the production (approximate) search. Use --exact to bypass
+the approximate vector index and compare against true nearest neighbours; the
+exactness diagnostic showed production search misses most true top-10 hits for
+short text queries.
+
 Run from the backend directory:
-    python scripts/diagnose_query_encoder.py
 
-Retrieval uses the project's search_passages() and fetch_passage_texts()
-(signatures verified against the supplied source). --skip-retrieval runs the
-encoder comparison only, without importing any database module.
-
-# Encoder comparison only (no DB imports)
-python scripts/diagnose_query_encoder.py --skip-retrieval
-
-# Full run
-python scripts/diagnose_query_encoder.py --representation l8 --scale broad --limit 10
-
+    python scripts/diagnose_query_encoder.py --exact
+    python scripts/diagnose_query_encoder.py --skip-retrieval     # encoders only
+    python scripts/diagnose_query_encoder.py --representation l8 --scale broad --limit 10
 """
 
 from __future__ import annotations
@@ -34,15 +32,17 @@ import json
 import sys
 from pathlib import Path
 
-from mutatis_mutandis.lib.corpus_config import LANCE_INDEXES_DIR, OUT_DIR
-
-# --- make `mutatis_mutandis` importable regardless of cwd -------------------
+# --- make `mutatis_mutandis` (and sibling scripts) importable ----------------
 BACKEND_ROOT = Path(__file__).resolve().parents[1]
 if str(BACKEND_ROOT) not in sys.path:
     sys.path.insert(0, str(BACKEND_ROOT))
 
+from mutatis_mutandis.lib.corpus_config import LANCE_INDEXES_DIR, OUT_DIR  # noqa: E402
+
 import numpy as np  # noqa: E402
 import torch  # noqa: E402
+
+from exact_search import get_search_fn  # noqa: E402
 
 DEFAULT_QUERIES = ["noah", "asdfasdfasdf", "white hair", "white-haired", "albino"]
 REPRESENTATIONS = ("l8", "last", "mean4")
@@ -163,11 +163,12 @@ def _jsonable(x):
         return [_jsonable(v) for v in x]
     return x
 
+
 def make_retriever(args):
     # Imported lazily: corpus_db raises at import time unless CORPUS_PGDATABASE /
     # PGDATABASE and CORPUS_PGPASSWORD / PGPASSWORD are set in the environment.
     try:
-        from mutatis_mutandis.core import normalise_vector, search_passages
+        from mutatis_mutandis.core import normalise_vector
         from mutatis_mutandis.lib.corpus_db import get_connection
         from mutatis_mutandis.service import PassageSearchService
         from mutatis_mutandis.texts import fetch_passage_texts
@@ -181,6 +182,8 @@ def make_retriever(args):
     # Instantiating the service only opens the LanceDB connection (no encoder).
     service = PassageSearchService(args.lance_dir, application_name="diagnose-query-encoder")
     db = service._db
+    search_passages = get_search_fn(args.exact)
+    print(f"Retrieval mode: {'EXACT (vector index bypassed)' if args.exact else 'production (approximate index)'}")
 
     def retrieve(vector):
         rows = search_passages(
@@ -250,7 +253,9 @@ def parse_args():
     p.add_argument("--limit", type=int, default=10)
     p.add_argument("--beta", type=float, default=0.5)
     p.add_argument("--overfetch", type=int, default=5)
-    p.add_argument("--json-out", default=OUT_DIR / 'diagnostic.json')
+    p.add_argument("--json-out", default=OUT_DIR / "diagnostic.json")
+    p.add_argument("--exact", action="store_true",
+                   help="bypass the approximate vector index (true nearest neighbours)")
     p.add_argument("--skip-retrieval", action="store_true",
                    help="only compare encoders; do not open the database")
     return p.parse_args()

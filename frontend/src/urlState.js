@@ -37,6 +37,7 @@ const DEFAULTS = {
 	limit: "30",
 	rep: "l8",
 	scale: "", // all scales
+	exact: true,
 	beta: "0.5",
 	overfetch: "5",
 	window: "40",

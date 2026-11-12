@@ -20,8 +20,14 @@ Experiments
    the top-k of OTHER documents. The hits of each diagnostic query are then
    cross-referenced against those counts.
 
+Retrieval (query hits and hubness probes) uses production search by default.
+Use --exact to bypass the approximate vector index: the exactness diagnostic
+showed production search misses most true top-10 hits for short text queries,
+which distorts the hit z-scores and the hubness cross-reference.
+
 Run from the backend directory:
 
+    python scripts/diagnose_query_space.py --exact
     python scripts/diagnose_query_space.py
     python scripts/diagnose_query_space.py --encoder both --sample-size 10000 --probes 500
     python scripts/diagnose_query_space.py --skip-queries           # no model needed
@@ -45,6 +51,8 @@ if str(BACKEND_ROOT) not in sys.path:
     sys.path.insert(0, str(BACKEND_ROOT))
 
 import numpy as np  # noqa: E402
+
+from exact_search import get_search_fn  # noqa: E402
 
 from mutatis_mutandis.lib.corpus_config import LANCE_INDEXES_DIR, OUT_DIR  # noqa: E402
 
@@ -202,7 +210,7 @@ def corpus_geometry(V):
 
 
 def query_baseline(q_unit, V, centroid, to_centroid, db, args):
-    from mutatis_mutandis.core import search_passages
+    search_passages = get_search_fn(args.exact)
 
     sims = V @ q_unit
     base = describe(sims)
@@ -237,7 +245,7 @@ def query_baseline(q_unit, V, centroid, to_centroid, db, args):
 
 def run_probes(db, args, rng, V, meta, probe_vectors):
     """probe_vectors: list of (label, unit vector, doc_id or None, passage_id or None)."""
-    from mutatis_mutandis.core import search_passages
+    search_passages = get_search_fn(args.exact)
 
     passage_hits, doc_hits, row_by_pid = Counter(), Counter(), {}
     shortfall = 0
@@ -340,6 +348,8 @@ def parse_args():
     p.add_argument("--skip-queries", action="store_true", help="skip experiments 1-2 (no model)")
     p.add_argument("--skip-hubness", action="store_true", help="skip experiment 3")
     p.add_argument("--with-text", action="store_true", help="fetch hub text/titles from Postgres")
+    p.add_argument("--exact", action="store_true",
+                   help="bypass the approximate vector index for query hits and hubness probes")
     p.add_argument("--json-out", default=OUT_DIR / "query_space.json")
     return p.parse_args()
 
@@ -352,6 +362,7 @@ def main():
 
     print(f"Representation {args.representation}, scale {args.scale}, "
           f"years {args.start_year}-{args.end_year}, seed {args.seed}")
+    print(f"Retrieval mode: {'EXACT (vector index bypassed)' if args.exact else 'production (approximate index)'}")
     V_raw, meta, total = sample_stored(db, args, rng)
     V = unit_rows(V_raw)
 

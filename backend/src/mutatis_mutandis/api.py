@@ -107,6 +107,7 @@ def search(req: SearchRequest, service: PassageSearchService = Depends(get_servi
         beta=req.beta,
         overfetch=req.overfetch,
         include_text=req.include_text,
+        exact=req.exact,
     )
     try:
         outcome = service.search(params)

@@ -29,6 +29,7 @@ export function buildRequest(p) {
 		overfetch: toInt(f.overfetch, "Overfetch"),
 		negative_ids: p.negatives.map((n) => n.id),
 		include_text: true,
+		exact: Boolean(f.exact),
 	};
 	if (req.start_year > req.end_year)
 		throw new Error("Start year must not be after end year");

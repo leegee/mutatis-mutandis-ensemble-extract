@@ -20,7 +20,7 @@ Method
     replica            same call as search_passages (harness sanity check)
     prefilter=False    filter applied after the ANN step
     bypass_vector_index exact scan inside Lance, filter applied first
-    nprobes+refine     more thorough ANN search
+    nprobes=N          ANN search probing more partitions (a sweep, --nprobes-sweep)
 * Report recall@k (by passage_id, and tie-tolerant, since duplicate passages
   have identical vectors), the top-1 similarity gap against the exact answer,
   and the error between the distances Lance reports and the exact ones.
@@ -43,6 +43,7 @@ import argparse
 import inspect
 import json
 import sys
+import time
 from pathlib import Path
 
 # --- make `mutatis_mutandis` (and sibling scripts) importable ----------------
@@ -57,12 +58,16 @@ from mutatis_mutandis.lib.corpus_config import LANCE_INDEXES_DIR, OUT_DIR  # noq
 DEFAULT_QUERIES = ["noah", "asdfasdfasdf", "white hair", "white-haired", "albino"]
 REPRESENTATIONS = ("l8", "last", "mean4")
 TIE_TOL = 1e-6          # similarity tolerance when deciding two hits are tied
-VARIANTS = ("production", "replica", "prefilter=False", "bypass_vector_index", "nprobes+refine")
+BASE_VARIANTS = ("production", "replica", "prefilter=False", "bypass_vector_index")
 
 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
+def variants_for(args):
+    return list(BASE_VARIANTS) + [f"nprobes={n}" for n in args.nprobes_sweep]
+
 
 def unit(v):
     v = np.asarray(v, dtype=np.float32).reshape(-1)
@@ -125,12 +130,18 @@ def describe_environment(db, tables):
             ]
         except Exception as exc:  # noqa: BLE001
             entry["indices"] = f"list_indices failed: {exc}"
+        try:
+            entry["index_stats"] = str(tbl.index_stats("vector_idx"))
+        except Exception as exc:  # noqa: BLE001
+            entry["index_stats"] = f"unavailable ({type(exc).__name__})"
         any_index = any_index or bool(entry["indices"]) and isinstance(entry["indices"], list)
         info["tables"][name] = entry
 
     print(f"\nTables ({len(tables)}):")
     for name, e in info["tables"].items():
-        print(f"  {name}: {e['rows']:,} rows, vector {e['vector_type']}, indices: {e['indices']}")
+        kinds = [i["type"] for i in e["indices"]] if isinstance(e["indices"], list) else e["indices"]
+        print(f"  {name}: {e['rows']:,} rows, vector {e['vector_type']}, indices: {kinds}")
+        print(f"      vector index stats: {e['index_stats']}")
     info["any_vector_index"] = any_index
     if not any_index:
         print("\n  No indices reported: Lance does an exact flat scan, so recall should be 1.0.\n"
@@ -218,9 +229,8 @@ def run_variant(name, db, handles, q, args, where):
         return lance_search(handles, q, where, args.limit, prefilter=False)
     if name == "bypass_vector_index":
         return lance_search(handles, q, where, args.limit, bypass=True)
-    if name == "nprobes+refine":
-        return lance_search(handles, q, where, args.limit,
-                            nprobes=args.nprobes, refine=args.refine_factor)
+    if name.startswith("nprobes="):
+        return lance_search(handles, q, where, args.limit, nprobes=int(name.split("=")[1]))
     raise ValueError(name)
 
 
@@ -252,10 +262,14 @@ def evaluate(q, db, handles, M, ids, pid_index, args, where, variants):
     out = {"exact_top1_similarity": float(sims[exact_idx[0]]),
            "exact_topk_similarity": [float(sims[i]) for i in exact_idx],
            "variants": {}, "_hits": {}}
+    out["exact_topk_ids"] = [ids[i] for i in exact_idx]
     for v in variants:
         try:
+            t0 = time.perf_counter()
             hits = run_variant(v, db, handles, q, args, where)
+            elapsed = (time.perf_counter() - t0) * 1000
             out["variants"][v] = score_variant(hits, exact_idx, sims, ids, pid_index, args.limit)
+            out["variants"][v]["elapsed_ms"] = elapsed
             out["_hits"][v] = [h["passage_id"] for h in hits]
         except Exception as exc:  # noqa: BLE001
             out["variants"][v] = {"error": f"{type(exc).__name__}: {exc}"}
@@ -271,7 +285,7 @@ def evaluate(q, db, handles, M, ids, pid_index, args, where, variants):
 def print_eval(label, ev, k):
     print(f"\n  {label}   (exact top-1 similarity {ev['exact_top1_similarity']:.4f})")
     print(f"    {'variant':<22}{'returned':>9}{'recall@'+str(k):>10}{'tie-tol':>9}"
-          f"{'top1 sim':>10}{'top1 gap':>10}{'max |Δdist|':>13}{'outside':>9}")
+          f"{'top1 sim':>10}{'top1 gap':>10}{'max |Δdist|':>13}{'outside':>9}{'ms':>8}")
     for v, s in ev["variants"].items():
         if "error" in s:
             print(f"    {v:<22}  ERROR {s['error'][:90]}")
@@ -280,7 +294,7 @@ def print_eval(label, ev, k):
             return format(x, spec) if x is not None else "-"
         print(f"    {v:<22}{s['returned']:>9}{s['recall_ids']:>10.2f}{s['recall_tie_tolerant']:>9.2f}"
               f"{f(s['top1_similarity'], '.4f'):>10}{f(s['top1_gap_vs_exact'], '.4f'):>10}"
-              f"{f(s['dist_abs_err_max'], '.5f'):>13}{s['outside_exact_universe']:>9}")
+              f"{f(s['dist_abs_err_max'], '.5f'):>13}{s['outside_exact_universe']:>9}{s['elapsed_ms']:>8.0f}")
     if "replica_matches_production" in ev:
         print(f"    replica reproduces production result list: {ev['replica_matches_production']}")
 
@@ -292,27 +306,36 @@ def mean_metric(evals, variant, key):
     return float(np.mean(vals)) if vals else None
 
 
-def verdict(evals, label, prefilter_default):
+def verdict(evals, label, prefilter_default, sweep):
     prod = mean_metric(evals, "production", "recall_tie_tolerant")
     byp = mean_metric(evals, "bypass_vector_index", "recall_tie_tolerant")
     nopre = mean_metric(evals, "prefilter=False", "recall_tie_tolerant")
-    more = mean_metric(evals, "nprobes+refine", "recall_tie_tolerant")
     derr = mean_metric(evals, "production", "dist_abs_err_max")
+    sweep_recall = {n: mean_metric(evals, f"nprobes={n}", "recall_tie_tolerant") for n in sweep}
     print(f"\n  Reading for {label}:")
     if prod is None:
         print("    production variant failed; see errors above.")
         return
     print(f"    mean tie-tolerant recall@k: production {prod:.2f}"
           + (f", bypass index {byp:.2f}" if byp is not None else "")
-          + (f", prefilter=False {nopre:.2f}" if nopre is not None else "")
-          + (f", nprobes+refine {more:.2f}" if more is not None else ""))
+          + (f", prefilter=False {nopre:.2f}" if nopre is not None else ""))
+    if sweep_recall:
+        print("    nprobes sweep: " + ", ".join(
+            f"{n}→{r:.2f}" if r is not None else f"{n}→n/a" for n, r in sweep_recall.items()))
     if prod >= 0.99:
         print("    Production search is effectively exact for these queries.")
         return
     if byp is not None and byp >= 0.99:
         print("    Exact Lance scan matches brute force but production does not: the shortfall\n"
-              "    comes from the approximate vector index (or its settings), not from the data\n"
-              "    or the filter. See whether 'nprobes+refine' recovers it.")
+              "    comes from the approximate vector index, not from the data or the filter.")
+        good = [n for n, r in sweep_recall.items() if r is not None and r >= 0.99]
+        if good:
+            print(f"    Recall reaches ~1.0 at nprobes={min(good)}: a settings fix is possible,\n"
+                  "    but check its latency in the 'ms' column against the exact scan.")
+        elif sweep_recall:
+            print("    No tested nprobes reached ~1.0, so raising nprobes alone does not fix it\n"
+                  "    here (filtered search may not honour it, or the sweep is still too low).\n"
+                  "    The exact scan (bypass_vector_index) is the reliable option.")
     elif byp is not None:
         print("    Even Lance's exact scan disagrees with brute force. Suspect filter semantics,\n"
               "    stored-vs-sampled vector mismatch, or duplicate rows; inspect 'outside' counts.")
@@ -327,7 +350,7 @@ def verdict(evals, label, prefilter_default):
               "    where(..., prefilter=True) in core.search_passages (not applied here).")
     if derr is not None and derr > 1e-3:
         print(f"    Reported distances differ from exact ones by up to {derr:.4f}: consistent with\n"
-              "    quantised (PQ) distances. Raising refine_factor re-ranks with exact vectors.")
+              "    quantised (PQ) distances; a flat/IVF-Flat index would not do this.")
 
 
 # ---------------------------------------------------------------------------
@@ -347,8 +370,9 @@ def parse_args():
     p.add_argument("--limit", type=int, default=10)
     p.add_argument("--probe-stored", type=int, default=30,
                    help="also test this many random stored vectors as queries (0 to skip)")
-    p.add_argument("--nprobes", type=int, default=64, help="for the nprobes+refine variant")
-    p.add_argument("--refine-factor", type=int, default=20, help="for the nprobes+refine variant")
+    p.add_argument("--nprobes-sweep", type=int, nargs="*", default=[8, 32, 128, 512, 2048],
+                   help="nprobes values to try (empty to skip); values above the partition count "
+                        "may be clamped or rejected, which is reported per variant")
     p.add_argument("--max-rows", type=int, default=500_000,
                    help="refuse to brute-force more matching rows than this")
     p.add_argument("--seed", type=int, default=0)
@@ -369,6 +393,7 @@ def main():
     if not tables:
         raise SystemExit("No candidate tables for these settings")
     handles = {n: db.open_table(n) for n in tables}
+    variants = variants_for(args)
 
     print("=" * 100 + "\nENVIRONMENT\n" + "=" * 100)
     report = {"settings": {k: v for k, v in vars(args).items() if k != "json_out"},
@@ -389,21 +414,21 @@ def main():
         enc = encode_queries(queries, args)
         report["queries"] = []
         for (q, which), vec in enc.items():
-            ev = evaluate(vec, db, handles, M, ids, pid_index, args, where, VARIANTS)
+            ev = evaluate(vec, db, handles, M, ids, pid_index, args, where, variants)
             print_eval(f"{q!r} [{which}]", ev, args.limit)
             query_evals.append(ev)
             report["queries"].append({"query": q, "encoder": which,
                                       **{k: v for k, v in ev.items() if k != "_hits"}})
-        verdict(query_evals, "text queries", pf_default)
+        verdict(query_evals, "text queries", pf_default, args.nprobes_sweep)
 
     if args.probe_stored > 0:
         n = min(args.probe_stored, M.shape[0])
         print("\n" + "=" * 100 + f"\nRANDOM STORED VECTORS AS QUERIES (n={n})\n" + "=" * 100)
         for i in rng.choice(M.shape[0], size=n, replace=False):
-            stored_evals.append(evaluate(M[i], db, handles, M, ids, pid_index, args, where, VARIANTS))
+            stored_evals.append(evaluate(M[i], db, handles, M, ids, pid_index, args, where, variants))
         print(f"  {'variant':<22}{'mean recall':>12}{'mean tie-tol':>14}{'mean max|Δdist|':>17}")
         summary = {}
-        for v in VARIANTS:
+        for v in variants:
             r = mean_metric(stored_evals, v, "recall_ids")
             t = mean_metric(stored_evals, v, "recall_tie_tolerant")
             d = mean_metric(stored_evals, v, "dist_abs_err_max")
@@ -413,7 +438,7 @@ def main():
             else:
                 print(f"  {v:<22}{r:>12.3f}{t:>14.3f}{(d if d is not None else float('nan')):>17.5f}")
         report["stored_vector_queries"] = {"n": n, "summary": summary}
-        verdict(stored_evals, "stored-vector queries", pf_default)
+        verdict(stored_evals, "stored-vector queries", pf_default, args.nprobes_sweep)
         print("\n  If stored-vector queries are near-exact but text queries are not, the index\n"
               "  struggles with out-of-distribution (short) query vectors specifically.")
 

@@ -48,6 +48,7 @@ class SearchParams:
     overfetch: int = 5
     include_text: bool = True
     scale: Optional[str] = None   # None = all scales
+    exact: bool = False           # bypass the approximate vector index
 
     def __post_init__(self):
         if bool(self.query) == bool(self.vector_id):
@@ -118,7 +119,7 @@ def _window_text(
         end,
     )
 
-    
+
 class PassageSearchService:
     def __init__(
         self,
@@ -240,6 +241,7 @@ class PassageSearchService:
             beta=params.beta,
             overfetch=params.overfetch,
             scale=params.scale,
+            exact=params.exact,
         )
 
         metas: List[Optional[dict]] = [None] * len(rows)
@@ -252,8 +254,9 @@ class PassageSearchService:
             for rank, (row, meta) in enumerate(zip(rows, metas), start=1)
         ]
 
-        logger.debug(
-            "search done: %d hits in %.0f ms (rep=%s scale=%s years=%s-%s negatives=%d)",
+        logger.info(
+            "SEARCHED: exact=%s %d hits in %.0f ms (rep=%s scale=%s years=%s-%s negatives=%d)",
+            params.exact,
             len(hits),
             (time.perf_counter() - t0) * 1000,
             params.representation,

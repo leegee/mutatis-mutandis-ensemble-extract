@@ -19,6 +19,14 @@ which are re-ranked by
 Because each table contributes a bounded number of candidates, the merged
 list is not guaranteed to be the exact global top-k when search is
 approximate.
+
+Exact search
+------------
+LanceDB's vector index (IVF) is approximate: for queries far from the stored
+vectors (e.g. very short text queries) it can miss most of the true nearest
+neighbours. `exact=True` bypasses the index and scans every row matching the
+filters, giving true cosine nearest neighbours. Filtered scans are cheap when
+the filter is selective (scalar indices exist on scale and pub_year).
 """
 
 from __future__ import annotations
@@ -249,11 +257,13 @@ def search_passages(
     beta: float = 0.5,
     overfetch: int = 5,
     scale: Optional[str] = None,
+    exact: bool = False,
 ):
     """
     Search year-bucketed tables with optional negative re-ranking.
 
     `scale` restricts results to one passage scale (None = all scales).
+    `exact` bypasses the approximate vector index (see module docstring).
     """
     if scale is not None and scale not in PASSAGE_SCALES:
         # Also guards the filter string below, which interpolates `scale`.
@@ -278,9 +288,12 @@ def search_passages(
     for name in candidate_tables(db, representation, start_year, end_year):
         table = db.open_table(name)
 
+        query = table.search(query_vec, vector_column_name="vector").metric("cosine")
+        if exact:
+            query = query.bypass_vector_index()
+
         arrow = (
-            table.search(query_vec, vector_column_name="vector")
-            .metric("cosine")
+            query
             .where(where)
             .select(columns)
             .limit(per_table_limit)

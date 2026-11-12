@@ -52,6 +52,7 @@ class SearchRequest(BaseModel):
     beta: float = Field(0.5, ge=0.0, le=5.0)
     overfetch: int = Field(5, ge=1, le=20)
     include_text: bool = True
+    exact: bool = True
     scale: Optional[str] = Field(
         None,
         description="Restrict to one scale: " + ", ".join(PASSAGE_SCALES),
@@ -109,7 +110,7 @@ class Hit(BaseModel):
     corpus: str
     doc_id: str
     pub_year: int
-    scale: Optional[str] = None          # PASSAGE_SCALES "local" | "medium" | "broad"  
+    scale: Optional[str] = None          # PASSAGE_SCALES "local" | "medium" | "broad"
     char_start: Optional[int] = None
     char_end: Optional[int] = None
     distance: float
