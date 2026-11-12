@@ -325,6 +325,7 @@ details.adv .row {
 	align-items: flex-end;
 	gap: 2px;
 	height: 46px;
+	border-bottom: 1px solid var(--accent-soft);
 }
 .hist .bar {
 	flex: 1 1 0;
@@ -343,7 +344,7 @@ details.adv .row {
 	background: var(--accent);
 	opacity: 0.75;
 	border-radius: 2px 2px 0 0;
-	min-height: 2px;
+	/* min-height: 0.1px; */
 }
 .hist .bar:hover .fill {
 	opacity: 1;
