@@ -69,7 +69,7 @@ export function HitCard(props) {
 				</button>
 				<button
 					type="button"
-					class={"btn small" + (isNeg() ? " on" : "")}
+					class={`btn small${isNeg() ? " on" : ""}`}
 					onClick={() => toggleNegative(id, hit)}
 				>
 					{isNeg() ? "Undo exclude" : "Not relevant"}
