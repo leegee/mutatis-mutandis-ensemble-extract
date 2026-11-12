@@ -1,0 +1,43 @@
+{
+    "$schema": "https://biomejs.dev/schemas/2.5.9/schema.json",
+    "formatter": {
+        "enabled": true,
+        "lineWidth": 120
+    },
+    "assist": {
+        "actions": {
+            "source": {
+                "organizeImports": {
+                    "level": "on",
+                    "options": {
+                        "groups": [
+                            [
+                                ":NODE:",
+                                ":BUN:"
+                            ],
+                            ":BLANK_LINE:",
+                            ":PACKAGE:",
+                            ":BLANK_LINE:",
+                            ":ALIAS:",
+                            ":BLANK_LINE:",
+                            ":PATH:",
+                            ":BLANK_LINE:",
+                            ":STYLE:"
+                        ]
+                    }
+                }
+            }
+        }
+    },
+    "linter": {
+        "enabled": true,
+        "rules": {
+            "a11y": {
+                "noLabelWithoutControl": "off"
+            },
+            "style": {
+                "noNonNullAssertion": "off"
+            }
+        }
+    }
+}
