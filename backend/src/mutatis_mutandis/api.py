@@ -22,10 +22,10 @@ from pathlib import Path
 
 from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import RedirectResponse
+from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
-from mutatis_mutandis.lib.corpus_config import LANCE_INDEXES_DIR, PASSAGE_SCALES
+from mutatis_mutandis.lib.corpus_config import CORPUS_INPUT_DIRS, CORPUS_ROOT_DIR, LANCE_INDEXES_DIR, PASSAGE_SCALES
 from mutatis_mutandis.lib.macberth import PASSAGE_REPRESENTATIONS
 
 from mutatis_mutandis.core import VectorNotFoundError
@@ -142,6 +142,45 @@ def text_search(req: TextSearchRequest, service: PassageSearchService = Depends(
         count=len(outcome.results),
         results=outcome.results,
         warnings=outcome.warnings,
+    )
+
+# Redirect to the raw corpus files
+@app.get("/texts/{corpus}/{filepath:path}")
+def get_text(corpus: str, filepath: str):
+    """Serve a source document from its configured corpus directory."""
+
+    # Just a sanity check
+    root = CORPUS_INPUT_DIRS.get(corpus)
+    if root is None:
+        raise HTTPException(status_code=404, detail="Unknown corpus")
+
+    # Filepaths in search results use forward slashes, regardless of OS.
+    # Reject absolute paths, traversal and Windows-specific separators.
+    parts = filepath.split("/")
+    if (
+        not filepath
+        or "\\" in filepath
+        or any(part in ("", ".", "..") for part in parts)
+    ):
+        raise HTTPException(status_code=400, detail="Invalid filepath")
+
+    root = CORPUS_ROOT_DIR.resolve()
+
+    try:
+        path = root.joinpath(*parts).resolve(strict=True)
+        path.relative_to(root)
+    except ValueError:
+        raise HTTPException(status_code=403, detail="Path outside corpus")
+    except (FileNotFoundError, OSError):
+        raise HTTPException(status_code=404, detail="Source document not found")
+
+    if not path.is_file():
+        raise HTTPException(status_code=404, detail="Source document not found")
+
+    return FileResponse(
+        path,
+        media_type="text/plain",
+        headers={"X-Content-Type-Options": "nosniff"},
     )
 
 

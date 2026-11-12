@@ -44,9 +44,21 @@ export function HitCard(props) {
 			<p class="text">
 				<Highlight paneId={id} text={hit.text ?? "[text unavailable]"} />
 			</p>
+
 			<div class="src">
 				<span class="title">
-					<FilterMark text={hit.title ?? "(untitled)"} filter={p()?.filter} />
+					<a
+						title="View corpus text in a new window"
+						class="corpus-text"
+						href={`/texts/${encodeURIComponent(hit.corpus)}/${hit.filepath
+							.split("/")
+							.map(encodeURIComponent)
+							.join("/")}`}
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						<FilterMark text={hit.title ?? "(untitled)"} filter={p()?.filter} />
+					</a>
 				</span>
 				<span>
 					<FilterMark
@@ -58,6 +70,7 @@ export function HitCard(props) {
 					{hit.corpus} / {hit.doc_id} · tokens {hit.token_start}:{hit.token_end}
 				</span>
 			</div>
+
 			<div class="actions">
 				<button
 					class="btn small"

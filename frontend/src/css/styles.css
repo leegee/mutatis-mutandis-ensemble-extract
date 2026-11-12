@@ -53,6 +53,23 @@ body {
 		sans-serif;
 }
 
+.corpus-text {
+	text-decoration: none;
+	color: var(--ink);
+}
+.corpus-text:hover,
+.corpus-text:focus {
+	color: var(--accent);
+}
+.corpus-text:hover::after,
+.corpus-text:focus-visible::after {
+	content: "↗️";
+	display: inline;
+	margin-left: 0.25em;
+	font-size: 1;
+	font-weight: 900;
+	font-style: normal;
+}
 .top {
 	display: flex;
 	align-items: center;
