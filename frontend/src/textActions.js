@@ -83,25 +83,27 @@ export async function runTextSearch(opts = {}) {
 	}
 }
 
-export function exportTextResults(kind) {
+export async function exportTextResults(kind) {
 	const hits = textStore.hits;
 	if (!hits.length) return;
 	const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");
 	const base = `text-search-${stamp}`;
 	if (kind === "json") {
-		download(
-			`${base}.json`,
-			JSON.stringify(
-				{
-					request: textStore.lastRequest,
-					count: hits.length,
-					results: hits,
-				},
-				null,
-				2,
-			),
-			"application/json",
+		const json = JSON.stringify(
+			{
+				request: textStore.lastRequest,
+				count: hits.length,
+				results: hits,
+			},
+			null,
+			2,
 		);
+		download(`${base}.json`, json, "application/json");
+		try {
+			await navigator.clipboard.writeText(json);
+		} catch (err) {
+			console.warn("Could not copy JSON to clipboard:", err);
+		}
 	} else {
 		const cols = [...CSV_COLS, "match_start", "match_end"];
 		const rows = [
@@ -109,5 +111,10 @@ export function exportTextResults(kind) {
 			...hits.map((h) => cols.map((c) => csvCell(h[c])).join(",")),
 		];
 		download(`${base}.csv`, `\ufeff${rows.join("\r\n")}`, "text/csv");
+		try {
+			await navigator.clipboard.writeText(rows.join("\r\n"));
+		} catch (err) {
+			console.warn("Could not copy CSV to clipboard:", err);
+		}
 	}
 }

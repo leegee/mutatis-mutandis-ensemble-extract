@@ -225,31 +225,42 @@ export async function checkApi() {
 	}
 }
 
-export function exportPane(id, kind) {
+export async function exportPane(id, kind) {
 	const p = pane(id);
 	if (!p?.hits.length) return;
+
 	const hits = JSON.parse(JSON.stringify(p.hits));
 	const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");
 	const base = `passage-search-${p.label}-${stamp}`;
+
 	if (kind === "json") {
-		download(
-			`${base}.json`,
-			JSON.stringify(
-				{
-					request: JSON.parse(JSON.stringify(p.lastRequest)),
-					count: hits.length,
-					results: hits,
-				},
-				null,
-				2,
-			),
-			"application/json",
+		const json = JSON.stringify(
+			{
+				request: JSON.parse(JSON.stringify(p.lastRequest)),
+				count: hits.length,
+				results: hits,
+			},
+			null,
+			2,
 		);
+
+		download(`${base}.json`, json, "application/json");
+
+		try {
+			await navigator.clipboard.writeText(json);
+		} catch (err) {
+			console.warn("Could not copy JSON to clipboard:", err);
+		}
 	} else {
 		const rows = [
 			CSV_COLS.join(","),
 			...hits.map((h) => CSV_COLS.map((c) => csvCell(h[c])).join(",")),
 		];
-		download(`${base}.csv`, "\ufeff" + rows.join("\r\n"), "text/csv");
+		download(`${base}.csv`, `\ufeff${rows.join("\r\n")}`, "text/csv");
+		try {
+			await navigator.clipboard.writeText(rows.join("\r\n"));
+		} catch (err) {
+			console.warn("Could not copy CSV to clipboard:", err);
+		}
 	}
 }
