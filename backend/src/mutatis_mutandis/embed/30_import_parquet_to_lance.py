@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-30_import_parquet_to_lance.py - generate embeddings from (Colab-produced) parquet
+mutatis_mutandis/embed/30_import_parquet_to_lance.py - generate embeddings from (Colab-produced) parquet
 
     # skip existing passagse
     30_import_parquet_to_lance.py
