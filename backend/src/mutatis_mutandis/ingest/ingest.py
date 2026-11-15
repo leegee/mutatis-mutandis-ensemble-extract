@@ -642,6 +642,148 @@ def process_cme_file(tree, xml_path):
     return meta, tokens
 
 
+def normalize_echoe_unicode(text: str) -> str:
+    """Normalize ECHOE text while retaining Unicode letters, symbols, and MUFI glyphs."""
+    text = unicodedata.normalize("NFC", text).lower()
+    text = text.translate(str.maketrans({"\u2018": "'", "\u2019": "'", "\u02bc": "'"}))
+    kept = []
+    for ch in text:
+        category = unicodedata.category(ch)
+        kept.append(ch if category[0] in {"L", "M", "N", "P", "S"} or category == "Co" or ch.isspace() else " ")
+    return re.sub(r"\s+", " ", "".join(kept)).strip()
+
+def tokenize_historical_unicode(text: str) -> list[str]:
+    """Keep Unicode letters and combining marks together; retain punctuation as tokens."""
+    tokens, current = [], []
+    for ch in text:
+        category = unicodedata.category(ch)
+        if category[0] in {"L", "M", "N"} or category == "Co":
+            current.append(ch)
+        elif ch.isspace():
+            if current:
+                tokens.append("".join(current))
+                current = []
+        else:
+            if current:
+                tokens.append("".join(current))
+                current = []
+            tokens.append(ch)
+    if current:
+        tokens.append("".join(current))
+    return tokens
+
+
+def render_echoe_text(node):
+    """Render one ECHOE reading, preferring expansions over parallel alternatives."""
+    parts = [node.text] if node.text else []
+    ignored = {"note", "pb", "handShift", "del"}
+    block_tags = {"ab", "div", "head", "l", "lg", "p", "s", "w"}
+    priority = ("expan", "reg", "corr", "ex", "orig", "sic", "abbr", "lem", "rdg", "am")
+    for child in node:
+        if not isinstance(child.tag, str):
+            if child.tail:
+                parts.append(child.tail)
+            continue
+        name = child.tag.rsplit("}", 1)[-1]
+        if name in ignored:
+            pass
+        elif name == "lb":
+            parts.append(" ")
+        elif name in {"choice", "app"}:
+            candidates = [c for c in child if isinstance(c.tag, str)]
+            selected = next(
+                (c for wanted in priority for c in candidates if c.tag.rsplit("}", 1)[-1] == wanted),
+                candidates[0] if candidates else None,
+            )
+            if selected is not None:
+                parts.append(render_echoe_text(selected))
+        else:
+            parts.append(render_echoe_text(child))
+            if name in block_tags:
+                parts.append(" ")
+        if child.tail:
+            parts.append(child.tail)
+    return "".join(parts)
+
+
+def process_echoe_file(tree, xml_path):
+    """Ingest an ECHOE file as a dated manuscript witness, preserving Unicode."""
+    normalize_tei_namespace(tree.getroot())
+    echoe_id = tree.findtext(
+        ".//tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='echoe']",
+        namespaces=TEI_NS,
+    )
+    witness_id = (echoe_id or xml_path.stem).strip().replace(" ", "_")
+    doc_id = f"echoe__{witness_id}"
+    title_elem = tree.find(
+        ".//tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:title[@type='main']", TEI_NS
+    )
+    if title_elem is None:
+        title_elem = tree.find(".//tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:title", TEI_NS)
+
+    # publicationStmt dates the digital edition; use the manuscript witness date.
+    date_elems = tree.findall(
+        ".//tei:teiHeader/tei:fileDesc/tei:sourceDesc/tei:msDesc//tei:history/tei:origin/tei:origDate",
+        TEI_NS,
+    )
+    if not date_elems:
+        logger.warning("No manuscript origDate in ECHOE document %s at %s", doc_id, xml_path)
+        return None
+
+    # A file may describe multiple manuscript fragments. Use their combined
+    # date span; duplicate dates (as in shared fragments) collapse in date_raw.
+    dated_spans = []
+    for date_elem in date_elems:
+        start_raw = date_elem.attrib.get("when") or date_elem.attrib.get("notBefore") or date_elem.attrib.get("from")
+        end_raw = date_elem.attrib.get("when") or date_elem.attrib.get("notAfter") or date_elem.attrib.get("to")
+        start_year = extract_year(start_raw) if start_raw else None
+        end_year = extract_year(end_raw) if end_raw else None
+        if start_year or end_year:
+            low = start_year or end_year
+            high = end_year or start_year
+            date_label = f"{low}" if low == high else f"{low}-{high}"
+            dated_spans.append((low, high, date_label))
+        else:
+            text_date = safe_text(date_elem)
+            text_year = extract_year(text_date) if text_date else None
+            if text_year:
+                dated_spans.append((text_year, text_year, str(text_year)))
+
+    if not dated_spans:
+        logger.warning("Unusable manuscript origDate in ECHOE document %s at %s", doc_id, xml_path)
+        return None
+    earliest = min(span[0] for span in dated_spans)
+    latest = max(span[1] for span in dated_spans)
+    pub_year = (earliest + latest) // 2
+    date_raw = "; ".join(dict.fromkeys(span[2] for span in dated_spans))
+    if not year_in_corpus(pub_year):
+        logger.info("ECHOE witness %s dated %s outside configured year range", doc_id, pub_year)
+        return None
+
+    bodies = tree.findall(".//tei:text/tei:body", TEI_NS)
+    if not bodies:
+        logger.warning("No TEI body in ECHOE document %s at %s", doc_id, xml_path)
+        return None
+    raw_text = " ".join(render_echoe_text(body) for body in bodies)
+    tokens = tokenize_historical_unicode(normalize_echoe_unicode(raw_text))
+    if not tokens:
+        logger.warning("No text after rendering ECHOE document %s at %s", doc_id, xml_path)
+        return None
+
+    metadata = {
+        "doc_id": doc_id,
+        "title": safe_text(title_elem),
+        "author": None,
+        "publisher": None,
+        "pub_place": None,
+        "pub_year": pub_year,
+        "source_date_raw": f"manuscript witness date: {date_raw}",
+        "token_count": len(tokens),
+        "filepath": str(xml_path.relative_to(config.CORPUS_ROOT_DIR).as_posix()),
+        "lang": "ang",
+    }
+    return metadata, tokens
+
 def process_misc_file(tree, xml_path):
     """
     Process generic TEI sources in the misc corpus.
@@ -1003,6 +1145,8 @@ def process_file(xml_path: Path, corpus):
         return process_ecco_file(tree, xml_path)
     elif corpus == "cme":
         return process_cme_file(tree, xml_path)
+    elif corpus == "echoe":
+        return process_echoe_file(tree, xml_path)
     elif corpus == "misc":
         return process_misc_file(tree, xml_path)
     else:
