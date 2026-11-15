@@ -40,6 +40,15 @@ from mutatis_mutandis.lib.wordlist_whiteness import WHITENESS, WHITENESS_WEIGHTS
 logger = get_logger('ingester')
 
 
+# Strongest source first. Composition dates are deliberately NOT here:
+# pub_year is the date of the text as we hold it, not of the original work.
+DATE_XPATHS = [
+    ("publicationStmt", ".//tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:date", ),
+    ("imprint",         ".//tei:teiHeader//tei:sourceDesc//tei:imprint/tei:date"),
+    ("translation",     ".//tei:teiHeader//tei:sourceDesc//tei:bibl/tei:date[@type='translation']"),
+    ("docDate",         ".//tei:text/tei:front//tei:docDate"),
+]
+
 MIN_WHITENESS_SCORE = 2.0
 
 NUM_WORKERS = 4
@@ -321,16 +330,6 @@ def _year_from_date_elem(d):
         if y and y > 0:                 # rejects when="0000" template junk
             return raw, y
     return None, None
-
-
-# Strongest source first. Composition dates are deliberately NOT here:
-# pub_year is the date of the text as we hold it, not of the original work.
-DATE_XPATHS = [
-    ("publicationStmt", ".//tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:date", ),
-    ("imprint",         ".//tei:teiHeader//tei:sourceDesc//tei:imprint/tei:date"),
-    ("translation",     ".//tei:teiHeader//tei:sourceDesc//tei:bibl/tei:date[@type='translation']"),
-    ("docDate",         ".//tei:text/tei:front//tei:docDate"),
-]
 
 
 def pick_pub_year(tree):
