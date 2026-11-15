@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "06 - Evidence and Method/Additional corpora to consider - through 1650.md",
+                "file": "06 - Evidence and Method/Semantic query log.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Additional corpora to consider - through 1650"
+              "title": "Semantic query log"
             }
           }
         ]
@@ -190,6 +190,8 @@
   },
   "active": "149de890f6e00990",
   "lastOpenFiles": [
+    "05 - Interpretations and Hypotheses/Old English whiteness and human appearance.md",
+    "06 - Evidence and Method/Semantic query log.md",
     "00 - Dashboard.md",
     "06 - Evidence and Method/Additional corpora to consider - through 1650.md",
     "05 - Interpretations and Hypotheses/Middle English whiteness and human appearance.md",
@@ -217,8 +219,6 @@
     "05 - Interpretations and Hypotheses/Cyril of Jerusalem - Daniel 7.9.md",
     "05 - Interpretations and Hypotheses/Origen - Daniel 7.9.md",
     "05 - Interpretations and Hypotheses/Hippolytus - Daniel 7.9.md",
-    "10 - Templates/Template - Textual Passage.md",
-    "10 - Templates/Template - Scholarly Source.md",
     "Untitled.base"
   ]
 }
