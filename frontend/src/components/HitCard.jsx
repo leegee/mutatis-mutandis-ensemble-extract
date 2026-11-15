@@ -50,7 +50,9 @@ export function HitCard(props) {
 					<a
 						title="View corpus text in a new window"
 						class="corpus-text"
-						href={`/texts/${encodeURIComponent(hit.corpus)}/${hit.filepath
+						href={`/texts/${encodeURIComponent(hit.corpus)}/${(
+							hit.filepath ?? ""
+						)
 							.split("/")
 							.map(encodeURIComponent)
 							.join("/")}`}
