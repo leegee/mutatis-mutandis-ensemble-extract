@@ -1,3 +1,11 @@
+---
+type: interpretation
+tags:
+  - research/interpretation
+  - topic/daniel
+  - reception/ancient-and-medieval
+---
+
 Jerome's commentary (Book II, Daniel 7:9) contains several identifiable scriptural connections.
 
 |Element|Jerome's supporting text|Interpretation|

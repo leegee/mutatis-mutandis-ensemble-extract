@@ -1,3 +1,9 @@
+---
+type: research-method
+tags:
+  - research/method
+---
+
 # Evidence protocol
 
 ## Evidence layers

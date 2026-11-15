@@ -1,4 +1,10 @@
-# Extraordinary Whiteness — Research Dashboard
+---
+type: index
+tags:
+  - research/index
+---
+
+# Extraordinary Paleness — Research Dashboard
 
 > [!summary] Central research question
 > How have extraordinary combinations of pale hair, pale skin, and unusual eyes been represented, interpreted, translated, and reinterpreted in English writing from the early medieval period to 1914?
@@ -9,6 +15,11 @@
 - [[Daniel 10 - Luminous figure]]
 - [[1 Enoch 106 - Noah's birth]]
 - [[Revelation 1 - Son of Man vision]]
+- [[Lamentations 4 - Nazirites like snow]]
+- [[Song of Songs 5 - Bright and ruddy]]
+- [[Genesis 49 - Wine-red eyes and milk-white teeth]]
+- [[Leviticus 13 - Reddish-white skin lesions]]
+- [[Isaiah 1 - Scarlet made white]]
 - [[Revelation 1 - P98 dossier]]
 
 ## Witnesses
@@ -18,11 +29,14 @@
 - [[Ge'ez 1 Enoch tradition]]
 - [[Royal MS 5 E XIII - Latin Enoch witness]]
 - [[P98 - Papyrus 98]]
+- [[5Q6 - 5QLama]]
 
 ## Main research threads
 
 - [[Colour vocabulary and comparison]]
+- [[Hebrew colour terms - semantic range and ruddy complexion]]
 - [[Transmission chronology]]
+- [[Transmission diagrams - Scriptural sources to Bede]]
 - [[Evidence protocol]]
 - [[Open questions]]
 
@@ -48,5 +62,15 @@
 ## Navigation
 
 - [[Transmission chronology]]
+- [[Transmission diagrams - Scriptural sources to Bede]]
 - [[Evidence protocol]]
 - [[Templates - Index]]
+
+## Live note index
+
+The table below updates from note properties. Use the view selector in the Base to switch between all notes, passages, witnesses, questions, interpretations, and chronologies. Add or update a note's `type` property to have it appear in the matching view.
+
+![[Research Index.base]]
+## Note structure
+
+Passage notes record textual content; witness notes record artefact evidence; interpretation notes record readings and hypotheses. Use each note's `related_notes` metadata to move between them. The chronology pages summarize and compare the dated records; individual witness notes remain the source for witness details.

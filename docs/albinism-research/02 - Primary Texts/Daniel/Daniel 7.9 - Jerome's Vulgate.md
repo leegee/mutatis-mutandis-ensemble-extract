@@ -1,3 +1,11 @@
+---
+type: textual-passage
+tags:
+  - research/passage
+  - topic/daniel
+  - reception/ancient-and-medieval
+---
+
 ```
 type: textual-passage
 work: Book of Daniel

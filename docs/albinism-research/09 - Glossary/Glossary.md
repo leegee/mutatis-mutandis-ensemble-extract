@@ -1,3 +1,10 @@
+---
+type: glossary
+tags:
+  - research/glossary
+  - topic/colour-language
+---
+
 # Glossary
 
 - **Composition date:** Approximate date when a literary work or unit was composed.

@@ -1,3 +1,12 @@
+---
+type: manuscript-witness
+id: MS-SINAITICUS
+tags:
+  - research/witness
+related_notes:
+  - "[[Revelation 1 - Son of Man vision]]"
+---
+
 # Codex Sinaiticus – א – GA 01
 
 **Papyrus 18 (𝔓18) is often listed as the next early papyrus of Revelation**, and is dated to the third century, but it preserves Revelation 1:4–7. It does not contain the descriptions of the hair, eyes or feet in 1:14–15. So it is not the next witness to the passage we are examining

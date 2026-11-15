@@ -1,3 +1,13 @@
+---
+type: manuscript-witness
+id: MS-CB-MICH-XII
+tags:
+  - research/witness
+  - topic/1-enoch
+related_notes:
+  - "[[1 Enoch 106 - Noah's birth]]"
+---
+
 # Chester Beatty–Michigan Papyrus XII — Greek Enoch witness
 
 **Work:** 1 Enoch

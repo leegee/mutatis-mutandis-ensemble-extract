@@ -1,3 +1,13 @@
+---
+type: transmission-record
+tags:
+  - research/transmission
+  - topic/revelation
+  - reception/ancient-and-medieval
+related_notes:
+  - "[[Revelation 1 - Son of Man vision]]"
+---
+
 ```
 type: textual-passage
 work: Revelation (Apocalypsis Iohannis)

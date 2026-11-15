@@ -1,3 +1,10 @@
+---
+type: research-question
+tags:
+  - research/questions
+  - research/open-questions
+---
+
 # Research Questions
 
 ## Core question

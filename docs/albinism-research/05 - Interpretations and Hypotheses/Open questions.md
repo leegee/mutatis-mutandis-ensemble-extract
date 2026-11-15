@@ -1,3 +1,10 @@
+---
+type: interpretation
+tags:
+  - research/interpretation
+  - research/open-questions
+---
+
 # Open questions and hypotheses register
 
 Use this page to prevent plausible ideas from becoming unmarked facts.

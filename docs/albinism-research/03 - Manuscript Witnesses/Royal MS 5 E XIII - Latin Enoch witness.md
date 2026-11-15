@@ -1,3 +1,14 @@
+---
+type: manuscript-witness
+id: MS-ROYAL-5-E-XIII
+tags:
+  - research/witness
+  - topic/1-enoch
+  - reception/ancient-and-medieval
+related_notes:
+  - "[[1 Enoch 106 - Noah's birth]]"
+---
+
 # British Library Royal MS 5 E XIII — Latin Enoch witness
 
 **Language:** Latin

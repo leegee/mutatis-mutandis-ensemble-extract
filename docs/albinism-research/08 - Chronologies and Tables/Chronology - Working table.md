@@ -1,3 +1,10 @@
+---
+type: chronology
+tags:
+  - research/chronology
+  - research/timeline
+---
+
 # Chronology — Working table
 
 See [[Transmission chronology]] for the current comparative table.

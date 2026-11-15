@@ -1,3 +1,13 @@
+---
+type: transmission-record
+tags:
+  - research/transmission
+  - topic/revelation
+  - reception/ancient-and-medieval
+related_notes:
+  - "[[Revelation 1 - Son of Man vision]]"
+---
+
 # Cyprian of Carthage, _Ad Quirinum_ II.26 — Revelation 1:14-15
 
 ```

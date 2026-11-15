@@ -1,3 +1,16 @@
+---
+type: textual-passage
+tags:
+  - research/passage
+  - topic/daniel
+related_notes:
+  - "[[Jerome - Daniel 7.9]]"
+  - "[[Hippolytus - Daniel 7.9]]"
+  - "[[Origen - Daniel 7.9]]"
+  - "[[Cyril of Jerusalem - Daniel 7.9]]"
+  - "[[Colour vocabulary and comparison]]"
+---
+
 # Daniel 7:9 — The Ancient of Days
 
 **Textual language:** Biblical Aramaic

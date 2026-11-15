@@ -1,0 +1,53 @@
+filters:
+  and:
+    - file.ext == "md"
+    - not:
+        - file.inFolder("10 - Templates")
+properties:
+  file.name:
+    displayName: Note
+  note.type:
+    displayName: Kind
+  note.id:
+    displayName: Record ID
+  note.work:
+    displayName: Work
+  note.passage:
+    displayName: Passage
+  note.language:
+    displayName: Language
+  note.related_notes:
+    displayName: Related notes
+views:
+  - type: table
+    name: All research notes
+    groupBy:
+      property: type
+      direction: ASC
+  - type: table
+    name: Passages
+    filters:
+      and:
+        - note.type == "textual-passage"
+  - type: table
+    name: Witnesses
+    filters:
+      and:
+        - note.type == "manuscript-witness"
+  - type: table
+    name: Questions
+    filters:
+      and:
+        - or:
+            - note.type == "research-question"
+            - file.hasTag("research/open-questions")
+  - type: table
+    name: Interpretations
+    filters:
+      and:
+        - note.type == "interpretation"
+  - type: table
+    name: Chronology
+    filters:
+      and:
+        - note.type == "chronology"

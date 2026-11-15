@@ -1,3 +1,11 @@
+---
+type: transmission-record
+tags:
+  - research/transmission
+  - topic/revelation
+  - reception/ancient-and-medieval
+---
+
 [Full text](https://la.wikisource.org/wiki/Expositio_in_Apocalypsin)
 
 Wearmouth–Jarrow in Northumbria, c703

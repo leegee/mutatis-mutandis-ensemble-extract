@@ -1,3 +1,9 @@
+---
+type: bibliography
+tags:
+  - research/bibliography
+---
+
 # Bibliography
 
 This is an intentionally incomplete bibliography register. Add full publication details only after checking the item itself.
@@ -12,6 +18,7 @@ This is an intentionally incomplete bibliography register. Add full publication 
 | British Library catalogue, Royal MS 5 E XIII | Latin witness metadata | To verify |
 | P98 publication/catalogue record | Revelation 1:13–2:1 | To identify and verify |
 | Critical editions of Daniel (Aramaic/Hebrew/Greek) | Daniel 7 and 10 | To add |
+| J. T. Milik, 5QLama (5Q6), DJD III (1962) | Primary manuscript transcription and plate | Exact title, pages, and plate to verify |
 
 ## Lexica and reference works
 
@@ -24,4 +31,8 @@ This is an intentionally incomplete bibliography register. Add full publication 
 
 ## Secondary literature
 
-Add one note per scholar or work when the literature review expands. Record exact page numbers for every specific claim.
+| Work | Relevance | Details/status |
+|---|---|---|
+| Kotzé, Gideon R. *The Qumran Manuscripts of Lamentations: A Text-Critical Study*. Studia Semitica Neerlandica 61. Leiden: Brill, 2013. | Qumran Lamentations manuscripts; detailed analysis of 4:7 | Check the 2013 edition pagination against the 2011 dissertation |
+
+| [[Salters - Lamentations ICC]] | Philological commentary on Lam 4:7-8, including adamu and etsem | 2010; pp. 301-303 in consulted edition |

@@ -1,3 +1,9 @@
+---
+type: lexicon
+tags:
+  - research/lexicon
+  - topic/colour-language
+---
 
 ƕeits (Gothic) -> derived-from -> *hwītaz (Proto-Germanic)
 
@@ -327,3 +333,8 @@ The relevant inherited category may not have been "blond" at all, but something 
 | **𐍃𐍅𐌰𐍂𐍄**         | **swart**       | black/dark           | **Matthew 5:36**  | **μέλαινα** *melaina*   | PGmc. ***swartaz***      | PIE *sword-?*, etymology uncertain                            | Crucial contrast: **white ↔ black hair** |
 | **𐍅𐌿𐌻𐌻𐌰𐍂𐌴𐌹𐍃** | **wullareis**   | fuller, cloth-worker | **Mark 9:3**      | **γναφεύς** *gnapheus*  | PGmc. ***wullō*** “wool” | PIE *wĺ̥h₂-nā* / wool family                                  | Context of **white as wool**             |
 | **𐌰𐌲𐍅𐌴𐌹𐍄𐌾𐌰𐌽** | **gaƕeitjan**   | whiten, make white   | **Mark 9:3**      | **λευκαίνω** *leukainō* | derived from **ƕeits**   | ultimately same *white/bright* root                                | **Causative “make white”**               |
+## Red-and-white comparisons in Biblical Hebrew
+
+- [[Genesis 49 - Wine-red eyes and milk-white teeth]] — wine-red/dark eyes and milk-white teeth; bodily colour pairing, but not complexion.
+- [[Leviticus 13 - Reddish-white skin lesions]] — reddish-white skin and scalp marks in ritual-diagnostic instructions, not a complexion ideal.
+- [[Isaiah 1 - Scarlet made white]] — scarlet/crimson contrasted with snow/wool symbolically, as a metaphor of transformation.

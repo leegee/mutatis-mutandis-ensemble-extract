@@ -1,3 +1,13 @@
+---
+type: manuscript-witness
+id: TRAD-GEEZ-ENOCH
+tags:
+  - research/witness
+  - topic/1-enoch
+related_notes:
+  - "[[1 Enoch 106 - Noah's birth]]"
+---
+
 # Geʿez 1 Enoch tradition
 
 **Language:** Geʿez (Classical Ethiopic)

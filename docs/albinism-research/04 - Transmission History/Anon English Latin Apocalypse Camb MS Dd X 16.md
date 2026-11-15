@@ -1,3 +1,11 @@
+---
+type: transmission-record
+tags:
+  - research/transmission
+  - topic/revelation
+  - reception/ancient-and-medieval
+---
+
 [In The Bible And The Apocrypha In The Early Irish Church](https://dokumen.pub/the-bible-and-the-apocrypha-in-the-early-irish-church-ad-600-1200-instrumenta-patristica-et-mediaevalia-66-9782503547954-2503547958.html), Martin McNamara discusses an anonymous commentary on Revelation preserved in **Cambridge University Library MS Dd X 16**. The manuscript is probably ninth- or tenth-century, and was likely copied in Brittany. Its script and abbreviations show strong Insular and Irish influence.
 
 More importantly, Roger Gryson considers this commentary and the related _De enigmatibus_ to depend on an earlier commentary written in Ireland in the early eighth century. McNamara regards the precise place of composition as unresolved: Ireland, Britain or the Continent remain possibilities.

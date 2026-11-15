@@ -1,3 +1,11 @@
+---
+type: interpretation
+tags:
+  - research/interpretation
+  - topic/daniel
+  - reception/ancient-and-medieval
+---
+
 Origen offers another interesting interpretation in _Homilies on Numbers_ 27.12.
 
 He associates whiteness with:

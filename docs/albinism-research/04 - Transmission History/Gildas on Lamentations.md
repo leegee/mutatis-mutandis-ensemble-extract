@@ -1,3 +1,13 @@
+---
+type: transmission-record
+tags:
+  - research/transmission
+  - topic/lamentations
+  - reception/ancient-and-medieval
+related_notes:
+  - "[[Lamentations 4 - Nazirites like snow]]"
+---
+
 In _De excidio et conquestu Britanniae_, probably written in the sixth century, Gildas quotes Lamentations 4:7:
 
 > _candidiores nazaraei eius niue, rubicundiores ebore antique, sapphiro pulchriores._

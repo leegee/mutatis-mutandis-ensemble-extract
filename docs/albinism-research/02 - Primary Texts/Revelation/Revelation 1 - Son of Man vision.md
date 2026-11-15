@@ -1,3 +1,16 @@
+---
+type: textual-passage
+tags:
+  - research/passage
+  - topic/revelation
+related_notes:
+  - "[[P98 - Papyrus 98]]"
+  - "[[Codex Sinaiticus]]"
+  - "[[Cyprian - Revelation]]"
+  - "[[Fleury Palimpsest - VL 55 - Revelation]]"
+  - "[[Transmission chronology]]"
+---
+
 # Revelation 1:12–16 — The Son of Man vision
 
 **Textual language:** Greek

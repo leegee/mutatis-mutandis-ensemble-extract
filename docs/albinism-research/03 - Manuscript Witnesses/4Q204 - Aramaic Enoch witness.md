@@ -1,3 +1,13 @@
+---
+type: manuscript-witness
+id: MS-4Q204
+tags:
+  - research/witness
+  - topic/1-enoch
+related_notes:
+  - "[[1 Enoch 106 - Noah's birth]]"
+---
+
 # 4Q204 — Aramaic Enoch witness
 
 **Collection:** Dead Sea Scrolls / Qumran

@@ -1,3 +1,14 @@
+---
+type: transmission-record
+tags:
+  - research/transmission
+  - research/timeline
+related_notes:
+  - "[[Chronology - Working table]]"
+  - "[[Chronology - Revelations]]"
+  - "[[Transmission diagrams - Scriptural sources to Bede]]"
+---
+
 # Transmission chronology
 
 > This table is a working map, not a claim that all witnesses descend directly from one another. Dates are approximate and refer to different things unless explicitly stated.
@@ -108,6 +119,10 @@ RELATED WHITENESS EVIDENCE (NOT REVELATION)
 |---|---|---|---|
 | Daniel 7 | Aramaic | Composition/redaction and manuscript witnesses need separate entries | The passage describes snow-white clothing and hair like wool |
 | Daniel 10 | Hebrew | Composition/redaction and manuscript witnesses need separate entries | Luminous/metallic figure; not a direct white-hair description |
+
+## Diagrams
+
+- [[Transmission diagrams - Scriptural sources to Bede]]
 
 ## Dating vocabulary
 

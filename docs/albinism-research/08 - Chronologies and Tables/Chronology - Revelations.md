@@ -1,3 +1,11 @@
+---
+type: chronology
+tags:
+  - research/chronology
+  - topic/revelation
+  - research/timeline
+---
+
 ### **Transmission and reception**
 
 1. **Greek Revelation**
@@ -38,7 +46,7 @@
 
 | Date              | Author / witness                                                                       | Location or association                        | Evidence                                            | Status                                                                           |
 | ----------------- | -------------------------------------------------------------------------------------- | ---------------------------------------------- | --------------------------------------------------- | -------------------------------------------------------------------------------- |
-| c.540             | Gildas, _De excidio_                                                                   | Britain                                        | Quotes Lamentations 4:7, "whiter than snow"         | Direct British use of a related whiteness image, not Revelation                  |
+| c.540             | Gildas, _De excidio_                                                                   | Britain                                        | Quotes [[Lamentations 4 - Nazirites like snow]], "whiter than snow"         | Direct British use of a related whiteness image, not Revelation                  |
 | c.540–550         | Primasius, _Commentarius in Apocalypsin_                                               | North Africa                                   | Commentary on head, hair, eyes and feet             | Earlier Latin exegetical source                                                  |
 | c.700             | Anonymous Irish Apocalypse gloss (Gumerlock)                                           | Irish monastic setting                         | Reconstructed commentary on Revelation              | Composition inferred; not a surviving contemporary manuscript                    |
 | Early 8th century | Lost Irish Apocalypse commentary underlying the Cambridge and _De enigmatibus_ glosses | Probably Ireland                               | Detailed interpretations of Revelation 1:14–15      | Scholarly reconstruction; exact relationship to Gumerlock's gloss needs checking |

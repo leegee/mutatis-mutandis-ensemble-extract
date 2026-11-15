@@ -1,3 +1,13 @@
+---
+type: manuscript-witness
+id: MS-P98
+tags:
+  - research/witness
+  - topic/revelation
+related_notes:
+  - "[[Revelation 1 - Son of Man vision]]"
+---
+
 # P.IFAO II 31 – 𝔓98 – P98 – Papyrus IFAO inv. 237b
 
 | Property                 | Details                                                                                                              |

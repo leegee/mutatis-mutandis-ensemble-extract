@@ -1,3 +1,15 @@
+---
+type: textual-passage
+tags:
+  - research/passage
+  - topic/1-enoch
+related_notes:
+  - "[[4Q204 - Aramaic Enoch witness]]"
+  - "[[Chester Beatty-Michigan Papyrus XII - Greek Enoch witness]]"
+  - "[[Ge'ez 1 Enoch tradition]]"
+  - "[[Royal MS 5 E XIII - Latin Enoch witness]]"
+---
+
 # 1 Enoch 106 — Noah's birth and extraordinary appearance
 
 **Passage:** 1 Enoch 106:1–3 (focus on 106:2)
@@ -30,6 +42,18 @@ Crucial limitation: the Aramaic fragment does **not** preserve an Aramaic word f
 
 The Geʿez tradition is the oldest complete surviving form of 1 Enoch, but that does not make it the earliest physical witness. Prior discussion noted the use of `ጸዐዳ` (*ṣəʿəda*, spelling/transliteration to verify) rather than a form expected from the Semitic root often represented as *l-b-n*. This is a lexical question for further investigation, not yet an explanation.
 
+## Colour pairing and relevance to the current question
+
+The Greek wording in 106:2 is **λευκότερον χιόνος καὶ πυρρότερον ῥόδου** (*leukoteron chionos kai pyrroteron rhodou*), “whiter than snow and redder than a rose.” The description concerns Noah’s **body**; the text then describes his hair as whiter than white wool. The same paired body-colour description recurs in 106:10.
+
+This is a close poetic and conceptual parallel to the present discussion of Song of Songs 5:10 and Lamentations 4:7: a human body is described through whiteness and redness, with the red shade articulated by comparison to a rose. It makes a rosy or pinkish reading of red human appearance in ancient literary description easier to take seriously. It is **not** an occurrence of the Hebrew adjective אָדֹם, however: the extant Greek uses πυρρός (“red/ruddy”), and the fragmentary Aramaic witness preserves only its own word for “red.” Treat it as comparative evidence for the imagery and colour range, not as direct Hebrew lexical evidence or proof that all three texts intend the same shade.
+
+The Qumran witness is incomplete: 4Q204 preserves a fragmentary red term in the Noah description, while the full snow/rose comparison is known through the Greek and Ethiopic textual traditions. The Greek clause sometimes printed in brackets about Noah’s colour/appearance being unlike other people is editorially restored in the cited Greek witness and must remain distinguished from the securely visible text.
+
+For the Greek and Aramaic comparison, see Kelley Coblentz Bautch, “Peter and the Patriarch: A Confluence of Traditions?,” in *With Letters of Light* (2011), pp. 24–26. Bautch prints the Greek wording, notes the red word surviving in 4QEnᶜ, and cautions that the significance of this unusual white-and-red complexion remains unresolved.
+## Sources
+
+- Kelley Coblentz Bautch, “Peter and the Patriarch: A Confluence of Traditions?,” in Daphna Arbel and Andrei A. Orlov (eds.), *With Letters of Light: Studies in the Dead Sea Scrolls, Early Jewish Apocalypticism, Magic, and Mysticism in Honor of Rachel Elior* (Leiden: Brill, 2011), 23–38, especially 24–26. [Publisher preview](https://api.pageplace.de/preview/DT0400.9783110222029_A15531968/preview-9783110222029_A15531968.pdf).
 ## Research hypotheses to keep separate
 
 - A Semitic source may underlie the Greek and Geʿez forms.

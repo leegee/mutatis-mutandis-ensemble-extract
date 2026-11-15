@@ -1,3 +1,8 @@
+---
+type: guide
+tags:
+  - research/guide
+---
 # Extraordinary Paleness Obsidian Research Vault
 
 A source-centred research archive for the investigation of extraordinary paleness of hair, skin and eyes in English writing, with an initial textual dossier on Daniel, 1 Enoch (Noah), and Revelation.

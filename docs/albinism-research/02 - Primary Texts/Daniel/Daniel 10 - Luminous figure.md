@@ -1,3 +1,12 @@
+---
+type: textual-passage
+tags:
+  - research/passage
+  - topic/daniel
+related_notes:
+  - "[[Research Questions]]"
+---
+
 # Daniel 10:5–6 — The luminous figure
 
 **Textual language:** Biblical Hebrew
