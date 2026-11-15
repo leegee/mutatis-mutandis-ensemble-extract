@@ -625,6 +625,10 @@ def main():
     if not shards:
         raise SystemExit("No tokens_*.parquet files found")
 
+    global TOTAL_DOCS
+    TOTAL_DOCS = sum(pq.ParquetFile(p).metadata.num_rows for p in shards)
+    log(f"{TOTAL_DOCS} documents across {len(shards)} shards")
+
     device = "cuda" if torch.cuda.is_available() else "cpu"
     log(f"Device: {device}")
     if device == "cpu":
@@ -643,10 +647,6 @@ def main():
     for i, in_path in enumerate(shards, 1):
         log(f"Shard {i}/{len(shards)}")
         process_shard(in_path, tok, model, device)
-
-    global TOTAL_DOCS
-    TOTAL_DOCS = sum(pq.ParquetFile(p).metadata.num_rows for p in shards)
-    log(f"{TOTAL_DOCS} documents across {len(shards)} shards")
 
     log(
         "----------------------------------------------------------------------------"
