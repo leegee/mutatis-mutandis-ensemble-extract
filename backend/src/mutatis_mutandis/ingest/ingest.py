@@ -125,22 +125,36 @@ def normalize_tei_namespace(root):
 
 
 def normalize_early_modern(text: str) -> str:
-    text = text.lower()
-    text = re.sub(r"(\w)[’‘ʼ′´](\w)", r"\1'\2", text)
-    text = text.replace("ſ", "s")
-    text = unicodedata.normalize("NFKD", text)
-    text = text.encode("ascii", "ignore").decode("ascii")
+    return normalize_historical_unicode(text)
+    # text = text.lower()
+    # text = re.sub(r"(\w)[’‘ʼ′´](\w)", r"\1'\2", text)
+    # text = text.replace("ſ", "s")
+    # text = unicodedata.normalize("NFKD", text)
+    # text = text.encode("ascii", "ignore").decode("ascii")
+    # text = re.sub(r"-\s*", " ", text)
+    # text = re.sub(r"tv\b", "ty", text)
+    # text = re.sub(rf"[^{ALLOWED_PUNCT}a-z\s]", " ", text)
+    # text = re.sub(r"\s+", " ", text)
+    # return text.strip()
 
-    text = re.sub(r"-\s*", " ", text)
-    # I'm really not sure we ought to be messing with actual alphabetic chars
-    # text = re.sub(r"\bv(?=[aeiou])", "u", text)
-    # text = re.sub(r"\bj(?=[aeiou])", "i", text)
-    text = re.sub(r"tv\b", "ty", text)
 
-    text = re.sub(rf"[^{ALLOWED_PUNCT}a-z\s]", " ", text)
-    text = re.sub(r"\s+", " ", text)
+def normalize_historical_unicode(text: str) -> str:
+    """Normalize spacing and casing while preserving historical Unicode."""
+    text = unicodedata.normalize("NFC", text).lower()
 
-    return text.strip()
+    # Normalize apostrophe variants without changing letters.
+    text = text.translate(str.maketrans({
+        "\u2018": "'", "\u2019": "'", "\u02bc": "'",
+    }))
+
+    # Keep Unicode letters, marks, numbers, punctuation, and whitespace.
+    # Replace symbols/control characters with spaces, then tidy spacing.
+    text = "".join(
+        ch if unicodedata.category(ch)[0] in {"L", "M", "N", "P"} or ch.isspace()
+        else " "
+        for ch in text
+    )
+    return re.sub(r"\s+", " ", text).strip()
 
 
 def extract_sparse_windows(

@@ -38,6 +38,7 @@ tags:
 - [[Transmission chronology]]
 - [[Transmission diagrams - Scriptural sources to Bede]]
 - [[Evidence protocol]]
+- [[Additional corpora to consider - through 1650]]
 - [[Open questions]]
 
 ## Working conclusions — provisional
@@ -64,6 +65,7 @@ tags:
 - [[Transmission chronology]]
 - [[Transmission diagrams - Scriptural sources to Bede]]
 - [[Evidence protocol]]
+- [[Additional corpora to consider - through 1650]]
 - [[Templates - Index]]
 
 ## Live note index
