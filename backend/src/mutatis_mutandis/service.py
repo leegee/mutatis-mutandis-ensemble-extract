@@ -48,7 +48,7 @@ class SearchParams:
     overfetch: int = 5
     include_text: bool = True
     scale: Optional[str] = None   # None = all scales
-    exact: bool = False           # bypass the approximate vector index
+    exact: bool = True           # bypass the approximate vector index
 
     def __post_init__(self):
         if bool(self.query) == bool(self.vector_id):

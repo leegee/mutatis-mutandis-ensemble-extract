@@ -36,6 +36,7 @@ def parse_args():
     p.add_argument("--representation", choices=PASSAGE_REPRESENTATIONS, default="l8")
     p.add_argument( "--scale", choices=PASSAGE_SCALES, default="local", help="Passage window scale (default: local).", )
     p.add_argument("--limit", type=int, default=30)
+    p.add_argument( "--exact", action="store_true", help="Bypass the approximate vector index and search exactly.", )
     p.add_argument("--negative-id", action="append", default=[], help="Passage ID of a negative example (repeatable).")
     p.add_argument("--beta", type=float, default=0.5, help="Weight of the negative centroid (default 0.5).")
     p.add_argument("--overfetch", type=int, default=5, help="Per-table candidate multiplier when negatives are used (default 5).")
@@ -73,6 +74,7 @@ def main():
             negative_ids=tuple(args.negative_id),
             representation=args.representation,
             scale=args.scale,
+            exact=args.exact,
             start_year=args.start_year,
             end_year=args.end_year,
             limit=args.limit,
