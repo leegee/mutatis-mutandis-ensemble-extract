@@ -356,17 +356,70 @@ def pick_pub_year(tree):
     return None, None, None
 
 
-def pick_composition_date(tree):
-    """Original composition date as a display string, or None. Never used for pub_year."""
-    d = tree.find(
-        ".//tei:teiHeader//tei:;/tei:creation/tei:date", TEI_NS
-    )
-    if d is None:
+def _date_year_bounds(d):
+    """Return (lower, upper) years from structured TEI date attributes."""
+    # TEI uses both from/to and notBefore/notAfter for date ranges.
+    lower_raw = d.attrib.get("from") or d.attrib.get("notBefore")
+    upper_raw = d.attrib.get("to") or d.attrib.get("notAfter")
+    lower = extract_year(lower_raw) if lower_raw else None
+    upper = extract_year(upper_raw) if upper_raw else None
+
+    if lower and upper:
+        return lower, upper
+    # A lone range endpoint is not an exact composition year.
+    if lower or upper:
+        return None, None
+
+    when = d.attrib.get("when")
+    if when:
+        year = extract_year(when)
+        if year:
+            return year, year
+
+    # Some TEI encodes the range only in the element's human-readable text.
+    years = [int(y) for y in re.findall(r"(?<!\d)(\d{4})(?!\d)", safe_text(d) or "")]
+    if len(years) >= 2:
+        return min(years[0], years[1]), max(years[0], years[1])
+    if len(years) == 1:
+        return years[0], years[0]
+    return None, None
+
+
+def _midpoint_year(lower, upper):
+    """Return the nearest integer year; exact .5 values round upward."""
+    if lower is None or upper is None:
         return None
-    nb, na = d.attrib.get("notBefore"), d.attrib.get("notAfter")
-    if nb or na:
-        return f"{nb or '?'}-{na or '?'}"
-    return d.attrib.get("when") or safe_text(d)
+    return (lower + upper + 1) // 2
+
+
+def pick_composition_date(tree):
+    """Return the explicitly encoded original-composition date element, if any."""
+    return tree.find(
+        ".//tei:teiHeader//tei:profileDesc/tei:creation/tei:date[@type='original']",
+        TEI_NS,
+    )
+
+
+def pick_original_text_year(tree):
+    """Return (raw, estimated year, source) for an explicitly original-text date.
+
+    A date on a modern edition/transcription is deliberately not a fallback:
+    when no original composition date is encoded, pub_year remains NULL.
+    """
+    d = pick_composition_date(tree)
+    if d is None:
+        return None, None, None
+
+    lower, upper = _date_year_bounds(d)
+    year = _midpoint_year(lower, upper)
+    raw = (
+        f"type=original; from={d.attrib.get('from')!r}; "
+        f"to={d.attrib.get('to')!r}; "
+        f"notBefore={d.attrib.get('notBefore')!r}; "
+        f"notAfter={d.attrib.get('notAfter')!r}; "
+        f"when={d.attrib.get('when')!r}; text={safe_text(d)!r}"
+    )
+    return raw, year, "profileDesc/creation/date[@type='original']"
 
 
 def to_doc_row(meta: dict) -> tuple:
@@ -827,23 +880,35 @@ def process_misc_file(tree, xml_path):
         TEI_NS,
     )
 
-    date_raw, pub_year, date_source = pick_pub_year(tree)
-    composition_raw = pick_composition_date(tree)
+    composition_raw, pub_year, date_source = pick_original_text_year(tree)
+
+    # Do not substitute the imprint/publication date of an edition or
+    # transcription for the date of the underlying work. Unknown dates are
+    # retained as NULL so that the text remains searchable without a false date.
+    edition_date_raw, edition_year, edition_source = pick_pub_year(tree)
+
+    if pub_year is not None and not year_in_corpus(pub_year):
+        logger.warning(
+            f"[worker {os.getpid()}] Original-text year {pub_year} outside "
+            f"configured corpus range for {doc_id} at {xml_path}"
+        )
+        return None
 
     if pub_year is None:
-        logger.warning( f"[worker {os.getpid()}] - No publication year in misc document {doc_id} at {xml_path}" )
-        return None
+        logger.warning(
+            f"[worker {os.getpid()}] No explicit original-composition year for "
+            f"{doc_id}; ingesting with pub_year=NULL (edition date "
+            f"{edition_year!r} from {edition_source!r} is not substituted)"
+        )
+    else:
+        logger.info(f"{doc_id}: pub_year={pub_year} derived from {date_source}")
 
-    if not year_in_corpus(pub_year):
-        logger.warning( f"[worker {os.getpid()}] Year not in corpus: {pub_year} for {doc_id} at {xml_path}" )
-        return None
-
-    if date_source != "imprint":
-        logger.info( f"{doc_id}: year {pub_year} taken from {date_source} (no usable imprint date)" )
-
-    source_date_raw = date_raw
-    if composition_raw:
-        source_date_raw = f"{date_raw} | composition {composition_raw}"
+    source_date_raw = composition_raw
+    if edition_date_raw:
+        source_date_raw = (
+            f"{source_date_raw or 'original composition date unavailable'} | "
+            f"edition date ({edition_source}): {edition_date_raw}"
+        )
 
     body = tree.findall(
         ".//tei:text/tei:body",
@@ -867,11 +932,11 @@ def process_misc_file(tree, xml_path):
         eebo_ocr_fixes.apply_ocr_fixes(raw_text)
     )
 
-    if len(normalized) < 100:
+    if len(normalized) < 10:
         logger.warning(
             f"[worker {os.getpid()}] "
             f"misc document {doc_id} has normalized "
-            f"text length < 100 at {xml_path}"
+            f"text length < 10 at {xml_path}"
         )
         return None
 
@@ -900,11 +965,7 @@ def process_misc_file(tree, xml_path):
         "pub_year": pub_year,
         "source_date_raw": source_date_raw,
         "token_count": len(tokens),
-        "filepath": str(
-            xml_path.relative_to(
-                config.CORPUS_ROOT_DIR
-            ).as_posix()
-        ),
+        "filepath": str( xml_path.relative_to( config.CORPUS_ROOT_DIR ).as_posix() ),
         "lang": lang,
     }
 
@@ -1021,9 +1082,7 @@ def process_ycoe_file(pos_path: Path):
         "source_date_raw": None,
 
         "token_count": len(tokens),
-        "filepath": str(
-            pos_path.relative_to(config.CORPUS_ROOT_DIR).as_posix()
-        ),
+        "filepath": str( pos_path.relative_to(config.CORPUS_ROOT_DIR).as_posix() ),
         "lang": "ang",
     }
 
@@ -1115,9 +1174,7 @@ def process_eebo_file(tree, xml_path):
         "pub_year": pub_year,
         "source_date_raw": date_raw,
         "token_count": len(tokens),
-        "filepath": str(
-            xml_path.relative_to(config.CORPUS_ROOT_DIR).as_posix()
-        ),
+        "filepath": str( xml_path.relative_to(config.CORPUS_ROOT_DIR).as_posix() ),
         "lang": lang,
     }
 
@@ -1147,7 +1204,7 @@ def process_file(xml_path: Path, corpus):
         return process_cme_file(tree, xml_path)
     elif corpus == "echoe":
         return process_echoe_file(tree, xml_path)
-    elif corpus == "misc":
+    elif corpus == "misc" or corpus == "mets_private" or corpus == "helsinki":
         return process_misc_file(tree, xml_path)
     else:
         logger.warning(f"Unknown corpus {corpus} - ignoring path {xml_path}")
@@ -1529,75 +1586,6 @@ def main():
                 use_windows  = args.windows,
                 replace      = args.replace,
             )
-
-    # ------------------------------------------------------------------
-    # Conventional publication years for YCOE (only when we touched it)
-    # ------------------------------------------------------------------
-    ycoe_was_processed = (
-        not args.justindex
-        and (
-            args.corpus == "ycoe"
-            or (args.corpus is None and "ycoe" in config.CORPUS_INPUT_DIRS)
-        )
-    )
-
-    if ycoe_was_processed:
-        logger.info("Applying conventional publication years for YCOE documents as YCOE metadata still not processed")
-        with corpus_db.get_connection() as conn:
-            with conn.cursor() as cur:
-                cur.execute("""
-                    UPDATE documents
-                    SET pub_year = CASE
-                        -- Alfredian / early West Saxon
-                        WHEN doc_id LIKE 'cocura%'          THEN 890
-                        WHEN doc_id LIKE 'cobede%'          THEN 900
-                        WHEN doc_id LIKE 'cogregd%'         THEN 900
-
-                        -- Ælfric
-                        WHEN doc_id LIKE 'cocathom%'        THEN 995
-                        WHEN doc_id LIKE 'coaelive%'        THEN 1000
-                        WHEN doc_id LIKE 'coaelhom%'        THEN 1005
-
-                        -- Other named authors / works
-                        WHEN doc_id LIKE 'cobyrhtf%'        THEN 1015
-                        WHEN doc_id LIKE 'cochron%'         THEN 1000
-                        WHEN doc_id LIKE 'colaw%'           THEN 1020
-                        WHEN doc_id LIKE 'colaece%'
-                          OR doc_id LIKE 'colacnu%'        THEN 1050
-
-                        -- Saints’ lives / dialogues / miscellaneous OE
-                        WHEN doc_id LIKE 'coapollo%'        THEN 1000
-                        WHEN doc_id LIKE 'coaugust%'        THEN 1000
-                        WHEN doc_id LIKE 'coadrian%'        THEN 1000
-                        WHEN doc_id LIKE 'coalcuin%'        THEN 900
-                        WHEN doc_id LIKE 'coalex%'          THEN 1000
-                        WHEN doc_id LIKE 'cobenrul%'        THEN 1000
-                        WHEN doc_id LIKE 'coblick%'         THEN 1000
-                        WHEN doc_id LIKE 'coboeth%'         THEN 900
-                        WHEN doc_id LIKE 'cocanedg%'        THEN 1000
-                        WHEN doc_id LIKE 'cochad%'          THEN 1000
-                        WHEN doc_id LIKE 'cochdrul%'        THEN 1000
-                        WHEN doc_id LIKE 'cochristoph%'     THEN 1000
-                        WHEN doc_id LIKE 'codicts%'         THEN 1000
-                        WHEN doc_id LIKE 'codocu%'          THEN 1000
-                        WHEN doc_id LIKE 'coeluc%'          THEN 1000
-                        WHEN doc_id LIKE 'coepigen%'        THEN 1000
-                        WHEN doc_id LIKE 'coeuphr%'         THEN 1000
-                        WHEN doc_id LIKE 'coeust%'          THEN 1000
-                        WHEN doc_id LIKE 'coexodus%'        THEN 1000
-                        WHEN doc_id LIKE 'cogenesi%'        THEN 1000
-                        WHEN doc_id LIKE 'coherbar%'        THEN 1050
-                        WHEN doc_id LIKE 'coinspol%'        THEN 1000
-                        WHEN doc_id LIKE 'cojames%'         THEN 1000
-
-                        -- Fallback for any remaining YCOE texts
-                        WHEN corpus = 'ycoe'                THEN 1000
-                        ELSE pub_year
-                    END
-                    WHERE pub_year IS NULL
-                      AND corpus = 'ycoe'
-                """)
-            conn.commit()
 
     with corpus_db.get_connection() as conn:
         if args.reindex:
