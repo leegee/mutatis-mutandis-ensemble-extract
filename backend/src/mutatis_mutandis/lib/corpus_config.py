@@ -36,6 +36,8 @@ CORPUS_INPUT_DIRS = {
     "ycoe":  CORPUS_ROOT_DIR / "ycoe",
     "clasp": CORPUS_ROOT_DIR / "clasp",
     "echoe" : CORPUS_ROOT_DIR / "echoe_main",
+    "mets_private" : CORPUS_ROOT_DIR / "mets_private",
+    "helsinki" : CORPUS_ROOT_DIR / "helsinki",
 }
 ECCO_HEADER_DIR = Path( CORPUS_ROOT_DIR / "corpus/ecco_all/ecco/headers" )
 CLMET_CORPUS_INPUT_DIR = CORPUS_ROOT_DIR / "clmet" / "corpus" / "txt" / "plain"
