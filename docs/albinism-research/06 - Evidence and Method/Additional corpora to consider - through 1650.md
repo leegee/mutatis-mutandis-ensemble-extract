@@ -13,7 +13,9 @@ related_notes:
   - "[[Middle English whiteness and human appearance]]"
   - "[[Transmission chronology]]"
 ---
-
+## Specific Texts to Examine
+	
+For Jewish tradition, see **Chagigah 14a**
 # Additional corpora to consider — through 1650
 
 ## Current scope
@@ -38,9 +40,8 @@ EEBO already contains sermons, homilies, biblical commentary, devotional prose, 
 
 ### Poetry: fill the identified gaps
 
-- **Old English and Anglo-Latin poetry:** the online **CLASP** library aims to bring together all surviving poetry in these languages (c. 650-1100), while the local CLASP snapshot is partial. Complete the project-relevant gaps using the XML/plain-text links already listed in the project's existing Old English corpus checklist. CLASP is a completion of an existing local source collection, rather than a wholly new corpus. Check each source's reuse terms and preserve poem, witness, and edition identifiers. [CLASP library](https://clasp.ell.ox.ac.uk/)
 - **Middle English poetry:** the **Parsed Corpus of Middle English Poetry (PCMEP)** contains 57 poems and about 235,000 words from c. 1150-1420. It offers a poetry-focused, annotated selection that complements CME, especially for comparing verse with prose around 1250-1350. Download access requires an account from the corpus compiler; its terms prohibit redistribution and reserve rights in both source editions and annotation. Obtain permission before ingesting it into a shared or redistributable store. [PCMEP overview](https://www.pcmep.net/) · [download and use conditions](https://www.pcmep.net/download.php)
-- **Selected scholarly editions:** the **Middle English Texts Series (METS)** provides metadata-filtered texts by form and genre, including poetry, religious verse, biblical exegesis, and devotional writing. New editions have TEI-XML; the legacy backlist is still being encoded, so choose individual TEI-XML editions rather than assuming the whole series is uniformly TEI. Its XML is CC BY-NC-SA 4.0; check compatibility with the project's intended use and avoid duplicating CME texts without a reason. [METS text catalogue](https://metseditions.org/texts) · [TEI/GitHub information](https://metseditions.org/github) · [copyright and licence](https://metseditions.org/copyright-citation)
+- **Selected scholarly editions:** the **Middle English Texts Series (METS)** provides metadata-filtered texts by form and genre, including poetry, religious verse, biblical exegesis, and devotional writing. New editions have TEI-XML; the legacy backlist is still being encoded, so choose individual TEI-XML editions rather than assuming the whole series is uniformly TEI. Its XML is CC BY-NC-SA 4.0; check compatibility with the project's intended use and avoid duplicating CME texts without a reason. [METS text catalogue](https://metseditions.org/texts) · [METS Editions GitHub organization and edition repositories](https://github.com/mets-editions) · [copyright and licence](https://metseditions.org/copyright-citation). Some has now been added.
 - **Early Modern poetry (1500-1650):** start with poetry already in EEBO/ECCO and classify it as a distinct genre/subset. Consider additional individually selected editions only when the current corpus lacks a text or witness; this avoids adding large duplicate runs of printed verse.
 
 For Old and Middle English poetry, most texts fall before MacBERTh's approximate c. 1450 training horizon. Vector retrieval can still suggest leads, but use spelling-variant and lexical searches plus contextual reading to assess coverage; do not interpret few vector hits as absence.
@@ -74,6 +75,18 @@ These are promising for historical descriptions of bodily conditions, age, hair,
 - [CEEM overview and corpus contents](https://varieng.helsinki.fi/series/volumes/14/taavitsainen_pahta/)
 - [EMEMT publication and distribution details](https://benjamins.com/catalog/z.160)
 - [MEMT description](https://benjamins.com/catalog/z.131)
+
+Alternatively:
+
+- [Málaga Late Middle English corpus (1350–1500)](https://hunter.uma.es/?utm_source=chatgpt.com)
+    
+- [Málaga Early Modern corpus (1500–1700)](https://modernmss.uma.es/?utm_source=chatgpt.com)
+    
+- [Manuscript corpus and downloads](https://modernmss.uma.es/thecorpus/?utm_source=chatgpt.com)
+    
+- [Online CQPweb search](https://modernmss.uma.es/cqpweb?utm_source=chatgpt.com)
+    
+- [CoRD overview and documentation](https://varieng.helsinki.fi/CoRD/corpora/SciProse/?utm_source=chatgpt.com)
 
 ## Historical baseline across periods
 

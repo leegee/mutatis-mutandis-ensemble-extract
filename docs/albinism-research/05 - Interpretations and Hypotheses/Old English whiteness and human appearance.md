@@ -77,5 +77,5 @@ The local CME collection is available for semantic searching. MEC searches and e
 - [York-Helsinki Parsed Corpus of Old English Poetry](https://www-users.york.ac.uk/~lang18/pcorpus.html)
 - [Alaric Hall, *The Meanings of Elf and Elves in Medieval England*](https://www.alarichall.org.uk/ahphdful.pdf)
 - [Middle English Compendium](https://quod.lib.umich.edu/m/mec/)
-- [Middle English Texts Series TEI downloads](https://metseditions.org/github)
+- [METS Editions GitHub organization and edition repositories](https://github.com/mets-editions)
 - [Parsed Corpus of Middle English Poetry access](https://www.pcmep.net/download.php)

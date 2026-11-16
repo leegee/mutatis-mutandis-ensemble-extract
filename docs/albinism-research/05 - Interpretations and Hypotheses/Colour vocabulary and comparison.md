@@ -9,7 +9,7 @@ tags:
 
 ## Scope
 
-This note gathers colour terms and comparative constructions across the initial dossier. It is not a lexicon and should not replace passage-specific analysis.
+This note gathers colour terms and comparative constructions across the initial dossier. It is not a lexicon and does not replace passage-specific analysis.
 
 ## Daniel 7:9
 
@@ -68,6 +68,11 @@ Leviticus uses אדם-derived reddish adjectives with white marks on skin or sca
 
 Scarlet/crimson sins become white as snow or wool. Isaiah is a useful contrast: it places red and white in a vivid transformation metaphor, not in a description of a person’s body. Its Hifil form יַאְדִּימוּ belongs to the אדם family but differs grammatically from Song 5:10 and Lamentations 4:7. See [[Isaiah 1 - Scarlet made white]].
 
+### Song of Songs
+
+> דּוֹדִי צַח וְאָדֹם דָּגוּל מֵרְבָבָה׃
+
+ [[Song of Songs 5 - Bright and ruddy]]
 ## Method
 
 For each term, record:
