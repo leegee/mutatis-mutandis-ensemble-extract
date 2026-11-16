@@ -502,12 +502,14 @@ class PassageWriter:
 def flush_buffers(
     writer: PassageWriter,
     buffers: dict,
+    *,
+    replace: bool = False,
 ) -> int:
     written = 0
 
     for name, rows in list(buffers.items()):
         if rows:
-            written += writer.write(name, rows)
+            written += writer.write(name, rows, replace=replace)
             buffers[name] = []
 
     return written
