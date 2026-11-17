@@ -51,7 +51,7 @@ PHRASE_SETS: CanonicalRules = {
             ("hair", "as", "white", "as", "wool"),
             ("white", "as", "wool"),
             ("white", "like", "wool"),
-            ("whyte", "as", "wool"),  
+            ("whyte", "as", "wool"),
             {"whiyte", "as", "wolle"},
         ],
         "false_positives": [],
@@ -70,8 +70,8 @@ WHITE |= {
     "hwīt", "hwit", "hƿīt", "hƿit", "hwīte", "hwite", "hƿīte", "hwītne",
     "hwītes", "hwītre", "hwītum", "hwīta", "hwītra", "hwītan", "hwītena",
     "hwītnes", "hwītian", "hwīt-loc", "hwīt-locced",
-    # blāc: "pale, shining, white" (not blæc, "black")
-    "blāc", "blac", "blāce", "blācne", "blācan",
+    # blāc: pale, shining, white" (not blæc, "black")
+    "blāc", "blac", "blāce", "blācne", "blācan", "blācum",
     # hwīt without macrons, plus common Anglian/Mercian spellings
     "hwiit", "hwyt", "hwȳt", "hwite", "hwitan", "hwites",
     "hwitne", "hwitum", "hwitra",
