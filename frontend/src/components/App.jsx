@@ -2,13 +2,10 @@ import { createEffect, onMount, Show, untrack } from "solid-js";
 
 import { checkApi, runSearch } from "../actions.js";
 import { CONFIG } from "../config.js";
-import { NotFound } from "./NotFound.jsx";
-import { route, match, ROUTES } from "../router.js";
-import { SearchView } from "./SearchView.jsx";
+import { match, ROUTES, route } from "../router.js";
 import { store } from "../store.js";
 import { runTextSearch } from "../textActions.js";
 import { toast } from "../toast.js";
-import { TextSearchView } from "./TextSearchView.jsx";
 import {
 	applySemanticParams,
 	applyTextParams,
@@ -16,6 +13,9 @@ import {
 	hasTextQuery,
 	routeSync,
 } from "../urlState.js";
+import { NotFound } from "./NotFound.jsx";
+import { SearchView } from "./SearchView.jsx";
+import { TextSearchView } from "./TextSearchView.jsx";
 
 export function App() {
 	onMount(checkApi);
