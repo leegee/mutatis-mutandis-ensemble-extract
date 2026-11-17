@@ -71,7 +71,7 @@ WHITE |= {
     "hwītes", "hwītre", "hwītum", "hwīta", "hwītra", "hwītan", "hwītena",
     "hwītnes", "hwītian", "hwīt-loc", "hwīt-locced",
     # blāc: pale, shining, white" (not blæc, "black")
-    "blāc", "blac", "blāce", "blācne", "blācan", "blācum",
+    "blāce", "blācne", "blācan", "blācum",
     # hwīt without macrons, plus common Anglian/Mercian spellings
     "hwiit", "hwyt", "hwȳt", "hwite", "hwitan", "hwites",
     "hwitne", "hwitum", "hwitra",
