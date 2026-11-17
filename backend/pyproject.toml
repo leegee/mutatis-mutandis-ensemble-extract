@@ -17,9 +17,11 @@ dependencies = [
     "numpy>=2.4.6",
     "psycopg>=3.3.6",
     "pyvis>=0.3.2",
+    "scikit-learn>=1.9.1",
     "tiktoken>=0.14.0",
     "torch>=2.14.1",
     "transformers>=5.20.2",
+    "umap-learn>=0.6.0",
     "uvicorn>=0.54.0",
 ]
 

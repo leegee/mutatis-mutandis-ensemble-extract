@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "03 - Manuscript Witnesses/Codex Sinaiticus.md",
+                "file": "00 - Dashboard.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Codex Sinaiticus"
+              "title": "00 - Dashboard"
             }
           }
         ],
@@ -70,7 +70,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "Heawalds",
+                "query": "isai",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -204,10 +204,11 @@
       "citation-extended:Show references for current note": false
     }
   },
-  "active": "6a6a516b5665c6a0",
+  "active": "a20a0e8236b021b4",
   "lastOpenFiles": [
-    "03 - Manuscript Witnesses/Codex Sin.md",
+    "Research Index.base",
     "03 - Manuscript Witnesses/Codex Sinaiticus.md",
+    "03 - Manuscript Witnesses/Codex Sin.md",
     "02 - Primary Texts/Revelation/Revelation 1 - Son of Man vision.md",
     "02 - Primary Texts/Daniel/Daniel 10 - Luminous figure.md",
     "02 - Primary Texts/Revelation/Revelation 19.12.md",
@@ -232,8 +233,6 @@
     "citation-content-template.md",
     "05 - Interpretations and Hypotheses/Colour vocabulary and comparison.md",
     "05 - Interpretations and Hypotheses/Middle English whiteness and human appearance.md",
-    "05 - Interpretations and Hypotheses/Origen - Daniel 7.9.md",
-    "Research Index.base",
     "skin_hair_mythology_search_results.csv",
     "Unconfirmed 601404.crdownload",
     "02 - Primary Texts/English Myth",
