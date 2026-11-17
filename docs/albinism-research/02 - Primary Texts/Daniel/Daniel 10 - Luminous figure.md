@@ -33,6 +33,30 @@ This passage may be useful for studying the broader visual language of extraordi
 
 Prior discussion raised a lexical question around the Hebrew root associated with the gleaming/metallic description. Record the exact lemma, grammatical form, lexicon, and page before relying on a proposed semantic history.
 
+## Codex Sinaiticus
+
+Daniel is preserved in Sinaiticus, beginning at Quire 54, folio 3r, and ending at Quire 55, folio 6v.
+
+The Greek of 10:6 reads:
+
+> καὶ τὸ σῶμα αὐτοῦ ὡσεὶ θαρσις, καὶ τὸ πρόσωπον αὐτοῦ ὡσεὶ ὅρασις ἀστραπῆς, καὶ οἱ ὀφθαλμοὶ αὐτοῦ ὡσεὶ λαμπάδες πυρός
+
+Transliteration:
+
+_kai to sōma autou hōsei tharsis, kai to prosōpon autou hōsei horasis astrapēs, kai hoi ophthalmoi autou hōsei lampades pyros_
+
+Close translation:
+
+|Feature|Greek description|Meaning|
+|---|---|---|
+|Body|ὡσεὶ θαρσις|Like chrysolite|
+|Face|ὡσεὶ ὅρασις ἀστραπῆς|Like the appearance of lightning|
+|Eyes|ὡσεὶ λαμπάδες πυρός|Like lamps of fire|
+|Arms and legs|χαλκοῦ στίλβοντος|Gleaming, polished bronze|
+|Voice|φωνὴ ὄχλου|Like the voice of a multitude|
+
+The precise wording of the limbs differs between Greek textual forms, so the Sinaiticus reading should be distinguished from the Masoretic Hebrew.
+
 ## Questions
 
 - Which features are material comparisons and which are light comparisons?

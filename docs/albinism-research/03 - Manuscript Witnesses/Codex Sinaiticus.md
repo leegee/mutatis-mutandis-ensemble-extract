@@ -171,7 +171,12 @@ The variation should be retained in the record rather than silently harmonising 
 7. **Greek New Testament – Revelation 1:14–15.** Parallel presentation of Sinaiticus, Alexandrinus and Textus Receptus readings.  
     [https://www.greeklab.org/interlinear.php?book=Revelation&cap=1&verse=14](https://www.greeklab.org/interlinear.php?book=Revelation&cap=1&verse=14)  
     [https://greeknewtestament.net/re1-15](https://greeknewtestament.net/re1-15)
-    
+
+* [Sinai Codex — complete Revelation transcription](https://sinaicodex.com/en/revelation.html?utm_source=chatgpt.com)
+
+* [Codex Sinaiticus — manuscript reconstruction and folio locations](https://codexsinaiticus.org.uk/en/project/transcription_reconstructing.aspx?utm_source=chatgpt.com)
+
+
 
 ## Uncertainties
 

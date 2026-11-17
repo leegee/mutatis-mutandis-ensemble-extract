@@ -1,6 +1,70 @@
-# **The etymology of** **_black_****: from Proto-Indo-European to the modern languages**
+# The etymology of words for the colour *black*
 
-## **1. The proposed PIE origin**
+```mermaid
+flowchart TD
+    ROOT["Indo-European vocabulary for black"]
+
+    ROOT --> G["Germanic"]
+    ROOT --> C["Celtic"]
+
+    G --> B["Proto-Germanic *blakaz<br/>burnt / black"]
+    G --> S["Proto-Germanic *swartaz<br/>dark / dirty"]
+
+    B --> WG1["West Germanic"]
+    WG1 --> OE["Old English<br/>blæc"]
+    OE --> EN["English<br/>black"]
+
+    S --> WG["West Germanic"]
+    S --> NG["North Germanic"]
+
+    WG --> OE2["Old English<br/>sweart"]
+    OE2 --> EN2["English<br/>swart / swarthy"]
+
+    WG --> OS["Old Saxon"]
+    OS --> SC["Scots<br/>swart"]
+
+    WG --> FR["Old Frisian"]
+    FR --> FY["West Frisian<br/>swart"]
+
+    NG --> ON["Old Norse<br/>svartr"]
+    ON --> IS["Icelandic<br/>svartur"]
+    ON --> FA["Faroese<br/>svartur"]
+    ON --> NO["Norwegian<br/>svart"]
+    ON --> SW["Swedish<br/>svart"]
+    ON --> DA["Danish<br/>sort"]
+
+    G --> OTHER["Other West Germanic"]
+    OTHER --> DE["German<br/>schwarz"]
+    OTHER --> NL["Dutch<br/>zwart"]
+
+    C --> D["Proto-Celtic *dubos"]
+    D --> GO["Goidelic"]
+    D --> BRANCH["Brittonic"]
+
+    GO --> IR["Irish<br/>dubh"]
+    GO --> SG["Scottish Gaelic<br/>dubh"]
+    GO --> MA["Manx<br/>doo"]
+
+    BRANCH --> WE["Welsh<br/>du"]
+    BRANCH --> BR["Breton<br/>du"]
+    BRANCH --> CO["Cornish<br/>du"]
+```
+
+## 1. The proposed PIE origin of Black
+
+```mermaid
+flowchart TD
+    PIE["PIE *bʰleg- / *bʰelg-<br/>shine, burn<br/>(proposed connection)"]
+    PG["Proto-Germanic *blakaz<br/>black, burnt"]
+    OE["Old English<br/>blæc"]
+    ME["Middle English<br/>blak"]
+    EN["English<br/>black"]
+
+    PG --> OE
+    OE --> ME
+    ME --> EN
+    PIE -.-> PG
+```
 
 The traditional etymology connects _black_ with:
 
@@ -68,9 +132,7 @@ A useful distinction: these Greek, Latin and Sanskrit words are cognates of the 
 
 ## **2. Proto-Germanic: the immediate ancestor of English** **_black_**
 
-The conventional reconstruction is:
-
-Proto-Germanic *blakaz 
+The conventional reconstruction is: Proto-Germanic *blakaz 
 
 Meaning: _burnt, blackened_, or _black_.
 
@@ -213,6 +275,24 @@ This is the family that supplied the usual word for black in several Germanic la
 
 ### **4.1 The** **_swart-_** **family**
 
+```mermaid
+flowchart TD
+    PG["Proto-Germanic *swartaz"]
+    PG --> WG["West Germanic"]
+    WG --> OE["Old English<br/>sweart"]
+    OE --> EN["English<br/>swart"]
+    OE --> SC["Scots<br/>swart"]
+    WG --> OF["Old Frisian"]
+    OF --> FY["West Frisian<br/>swart"]
+    PG --> NG["North Germanic"]
+    NG --> ON["Old Norse<br/>svartr"]
+    ON --> IS["Icelandic<br/>svartur"]
+    ON --> FA["Faroese<br/>svartur"]
+    ON --> NO["Norwegian<br/>svart"]
+    ON --> SV["Swedish<br/>svart"]
+    ON --> DA["Danish<br/>sort"]
+```
+
 |Language|Historical form|Modern form|Meaning|
 |---|---|---|---|
 |Gothic|_swarts_|—|Black|
@@ -319,6 +399,26 @@ Modern Greek _mávros_ has a different history, deriving from Ancient Greek _mau
 This is an example of a language replacing an older colour term with another word from its own vocabulary.
 
 ### **5.3 Celtic**
+
+```mermaid
+flowchart TD
+    PIE["PIE *dʰubʰ-<br/>dark, obscure"]
+    PC["Proto-Celtic *dubos<br/>black, dark"]
+
+    PIE --> PC
+
+    PC --> OI["Old Irish<br/>dub"]
+    PC --> OW["Old Welsh<br/>du"]
+    PC --> OC["Common Brittonic<br/>*dubos"]
+
+    OI --> IR["Irish<br/>dubh"]
+    OI --> GA["Scottish Gaelic<br/>dubh"]
+    OI --> GV["Manx<br/>doo"]
+
+    OW --> CY["Welsh<br/>du"]
+    OC --> BR["Breton<br/>du"]
+    OC --> KW["Cornish<br/>du"]
+```
 
 |Language|Form|Meaning|
 |---|---|---|

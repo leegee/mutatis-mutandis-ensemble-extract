@@ -6,8 +6,37 @@ tags:
 
 # Extraordinary Paleness — Research Dashboard
 
-> [!summary] Central research question
-> How have extraordinary combinations of pale hair, pale skin, and unusual eyes been represented, interpreted, translated, and reinterpreted in English writing from the early medieval period to 1914?
+> [!summary] Central research questions
+> How have extraordinary combinations of pale hair, pale skin, and unusual eyes been represented, interpreted, translated, and reinterpreted in English writing from the earliest to the early modern period?
+> 
+> When does extraordinary whiteness cease to be merely a colour description and become a marker of exceptional human identity?
+
+
+## Period Overview and Scope
+
+### Chronological scope and comparative endpoint
+
+The principal historical investigation covers English writing from approximately 700 to 1650. The period 1650–1914 is included as a comparative study, specifically to assess the earlier findings against Thomas White's investigation of the historical representation and classification of albinism.
+
+The research begins with the original Jewish textual traditions, investigating the language and symbolism of whiteness, redness and ruddy colouring, including the possibility that terms conventionally translated as _red_ or _ruddy_ encompass lighter pinkish hues.
+
+It then examines what is preserved, transformed or lost through translation and reception in English writing, and whether English develops additional or independent symbolism surrounding extraordinary human whiteness.
+
+A further hypothesis concerns a possible historical inversion in the interpretation of extraordinary appearance: from associations with divine, sacred, beautiful or exceptional qualities towards increasingly medicalised, pathological and pejorative representations.
+
+The relationship between this transformation, the changing cultural authority of scripture, and the emergence of scientific and medical explanations is an object of investigation rather than an assumed conclusion.
+
+| Period               | Research purpose                                                            |
+| -------------------- | --------------------------------------------------------------------------- |
+| Ancient Jewish texts | Establish original language, physical descriptions and symbolism            |
+| c. 700–1100          | Investigate their reception in Old English writing                          |
+| c. 1100–1500         | Investigate developments in Middle English writing                          |
+| 1500–1650            | Examine early modern English reception and independent developments         |
+| 1650–1914            | Compare the preceding findings with Thomas White's historical investigation |
+### In the back of my mind
+
+> The cultural interpretation of extraordinary human palidity undergoes a historical transformation, from a characteristic associated with divine, sacred or exceptional qualities towards one increasingly understood through medical, pathological and pejorative frameworks.
+
 
 ## Current textual dossiers
 
@@ -34,7 +63,7 @@ tags:
 ## Main research threads
 
 - [[Colour vocabulary and comparison]]
-- [[Hebrew colour terms - semantic range and ruddy complexion]]
+- [[Colour vocabulary - Hebrew - red, ruddy, rosy complexion]]
 - [[Transmission chronology]]
 - [[Transmission diagrams - Scriptural sources to Bede]]
 - [[Evidence protocol]]

@@ -51,6 +51,12 @@ This is a close poetic and conceptual parallel to the present discussion of Song
 The Qumran witness is incomplete: 4Q204 preserves a fragmentary red term in the Noah description, while the full snow/rose comparison is known through the Greek and Ethiopic textual traditions. The Greek clause sometimes printed in brackets about Noah’s colour/appearance being unlike other people is editorially restored in the cited Greek witness and must remain distinguished from the securely visible text.
 
 For the Greek and Aramaic comparison, see Kelley Coblentz Bautch, “Peter and the Patriarch: A Confluence of Traditions?,” in *With Letters of Light* (2011), pp. 24–26. Bautch prints the Greek wording, notes the red word surviving in 4QEnᶜ, and cautions that the significance of this unusual white-and-red complexion remains unresolved.
+
+Robert Noegel's 2016 article, _Scarlet and Harlots: Seeing Red in the Hebrew Bible_,Footnote 46:
+
+> The Ethiopic version of the Book of Enoch states that when Noah was born his body was “as white as snow and red (qyḥ) like a rose” (106:2, 106:10), a reference that the **Apocalypse of Peter** (v. 3) appears to have adopted to describe two figures whose bodies were white and “ruddy” (έρυθρότερα). Observed already by R. H. Charles, The Book of Enoch (Oxford: Clarendon Press, 1893), 302–3, n. 10. See Michael A. Knibb and Edward Ullendorff, The Ethiopic Book of Enoch: A New Edition in the Light of the Aramaic Dead Sea Fragments (Oxford: Clarendon Press, 1978), vol. 1, 408; vol. 2, 245. Note that 4QEnc 5 i 28 reads “ ,שמוקred.” On slight variants in the Ethi- opic fragments, see Loren T. Stuckenbruck, 1 Enoch 91–108 (Berlin: Walter de Gruyter, 2007), 623–24. A fragmentary text from Qumran (4Q534:1) also uses the term “ ,שׂמקמק reddish,” likely in reference to Noah’s body at birth.
+
+
 ## Sources
 
 - Kelley Coblentz Bautch, “Peter and the Patriarch: A Confluence of Traditions?,” in Daphna Arbel and Andrei A. Orlov (eds.), *With Letters of Light: Studies in the Dead Sea Scrolls, Early Jewish Apocalypticism, Magic, and Mysticism in Honor of Rachel Elior* (Leiden: Brill, 2011), 23–38, especially 24–26. [Publisher preview](https://api.pageplace.de/preview/DT0400.9783110222029_A15531968/preview-9783110222029_A15531968.pdf).

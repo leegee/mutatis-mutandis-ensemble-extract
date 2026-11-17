@@ -24,6 +24,8 @@ At least the current phase, include only texts whose publication dates are no la
 
 These are possible additions to the existing printed-book and medieval-text collections, chosen to add different genres or to provide a historical baseline. More texts may yield few direct white-hair descriptions; their value is also in supplying medical, social, and interpretive contexts.
 
+The 1650 cutoff defines the principal English survey, not the ultimate chronological endpoint of the research. Material from 1650–1914 is reserved for comparative investigation against Thomas White's findings and is not intended to constitute an equally comprehensive corpus.
+
 ## Religious writing and poetry
 
 The project should deliberately include ecclesiastical writing and poetry alongside prose and printed books. These genres were central to literate culture before the novel became a major vehicle for representing people. Sermons, homilies, biblical commentary, devotional works, liturgical writing, religious controversy, and verse can show how appearance was framed through scripture, doctrine, allegory, and devotional practice.

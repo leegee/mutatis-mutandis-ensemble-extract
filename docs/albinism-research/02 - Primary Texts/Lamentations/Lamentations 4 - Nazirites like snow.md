@@ -102,6 +102,14 @@ A longstanding interpretive proposal reads the last colon as a description of bl
 
 The veins reading is associated with **Johann Braunius** (*De Vestitu Sacerdotum Hebraeorum*, 1680) and was made explicit in **Benjamin Blayney’s** translation and note (1784): “their veining was the sapphires.” **Adam Clarke** later explained the sequence as milk-white skin, ruddy flesh, and sapphire-coloured veins in a fine complexion. This interpretation is not Rashi’s: Rashi takes the phrase as their forms being like sapphire.
 
+### Foo
+
+Søren Lorenzen (2024), _Precarious Hues: On Chromophobia, Chromophilia, and Transitions between Chromatic and Achromatic Colours in the Hebrew Bible_ discusses the sequence in Lamentations 4:7–8, drawing on Brenner and Hartley. It makes three observations particularly relevant to us:
+
+1. The whiteness of the Nazirites involves brightness and lustre, not necessarily just a white hue.   
+2. Their redness is compared with _pĕnînîm_, which may mean coral, pearls or rubies.    
+3. The combination represents youthful good looks and a healthy complexion.
+4. 
 ### Working reading: divisions, sapphire, and veins
 
 A possible synthesis is to hear גִּזְרָתָם at the edge of its “cut/divide/form” associations: “their divisions/forms.” In the bodily context, that could allude poetically to branching blue veins beneath milk-pale skin, alongside the ruddy or coral-like cast of the flesh. On this reading, סַפִּיר supplies the blue colour and גִּזְרָתָם evokes the lines or divisions that carry it across the body. “Veins” remains an allusion inferred from the image, not the dictionary meaning of the noun.

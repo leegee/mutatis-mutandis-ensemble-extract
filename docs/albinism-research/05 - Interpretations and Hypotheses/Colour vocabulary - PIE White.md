@@ -5,9 +5,55 @@ tags:
   - topic/colour
   - topic/colour-white
 ---
-
 # **The etymology of** **_white_****: from Proto-Indo-European to the modern languages**
 
+```mermaid
+
+flowchart TD
+    PIE["Proto-Indo-European<br/>*ḱweit-<br/>shine / become bright"]
+
+    PIE --> PG["Proto-Germanic<br/>*hwītaz"]
+    PIE --> PC["Proto-Celtic<br/>Multiple colour roots"]
+
+    PG --> OE["Old English<br/>hwīt"]
+    OE --> ME["Middle English<br/>whit / white"]
+    ME --> EN["Modern English<br/>white"]
+
+    PC --> G["Goidelic"]
+    PC --> B["Brittonic"]
+
+    G --> OI["Old Irish<br/>find / gel / bán"]
+    OI --> MI["Middle Irish<br/>find / gel / bán"]
+
+    MI --> IR["Modern Irish<br/>fionn / geal / bán"]
+    MI --> SG["Scottish Gaelic<br/>fionn / geal / bàn"]
+    MI --> MN["Manx<br/>bane / gial / feeu"]
+
+    B --> PB["Proto-Brittonic<br/>*windos"]
+
+    PB --> OW["Old Welsh<br/>gwyn"]
+    OW --> MW["Middle Welsh<br/>gwyn"]
+    MW --> W["Modern Welsh<br/>gwyn"]
+
+    PB --> OC["Old Cornish<br/>gwynn"]
+    OC --> MC["Middle Cornish<br/>gwynn"]
+    MC --> C["Modern Cornish<br/>gwynn"]
+
+    PB --> OB["Old Breton<br/>guenn"]
+    OB --> MB["Middle Breton<br/>guenn"]
+    MB --> BR["Modern Breton<br/>gwenn"]
+
+    classDef proto fill:#e5e7eb,stroke:#64748b,color:#111827
+    classDef germanic fill:#fef3c7,stroke:#d97706,color:#78350f
+    classDef goidelic fill:#dbeafe,stroke:#2563eb,color:#172554
+    classDef brittonic fill:#dcfce7,stroke:#16a34a,color:#14532d
+
+    class PIE,PC,PG,PB proto
+    class OE,ME,EN germanic
+    class G,OI,MI,IR,SG,MN goidelic
+    class B,OW,MW,W,OC,MC,C,OB,MB,BR brittonic
+
+```
 
 ## **1. Proto-Indo-European: the root *ḱweit-**
 
@@ -646,11 +692,9 @@ The University of Texas Indo-European Lexicon explicitly includes Old English _h
 
 This is an attractive example of how a word originally associated with luminosity or whiteness can become the name of a physical substance.
 
-# **15. The phonological problem: how does PIE** **_ḱweit-_** **become English** **_white_****?**
+# 15. The phonological problem: how does PIE *ḱweit-* **become English** **_white_****?
 
-This deserves a little more attention because the transformation is not quite as straightforward as it might initially appear.
-
-The usual reconstructed forms are:
+This deserves a little more attention because the transformation is not quite as straightforward as it might initially appear. The usual reconstructed forms are:
 
 - PIE: *ḱweit-.    
 - Proto-Germanic: *hwītaz.    
@@ -658,13 +702,9 @@ The usual reconstructed forms are:
 - Middle English: _whit(e)_.    
 - Modern English: _white_.
     
-### **The initial consonant**
-
 The PIE initial consonant is traditionally reconstructed as _ḱ_, a palatovelar stop.
 
-The precise reconstruction of the full root is sometimes written with an additional glide:
-
-*******ḱu̯eit-**.
+The precise reconstruction of the full root is sometimes written with an additional glide: ***ḱu̯eit-***.
 
 The various Indo-European branches treated this initial consonant differently.
 

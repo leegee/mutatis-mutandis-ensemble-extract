@@ -38,7 +38,7 @@ The forms are related but not grammatically identical: אָדְמוּ is a rare 
 
 ## Comparative colour image in 1 Enoch
 
-1 Enoch 106:2, 10 describes Noah’s body as “whiter than snow and redder than a rose” in the Greek tradition. The Qumran Aramaic fragment preserves a red-colour word in the description, but not the complete comparison. This is a useful parallel for the poetic compatibility of whiteness and rosy/red colour in a person’s appearance. It is not an occurrence of the Hebrew lemma אָדֹם and should not be entered as a direct cognate or Hebrew usage. See [[1 Enoch 106 - Noah's birth]] and [[Hebrew colour terms - semantic range and ruddy complexion]].
+1 Enoch 106:2, 10 describes Noah’s body as “whiter than snow and redder than a rose” in the Greek tradition. The Qumran Aramaic fragment preserves a red-colour word in the description, but not the complete comparison. This is a useful parallel for the poetic compatibility of whiteness and rosy/red colour in a person’s appearance. It is not an occurrence of the Hebrew lemma אָדֹם and should not be entered as a direct cognate or Hebrew usage. See [[1 Enoch 106 - Noah's birth]] and [[Colour vocabulary - Hebrew - red, ruddy, rosy complexion]].
 ## What “ruddy” contributes
 
 English “red” applied to a whole person can sound like a claim about uniform skin colour. “Ruddy” is a natural contextual gloss for a red-tinged human complexion or appearance. A blush or flush is one possible instance or cause of that appearance, but it is more specific than the Hebrew root אדם: no cheek, face, or act of blushing is named in Lamentations 4:7.

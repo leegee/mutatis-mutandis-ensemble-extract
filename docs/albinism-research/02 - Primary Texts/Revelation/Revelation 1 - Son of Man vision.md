@@ -41,6 +41,45 @@ This is a normalised printed text, not a transcription of P98. The P98 note reco
 - P98 is damaged; the wording is partly reconstructed.
 - Its palaeographical date is approximate, not an exact year.
 
+## Codex Sinaiticus
+
+The Greek transcription of Revelation 1:14 reads:
+
+> Η ΔΕ ΚΕΦΑΛΗ ΑΥΤΟΥ ΚΑΙ ΑΙ ΤΡΙΧΕΣ ΛΕΥΚΑΙ ΩΣ ΕΡΙΟΝ ΛΕΥΚΟΝ ΩΣ ΧΙΩΝ ΚΑΙ ΟΙ ΟΦΘΑΛΜΟΙ ΑΥΤΟΥ ΩΣ ΦΛΟΞ ΠΥΡΟΣ
+
+Close translation:
+
+"And his head and his hairs were white like white wool, like snow; and his eyes like a flame of fire."
+
+The important vocabulary:
+
+- κεφαλή (_kephalē_) — head    
+- τρίχες (_triches_) — hairs    
+- λευκαί (_leukai_) — white    
+- ἔριον (_erion_) — wool    
+- χιών (_chiōn_) — snow    
+- φλόξ (_phlox_) — flame
+
+This is an especially important passage because the same figure combines white hair and fiery eyes.
+
+#### **Revelation 2:18 — the Son of God**
+
+The Greek transcription reads:
+
+> Ο ΕΧΩΝ ΤΟΥΣ ΟΦΘΑΛΜΟΥΣ ΑΥΤΟΥ ΩΣ ΦΛΟΞ ΠΥΡΟΣ ΚΑΙ ΟΙ ΠΟΔΕΣ ΑΥΤΟΥ ΟΜΟΙΟΙ ΧΑΛΚΟΛΙΒΑΝΩ
+
+Close translation:
+
+> Having eyes like a flame of fire, and feet like burnished bronze.
+
+Notice that the description repeats two features from Revelation 1:
+
+- Fiery eyes.    
+- Radiant metallic feet.
+    
+But there is no mention of white hair here
+
+
 ## Questions
 
 - What is the earliest surviving physical witness to each clause?

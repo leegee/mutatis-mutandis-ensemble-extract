@@ -57,18 +57,20 @@ Phase 1 — Repair and consolidate
 - [ ] Establish the Geʿez witness chronology.
 - [ ] Complete the Daniel 7 reception comparison.
 
-
-  Phase 3 — Develop the English evidence
+### Phase 3 — Develop the English evidence
 
 - [ ] Complete the Old English survey.
 - [ ] Turn the strongest examples into individual passage records.
 - [ ] Expand the Middle English survey.
-- [ ] Search religious prose and poetry systematically.
+- [ ] Investigate English religious prose, poetry and literary descriptions systematically.
+- [ ] Develop the English evidence through 1650.
 
+### Phase 4 — Historical comparison and synthesis
 
-  Phase 4 — Synthesis
-
-- [ ] Compare the changing meanings of whiteness.
-- [ ] Distinguish literal physical description from allegory and symbolism.
-- [ ] Investigate representations of exceptional human appearance.
-- [ ] Develop the historical argument through 1914.
+- [ ] Compare original Jewish colour language with its Greek, Latin and English transmission.
+- [ ] Investigate the preservation and transformation of white/red and white/ruddy chromatic relationships.
+- [ ] Distinguish inherited biblical symbolism from independently developed English literary conventions.
+- [ ] Establish the changing cultural interpretations of extraordinary human appearance.
+- [ ] Compare the findings from the principal survey (c. 700–1650) with Thomas White's research for 1650–1914.
+- [ ] Investigate the possible transition towards medical, pathological and pejorative representations.
+- [ ] Assess the relationship between changing religious authority and the emergence of scientific explanations.

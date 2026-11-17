@@ -50,7 +50,7 @@ The transcription below follows the Westminster Leningrad Codex (WLC), a pointed
 
 ## Variants and editorial reconstructions
 
-No textual variant or editorial reconstruction is adopted here. The note follows the WLC wording; a full survey of ancient versions and manuscript evidence remains to be done.
+The note follows the WLC wording; a full survey of ancient versions and manuscript evidence remains to be done.
 
 ## Lexical and grammatical notes
 
@@ -63,6 +63,32 @@ No textual variant or editorial reconstruction is adopted here. The note follows
 | מֵרְבָבָה | *mērəḇāḇāh*     | Comparative/source preposition מִן + feminine singular רְבָבָה, “myriad/ten thousand” | “Among ten thousand/a myriad”; translations also use “above ten thousand.”                                                                                                   |
 
 The close colour pairing is **צַח וְאָדֹם** (*ṣaḥ wəʾādōm*), “bright/white and red/ruddy.” The second adjective belongs to the אדם colour family also represented by אַדְמוֹנִי (*ʾadmōnî*) for Esau and David, and by אָדְמוּ (*ʾāḏəmû*) in Lamentations 4:7. The forms are related but grammatically distinct: Song has an adjective, while Lamentations has a finite Qal verb.
+
+## Codex Sinaiticus
+
+**Greek (Codex Sinaiticus, 5:10):**
+
+> λευκος και πυρρος
+
+_leukos kai pyrros_
+
+Literally: **white and ruddy** (or red).
+
+The description continues:
+
+- 5:11 — His head is gold; his locks are dark like a raven.    
+- 5:12 — His eyes are like doves beside streams of water, washed in milk.
+    
+This is a striking combination:
+
+|Feature|Description|
+|---|---|
+|Complexion|White and ruddy|
+|Head|Gold|
+|Hair|Dark as a raven|
+
+[Codex Sinaiticus — Song of Songs 5:9–7:1](https://www.codexsinaiticus.org/en/manuscript.aspx?book=29&chapter=6&verse=1&utm_source=chatgpt.com)
+
 
 ## Reception and commentary
 
