@@ -1,7 +1,7 @@
 ---
 type: textual-passage
 work: Lamentations
-passage: "Lamentations 4:7 (context 4:7–8)"
+passage: Lamentations 4:7 (context 4:7–8)
 language: Biblical Hebrew
 status: working analysis; verify readings and morphology against the project’s chosen editions
 tags:
@@ -12,7 +12,7 @@ related_notes:
   - "[[5Q6 - 5QLama]]"
   - "[[Gildas on Lamentations]]"
   - "[[Colour vocabulary and comparison]]"
-  - "[[Words For White]]"
+  - "[[Many Words For White]]"
   - "[[Salters - Lamentations ICC]]"
   - "[[אדם - red and ruddy]]"
   - "[[גזרה - form, division, veins]]"

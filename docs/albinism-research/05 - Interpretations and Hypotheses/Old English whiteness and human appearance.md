@@ -27,8 +27,39 @@ The local YCOE collection contains 100 prose texts or samples. The available CLA
 
 ## Current high-value evidence
 
+| Example                            | What it contributes                                 | Qualification                                    |
+| ---------------------------------- | --------------------------------------------------- | ------------------------------------------------ |
+| Old English Bede, Anglian boys     | White bodies, fair faces, excellent hair            | Vernacular transmission of Bede                  |
+| Old English Bede, two **Heawalds** | **Direct contrast between _blaca_ and _hwita**_     | **Exact colour distinction needs investigation** |
+| Ælfric, Benedict                   | White hair                                          | Hagiographic context                             |
+| Ælfric, Mary of Egypt              | White hair against sun-darkened skin                | Particularly interesting bodily contrast         |
+| Ælfric, Cecilia                    | Blood, whitening body, rose and lily                | Martyrdom imagery                                |
+| _Christ A, B, C_                   | Several descriptions of Christ and visionary beings | Needs contextual classification                  |
+
+### Bede, V.11, the two Heawalds
+
+Old English OCR: https://archive.org/stream/oldenglishversio02bede/oldenglishversio02bede_djvu.txt
+
+Book V, Chapter XI One is called *se blaca Heawald*, the other *se hwita Heawald*, with the distinction explained by the appearance of their hair. After being martyred their bodies cast into the river are illuminated by a shaft of light.
+
+This is a direct hair-colour contrast; whether *hwita* means white, grey, or another light shade remains open.
+
+Thomas Miller’s _The Old English Version of Bede’s Ecclesiastical History of the English People_ (Early English Text Society, 1890–98):
+
+> Wæs ðis tosceaden hweðre, þætte for hiora missenlice feaxes hiwe oðer wæs cueden se **blaca** Heawald, oðer se **hwita** Heawald.
+
+Literally: "This was distinguished, however, in that, because of the different appearance/colour of their hair, one was called the Black Hewald, the other the White Hewald." The Latin underlying it is _unus Niger Heuuald, alter Albus Heuuald diceretur_. 
+
+The Old English wording is quoted in the _Oxford English Dictionary_ under **black**, with its source identified as Bede, _Ecclesiastical History_ (Old English translation, Tanner manuscript), V.xi, p. 414. The edition’s textual apparatus also records manuscript variants.
+
+> Þam rǣse þæs forðgeotendan strēames geborene wǣron þurh eall fēowertig mīla oð ða stōwe, þe hiora cūðe menn 7 hiora gefēran on wǣron. Swylce ēac se mǣsta **scīma heofonlīces lēohtes** ūfan æghwylcre nihte ofer ða stōwe scān, þær þæt gelamp þæt ða līchoman cōmon; 7 þæt ēac swylce ða hǣðnan gesāwon 7 beheoldon, þe hīe slōgon.
+
+> Āh ða ōðer þāra martīra in neahtlīcere gesihðe ǣteowde sumum hiora gefēran, þæs nama wæs Tilmon. Wæs þæt mǣre wer 7 for worulde ēac swylce æþelre gebyrde; wæs hē ǣrest from cyninges þegn, 7 þā wæs eft munuc geworden. Wæs hē him secgende, þæt hē meahte hiora līchoman in ðǣre stōwe gemǣtan, þær hē gesāwe þæt lēoht of heofonum on eorðan scīnan.
+
+
+## To Investigate
+
 - **Old English Bede, Gregory's Anglian boys:** the Old English translation describes the boys as having *hwites lichoman* (white bodies), fair faces, and noble or excellent hair. This is a vernacular transmission of Bede's account, not independent evidence for a pre-Christian English appearance ideal.
-- **Old English Bede, V.11, the two Heawalds:** one is called *se blaca Heawald*, the other *se hwita Heawald*, with the distinction explained by the appearance of their hair. This is a direct hair-colour contrast; whether *hwita* means white, grey, or another light shade remains open.
 - **Aelfric's saints' lives:** Benedict is described with white hair. In the Life of Mary of Egypt, white hair is set beside a body darkened by the sun. These are valuable descriptions of human hair and skin, but they occur in hagiographic and ascetic narratives.
 - **Aelfric's Life of Cecilia:** red blood and a whitening body are compared with a rose and a lily. The colours are explicit, but this is a martyrdom image rather than a direct gloss on the Hebrew red-and-white passages.
 - **Biblical and miraculous bodies:** Moses' hand becomes white as snow in the Old English Exodus; the survivors in the Life of Eustace have bodies whiter than snow. These are bodily colour references, but their contexts are affliction and miracle, not ordinary complexion.

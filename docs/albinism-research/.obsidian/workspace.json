@@ -4,21 +4,35 @@
     "type": "split",
     "children": [
       {
-        "id": "f5a80ed330301bba",
+        "id": "8d20d1f580a77b90",
         "type": "tabs",
         "children": [
           {
-            "id": "149de890f6e00990",
+            "id": "df1a83a5714c3567",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "05 - Interpretations and Hypotheses/Colour vocabulary and comparison.md",
+                "file": "05 - Interpretations and Hypotheses/Colour Vocabulary - PIE Black.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Colour vocabulary and comparison"
+              "title": "Colour Vocabulary - PIE Black"
+            }
+          },
+          {
+            "id": "94aceb737b9ba06e",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "05 - Interpretations and Hypotheses/Colour vocabulary - PIE White.md",
+                "mode": "source",
+                "source": true
+              },
+              "icon": "lucide-file",
+              "title": "Colour vocabulary - PIE White"
             }
           }
         ]
@@ -55,7 +69,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "Chagigah 14a",
+                "query": "Heawalds",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -185,40 +199,46 @@
       "daily-notes:Open today's daily note": false,
       "templates:Insert template": false,
       "command-palette:Open command palette": false,
-      "bases:Create new base": false
+      "bases:Create new base": false,
+      "citation-extended:Show references for current note": false
     }
   },
-  "active": "149de890f6e00990",
+  "active": "df1a83a5714c3567",
   "lastOpenFiles": [
-    "02 - Primary Texts/Song of Songs/Song of Songs 5 - Bright and ruddy.md",
+    "05 - Interpretations and Hypotheses/Colour vocabulary - PIE White.md",
+    "07 - Bibliography/Bibliography - Colour.md",
+    "citation-content-template.md",
+    "05 - Interpretations and Hypotheses/Colour Vocabulary - PIE Black.md",
     "05 - Interpretations and Hypotheses/Colour vocabulary and comparison.md",
+    "05 - Interpretations and Hypotheses/Middle English whiteness and human appearance.md",
+    "05 - Interpretations and Hypotheses/Origen - Daniel 7.9.md",
+    "06 - Evidence and Method/Evidence protocol.md",
+    "07 - Bibliography/Many Words For White.md",
+    "Research Index.base",
+    "07 - Bibliography/Bibliography.md",
+    "05 - Interpretations and Hypotheses/Old English whiteness and human appearance.md",
+    "05 - Interpretations and Hypotheses/Jerome - Daniel 7.9.md",
+    "02 - Primary Texts/Revelation/Revelation 1 - Son of Man vision.md",
+    "03 - Manuscript Witnesses/Wycliffite Later Version Apocalypse.md",
+    "04 - Transmission History/White-haired Mythical People and Peopls.md",
+    "04 - Transmission History/White-haired Monsters.md",
+    "04 - Transmission History/Christ A, B, C - Exeter Book.md",
+    "02 - Primary Texts/Norse Myth.md",
+    "skin_hair_mythology_search_results.csv",
+    "Unconfirmed 601404.crdownload",
+    "02 - Primary Texts/English Myth/Chaucer.md",
+    "02 - Primary Texts/English Myth/Beowulf.md",
+    "02 - Primary Texts/English Myth/Jack The Giant Killer.md",
+    "02 - Primary Texts/English Myth/White Roses in England.md",
+    "02 - Primary Texts/English Myth",
+    "engand_mythology_search_results.csv",
+    "Unconfirmed 305026.crdownload",
+    "02 - Primary Texts/Song of Songs/Song of Songs 5 - Bright and ruddy.md",
     "06 - Evidence and Method/Additional corpora to consider - through 1650.md",
     "04 - Transmission History/Matthew 28.3 in ECHOE - Angelic radiance and white garments.md",
     "06 - Evidence and Method/Semantic query log.md",
-    "05 - Interpretations and Hypotheses/Old English whiteness and human appearance.md",
-    "00 - Dashboard.md",
-    "05 - Interpretations and Hypotheses/Middle English whiteness and human appearance.md",
-    "02 - Primary Texts/Isaiah 1 - Scarlet made white.md",
-    "04 - Transmission History/Transmission diagrams - Scriptural sources to Bede.md",
-    "02 - Primary Texts/Leviticus 13 - Reddish-white skin lesions.md",
-    "02 - Primary Texts/Genesis 49 - Wine-red eyes and milk-white teeth.md",
-    "02 - Primary Texts/Revelation/Revelation 1 - Son of Man vision.md",
-    "05 - Interpretations and Hypotheses/Hebrew colour terms - semantic range and ruddy complexion.md",
-    "09 - Glossary/אדם - red and ruddy.md",
     "02 - Primary Texts/Song of Songs",
-    "02 - Primary Texts/Lamentations/Lamentations 4 - Nazirites like snow.md",
-    "09 - Glossary/גזרה - form, division, veins.md",
-    "09 - Glossary/Glossary.md",
-    "07 - Bibliography/Salters - Lamentations ICC.md",
-    "03 - Manuscript Witnesses/5Q6 - 5QLama.md",
-    "02 - Primary Texts/Daniel/Daniel 7 - Ancient of Days.md",
-    "07 - Bibliography/Bibliography.md",
     "02 - Primary Texts/Lamentations",
-    "README.md",
-    "Research Index.base",
-    "02 - Primary Texts/Daniel/Daniel 7.9 - Jerome's Vulgate.md",
-    "05 - Interpretations and Hypotheses/Jerome - Daniel 7.9.md",
-    "05 - Interpretations and Hypotheses/Cyril of Jerusalem - Daniel 7.9.md",
     "Untitled.base"
   ]
 }

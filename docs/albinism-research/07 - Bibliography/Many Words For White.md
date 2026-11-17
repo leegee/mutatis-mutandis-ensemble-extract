@@ -15,7 +15,7 @@ whit/white (Middle English) -> derived-from -> hwīt (Old English)
 
 white (Scots) -> derived-from -> whit/white (Middle English)
 
-  
+  blake (Middle English) -> derived-from ->   _blac_ (Old English)
 
 hwīt (Old Frisian) -> derived-from -> *hwītaz (Proto-Germanic)
 
@@ -148,12 +148,13 @@ bán (Old Irish) -> derived-from -> *banos (Proto-Celtic)
 | Old English        | **swart**     | black, dark          | dusky, swarthy                                                       | cognate with ON *svartr*                                                        |
 | Old English        | **dēorc**     | dark                 | gloomy, obscure                                                      | cognate semantic field with ON *døkkr*                                          |
 | Old English        | **read**      | red                  | blood-red, ruddy                                                     | blood, weapons, fire                                                            |
-| **Proto-Germanic** | ***hwītaz***     | white                | —                                                                    | ancestor of ON *hvítr*, OE *hwīt*                                               |
-| Proto-Germanic     | ***fagraz***     | fair, beautiful      | —                                                                    | ancestor of ON *fagr*, OE *fæger*                                               |
-| Proto-Germanic     | ***berhtaz***    | bright               | shining                                                              | ancestor of ON *bjartr*, OE *beorht*                                            |
-| Proto-Germanic     | ***leuhtaz***    | light                | luminous                                                             | ancestor of ON *ljóss*, OE *lēoht*                                              |
-| Proto-Germanic     | ***swartaz***    | black                | dark                                                                 | ancestor of ON *svartr*, OE *swart*                                             |
-| Proto-Germanic     | ***rauthaz***    | red                  | —                                                                    | ancestor of ON *rauðr*, OE *read*                                               |
+| **Proto-Germanic** | ***hwītaz***  | white                | —                                                                    | ancestor of ON *hvítr*, OE *hwīt*                                               |
+| Proto-Germanic     | ***fagraz***  | fair, beautiful      | —                                                                    | ancestor of ON *fagr*, OE *fæger*                                               |
+| Proto-Germanic     | ***berhtaz*** | bright               | shining                                                              | ancestor of ON *bjartr*, OE *beorht*                                            |
+| Proto-Germanic     | ***leuhtaz*** | light                | luminous                                                             | ancestor of ON *ljóss*, OE *lēoht*                                              |
+| Proto-Germanic     | ***swartaz*** | black                | dark                                                                 | ancestor of ON *svartr*, OE *swart*                                             |
+| Proto-Germanic     | ***rauthaz*** | red                  | —                                                                    | ancestor of ON *rauðr*, OE *read*                                               |
+|                    |               |                      |                                                                      |                                                                                 |
 ## Celtic
 | Language            | Form                   | Basic sense   | Extended/important senses                   | Particularly relevant                       |
 | ------------------- | ---------------------- | ------------- | ------------------------------------------- | ------------------------------------------- |

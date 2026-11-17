@@ -13,7 +13,6 @@ related_notes:
   - "[[Old English whiteness and human appearance]]"
   - "[[Texts to add to the Old English corpus]]"
 ---
-
 # Middle English whiteness and human appearance
 
 ## Scope and method
@@ -42,7 +41,51 @@ Chaucer gives a compact, securely locatable cluster of appearance terms for the 
 
 This is evidence for red facial colouring within a literary portrait, not yet evidence for a red-and-white complexion ideal. Check the MED entry and manuscript variants for *rode* before drawing semantic conclusions.
 
-## Search plan
+## Eroticism in Herry Lovelich's *Merlin*
+
+Lines 15393–15405:
+
+> Whanne kyng Artheur thus beheld this Mayde,
+> as tofore this tyme j haue ȝow sayde,
+> he beheld hire pappes smale & gent,
+> bothe harde & Rownde, verament;
+> as two smale apples Semed they there.
+> **hire Flesch was whyt and wondirly clere;**
+> **there nas neuere snow, þat snew on grownde,**
+> **whittere thanne hire flesch that stownde;**
+> **and as bryht coloured forto se**
+> **as dropes of blod jn snow, certeinle**.
+> So that kyng Artheur, verament,
+> that Mayden coveytede with al his Entent,
+> and anon for love he tornede his chere;
+> but that parceyved not the two kynges there.
+
+- Her flesh is exceptionally white, whiter than snow.
+- Her complexion has a striking red-and-white contrast, likened to drops of blood upon snow.    
+- Arthur desires her intensely, but the two kings present do not notice his attraction.
+
+
+## *The Romance of Partenay*, c1500-1520
+_The Romans of Partenay, or of Lusignen; otherwise known as the Tale of Melusine._
+
+Cambridge, Trinity College MS R.3.17 - c1500, rhyme royal scheme
+See [Walter W. Skeat, EETS 22](https://archive.org/details/romanspartenayo00coulgoog?utm_source=chatgpt.com) (1866; revised 1899)
+
+**Unto hir nauell shewing ther full white,**
+**Like as is the snow a faire branche vppon**,
+The body welle made, frike in ioly plite,
+The visage pure, fresh, clenly hir person,
+To properly speke off hir facion,
+Neuer non **fairer** ne more reuerent;
+But A taill had beneth of serpent!
+Gret And orrible was it verily;
+With siluer And Asure the tail burlid was,
+Strongly the water ther bete, it flasshed hy.
+
+-- Matthew Woodcock   _Elf-Fashioning Revisited: A Response to Maik Goth_ stanza 100, around lines 2800–2809 in _[Connotations](https://www.connotations.de/article/matthew-woodcock-elf-fashioning-revisited-a-response-to-maik-goth/)_.
+
+
+# Search plan
 
 Search the MEC corpus and verify promising results in their edited texts. Begin with spelling variants and collocations for *whit/white*, *fair*, *pale*, *rede/red/ruddy*, and hair terms; then search separately for “white as snow/milk/lily” and body-part descriptions. Record for each hit the work, line or page, manuscript witness, edition, date range, referent, literal/metaphorical status, and whether the phrase is an independent description or biblical translation/allusion.
 

@@ -12,7 +12,7 @@ related_notes:
   - "[[Genesis 49 - Wine-red eyes and milk-white teeth]]"
   - "[[Leviticus 13 - Reddish-white skin lesions]]"
   - "[[Isaiah 1 - Scarlet made white]]"
-  - "[[Words For White]]"
+  - "[[Many Words For White]]"
   - "[[Salters - Lamentations ICC]]"
 ---
 

@@ -39,3 +39,36 @@ A date attached to a manuscript is not automatically the date of composition or 
 - Add bibliography entries in `07 - Bibliography` and link them from the relevant notes.
 - Update the chronology only when the type of date is clear.
 
+## To Do
+
+Phase 1 — Repair and consolidate
+
+- [ ] Replace the two obsolete wikilink targets.
+- [ ] Resolve the missing P98 dossier reference.
+- [ ] Standardise metadata without changing evidential meanings.
+- [ ] Separate manuscript dates from composition dates in indexing.
+- [ ] Review reciprocal links between passages and witnesses.
+
+
+  Phase 2 — Complete the ancient textual foundation
+
+- [ ] Finish P98 verification.
+- [ ] Complete the 4Q204 and Greek Enoch transcriptions.
+- [ ] Establish the Geʿez witness chronology.
+- [ ] Complete the Daniel 7 reception comparison.
+
+
+  Phase 3 — Develop the English evidence
+
+- [ ] Complete the Old English survey.
+- [ ] Turn the strongest examples into individual passage records.
+- [ ] Expand the Middle English survey.
+- [ ] Search religious prose and poetry systematically.
+
+
+  Phase 4 — Synthesis
+
+- [ ] Compare the changing meanings of whiteness.
+- [ ] Distinguish literal physical description from allegory and symbolism.
+- [ ] Investigate representations of exceptional human appearance.
+- [ ] Develop the historical argument through 1914.

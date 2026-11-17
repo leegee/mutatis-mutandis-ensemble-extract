@@ -9,6 +9,7 @@ related_notes:
   - "[[Cyprian - Revelation]]"
   - "[[Fleury Palimpsest - VL 55 - Revelation]]"
   - "[[Transmission chronology]]"
+  - "[[Wycliffite Later Version Apocalypse]]"
 ---
 
 # Revelation 1:12–16 — The Son of Man vision

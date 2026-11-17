@@ -1,0 +1,40 @@
+{
+  "citationExportPath": "",
+  "citationExportFormat": "csl-json",
+  "literatureNoteTitleTemplate": "@{{citekey}}",
+  "literatureNoteFolder": "Reading notes",
+  "literatureNoteContentTemplate": "",
+  "literatureNoteContentTemplatePath": "citation-content-template.md",
+  "citationStylePreset": "custom",
+  "markdownCitationTemplate": "[@{{citekey}}]",
+  "alternativeMarkdownCitationTemplate": "@{{citekey}}",
+  "autoCreateNoteOnCitation": false,
+  "noteUpdateMode": "sync",
+  "updateConfirmation": "conflicts",
+  "literatureNoteLinkDisplayTemplate": "",
+  "enableInlineSuggestions": true,
+  "bibliographyEntryTemplate": "{{authorString}}{{#if year}} ({{year}}){{/if}}. {{title}}.",
+  "referenceListSortOrder": "default",
+  "filenameSanitizationReplacement": "_",
+  "databases": [
+    {
+      "id": "db-1794902365114-3i1x",
+      "name": "Database 1",
+      "type": "zotero-api",
+      "path": "",
+      "sourcePaths": {
+        "csl-json": "",
+        "zotero-api": "",
+        "zotero-bbt": ""
+      }
+    }
+  ],
+  "disableAutomaticNoteCreation": false,
+  "templateProfiles": [],
+  "fragmentProfiles": [],
+  "noteIdentifierField": "",
+  "readwiseLastSyncDate": "",
+  "readwiseSyncIntervalMinutes": 30,
+  "zoteroSyncIntervalMinutes": 0,
+  "libraryLoadTimeoutSeconds": 30
+}

@@ -1,7 +1,7 @@
 ---
 type: textual-passage
 work: Song of Songs
-passage: "Song of Songs 5:10 (context 5:9–16)"
+passage: Song of Songs 5:10 (context 5:9–16)
 language: Biblical Hebrew
 status: working analysis
 tags:
@@ -11,7 +11,7 @@ tags:
 related_notes:
   - "[[אדם - red and ruddy]]"
   - "[[Lamentations 4 - Nazirites like snow]]"
-  - "[[Words For White]]"
+  - "[[Many Words For White]]"
 ---
 
 # Song of Songs 5:10 — Bright and ruddy
