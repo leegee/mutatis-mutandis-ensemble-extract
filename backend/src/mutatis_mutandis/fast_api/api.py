@@ -28,13 +28,13 @@ from fastapi.staticfiles import StaticFiles
 from mutatis_mutandis.lib.corpus_config import CORPUS_INPUT_DIRS, CORPUS_ROOT_DIR, LANCE_INDEXES_DIR, PASSAGE_SCALES
 from mutatis_mutandis.lib.macberth import PASSAGE_REPRESENTATIONS
 
-from mutatis_mutandis.core import VectorNotFoundError
-from mutatis_mutandis.schemas import (
+from mutatis_mutandis.fast_api.core import VectorNotFoundError
+from mutatis_mutandis.fast_api.schemas import (
     SearchRequest,
     SearchResponse,
     TextSearchRequest,
 )
-from mutatis_mutandis.service import (
+from mutatis_mutandis.fast_api.service import (
     PassageSearchService,
     SearchParams,
     TextSearchParams,

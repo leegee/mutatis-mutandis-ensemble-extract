@@ -21,7 +21,8 @@ from pydantic import (
 from mutatis_mutandis.lib.macberth import PASSAGE_REPRESENTATIONS
 
 from mutatis_mutandis.lib.corpus_config import PASSAGE_SCALES
-from mutatis_mutandis.years import current_year
+
+from mutatis_mutandis.fast_api.years import current_year
 
 # passage_ids in this corpus are 64-char lowercase hex (sha256). Loosen the
 # pattern here if you ever introduce other ID formats.

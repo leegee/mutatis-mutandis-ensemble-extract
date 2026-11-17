@@ -21,16 +21,16 @@ from mutatis_mutandis.lib.corpus_config import PASSAGE_SCALES
 from mutatis_mutandis.lib.corpus_db import get_connection
 from mutatis_mutandis.lib.corpus_logging import get_logger
 from mutatis_mutandis.lib.macberth import encode_passage_query
-from mutatis_mutandis.years import current_year
 
-from mutatis_mutandis.core import (
+from mutatis_mutandis.fast_api.years import current_year
+from mutatis_mutandis.fast_api.core import (
     load_passage_record,
     load_passage_vector,
     normalise_vector,
     search_passages,
 )
-from mutatis_mutandis.texts import fetch_passage_texts
-from mutatis_mutandis.text_search import search_text_passages
+from mutatis_mutandis.fast_api.texts import fetch_passage_texts
+from mutatis_mutandis.fast_api.text_search import search_text_passages
 
 logger = get_logger("mutatis.service")
 

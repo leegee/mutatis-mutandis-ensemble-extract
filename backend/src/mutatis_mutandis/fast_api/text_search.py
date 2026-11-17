@@ -18,7 +18,7 @@ import hashlib
 import re
 from typing import Dict, List, Optional, Sequence
 
-from mutatis_mutandis.years import current_year
+from mutatis_mutandis.fast_api.years import current_year
 
 # Match the same tokenisation spirit as the UI highlight helper.
 _TOKEN_RE = re.compile(r"[a-zA-Z\u00c0-\u024f']+", re.UNICODE)

@@ -21,8 +21,8 @@ from mutatis_mutandis.lib.corpus_config import LANCE_INDEXES_DIR, PASSAGE_SCALES
 from mutatis_mutandis.lib.corpus_logging import get_logger
 from mutatis_mutandis.lib.macberth import PASSAGE_REPRESENTATIONS
 
-from mutatis_mutandis.service import PassageSearchService, SearchParams
-from mutatis_mutandis.years import current_year
+from mutatis_mutandis.fast_api.service import PassageSearchService, SearchParams
+from mutatis_mutandis.fast_api.years import current_year
 
 logger = get_logger("mutatis.cli")
 
