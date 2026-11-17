@@ -1,5 +1,5 @@
 """
-passages_2_0_colab_embed_ensemble.py
+20_colab_embed_ensemble.py
 
 Colab job: stand-alone token parquet shards -> multi-scale passage-vector
 parquet shards. Storage is Google Drive or a private Hugging Face dataset repo,
