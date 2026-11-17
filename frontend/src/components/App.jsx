@@ -18,7 +18,9 @@ import { SearchView } from "./SearchView.jsx";
 import { TextSearchView } from "./TextSearchView.jsx";
 
 export function App() {
-	onMount(checkApi);
+	onMount(() => {
+		setInterval(checkApi, 5_000);
+	});
 
 	// Persist the form state (not the results) across reloads.
 	createEffect(() => {
