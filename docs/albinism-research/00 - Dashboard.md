@@ -70,7 +70,17 @@ The relationship between this transformation, the changing cultural authority of
 - [[Additional corpora to consider - through 1650]]
 - [[Open questions]]
 
-## Working conclusions — provisional
+## Working conclusions 
+
+| Interpretative family                    | Ancient Hebrew                                | Greek / Christian                             | Old English                          | Middle English                               |
+| ---------------------------------------- | --------------------------------------------- | --------------------------------------------- | ------------------------------------ | -------------------------------------------- |
+| Divine authority and eternity            | Daniel's Ancient of Days                      | Daniel; Revelation; Jerome                    | Christian visionary poetry           | Not yet clearly identified                   |
+| Purity and innocence                     | Isaiah's snow-white sins                      | Origen; Cyril                                 | Hagiographic and devotional contexts | Devotional snow-white imagery                |
+| Physical beauty                          | Song of Songs; David                          | Noah in 1 Enoch                               | Some saintly descriptions            | Libeaus, Lovelich, Partenay                  |
+| Health, vitality or virility             | David; Song; Lamentations                     | Possible Noah interpretation, unresolved      | Not yet established                  | Ruddy complexion in Chaucer                  |
+| Extraordinary or supernatural appearance | Lamentations; possibly other biblical figures | Noah; divine figures in Daniel and Revelation | Christ and visionary beings          | Partenay's human/serpent combination         |
+| Age or bodily condition                  | Not yet a central interpretation              | Not the main Daniel interpretation            | Benedict; Mary of Egypt              | Not yet established                          |
+| Physical differentiation                 | Human colour terms                            | Noah's unusual appearance                     | The two Heawalds                     | Chaucer's differentiated hair, face and eyes |
 
 1. Daniel 7:9 describes the Ancient of Days with clothing white like snow and head-hair like clean/white wool. The precise force of the Aramaic wool adjective requires lexical and textual scrutiny.
 2. Daniel 10:5–6 presents a luminous, metal-like visionary figure; it is not a straightforward parallel for white hair or pale complexion.
