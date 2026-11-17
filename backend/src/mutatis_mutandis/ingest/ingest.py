@@ -8,6 +8,10 @@ Corpus roots are defined in config.CORPUS_INPUT_DIRS
 
     THE ALBINISM FILTER OF CLMET IS NOT YET APPLIED UNIVERSALLY!
 
+To do:
+
+`pub_year` was a good start but we now need to note it is a search-engine field rather than provenance-level metadata. Introduce 'date_range' fields
+
 """
 
 from __future__ import annotations
@@ -837,6 +841,7 @@ def process_echoe_file(tree, xml_path):
     }
     return metadata, tokens
 
+
 def process_misc_file(tree, xml_path):
     """
     Process generic TEI sources in the misc corpus.
@@ -880,34 +885,43 @@ def process_misc_file(tree, xml_path):
         TEI_NS,
     )
 
-    composition_raw, pub_year, date_source = pick_original_text_year(tree)
+    # Preferred: explicit original-composition date
+    composition_raw, composition_year, composition_source = pick_original_text_year(tree)
 
-    # Do not substitute the imprint/publication date of an edition or
-    # transcription for the date of the underlying work. Unknown dates are
-    # retained as NULL so that the text remains searchable without a false date.
+    # Ordinary edition / publication date (fallback)
     edition_date_raw, edition_year, edition_source = pick_pub_year(tree)
+
+    if composition_year is not None:
+        pub_year = composition_year
+        date_source = composition_source
+        source_date_raw = composition_raw
+    else:
+        # No original-composition date encoded → fall back to edition year
+        pub_year = edition_year
+        date_source = edition_source
+        source_date_raw = edition_date_raw
+        if pub_year is not None:
+            logger.info(
+                f"{doc_id}: no type='original' date; "
+                f"using edition year {pub_year} from {edition_source}"
+            )
+        else:
+            logger.warning(
+                f"[worker {os.getpid()}] No usable year (original or edition) "
+                f"for {doc_id} at {xml_path}; ingesting with pub_year=NULL"
+            )
 
     if pub_year is not None and not year_in_corpus(pub_year):
         logger.warning(
-            f"[worker {os.getpid()}] Original-text year {pub_year} outside "
+            f"[worker {os.getpid()}] Year {pub_year} outside "
             f"configured corpus range for {doc_id} at {xml_path}"
         )
         return None
 
-    if pub_year is None:
-        logger.warning(
-            f"[worker {os.getpid()}] No explicit original-composition year for "
-            f"{doc_id}; ingesting with pub_year=NULL (edition date "
-            f"{edition_year!r} from {edition_source!r} is not substituted)"
-        )
-    else:
-        logger.info(f"{doc_id}: pub_year={pub_year} derived from {date_source}")
-
-    source_date_raw = composition_raw
-    if edition_date_raw:
+    # Keep both pieces of information in the raw field when both exist
+    if composition_raw and edition_date_raw and composition_year is not None:
         source_date_raw = (
-            f"{source_date_raw or 'original composition date unavailable'} | "
-            f"edition date ({edition_source}): {edition_date_raw}"
+            f"{composition_raw} | edition date ({edition_source}): {edition_date_raw}"
         )
 
     body = tree.findall(
@@ -965,7 +979,7 @@ def process_misc_file(tree, xml_path):
         "pub_year": pub_year,
         "source_date_raw": source_date_raw,
         "token_count": len(tokens),
-        "filepath": str( xml_path.relative_to( config.CORPUS_ROOT_DIR ).as_posix() ),
+        "filepath": str(xml_path.relative_to(config.CORPUS_ROOT_DIR).as_posix()),
         "lang": lang,
     }
 
