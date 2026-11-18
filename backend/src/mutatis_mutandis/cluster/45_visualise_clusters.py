@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-43_visualise_clusters.py - interactive dark UMAP plot of a clustering run.
+45_visualise_clusters.py - interactive dark UMAP plot of a clustering run.
 
 Reads the .npz written by 41_cluster_targets.py and passage text/metadata from
 Postgres. Writes a self-contained HTML plot (Plotly JS is embedded) that fills
@@ -14,10 +14,10 @@ Year filtering, two ways:
     text is fetched, which keeps the HTML small for big runs.
 
 Examples:
-    python 43_visualise_clusters.py --run-id l8-target-form-20261118-101500
-    python 43_visualise_clusters.py --run-id YOUR_RUN --words 20
-    python 43_visualise_clusters.py --run-id YOUR_RUN --min-year 1500 --max-year 1800
-    python 43_visualise_clusters.py --run-id YOUR_RUN --out out/target_runs/clusters.html
+    python 45_visualise_clusters.py --run-id l8-target-form-20261118-101500
+    python 45_visualise_clusters.py --run-id YOUR_RUN --words 20
+    python 45_visualise_clusters.py --run-id YOUR_RUN --min-year 1500 --max-year 1800
+    python 45_visualise_clusters.py --run-id YOUR_RUN --out out/target_runs/clusters.html
 
 Install:
     pip install plotly
