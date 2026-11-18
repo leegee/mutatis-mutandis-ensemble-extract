@@ -52,6 +52,7 @@ Run these as separate queries first, then try paraphrases and combinations. Pres
 - `Erat autem aspectus eius sicut fulgur et vestimenta eius sicut nix`
 - `Datae sunt illis stolae albae et dictum est illis ut requiescerent`
 - `þæs engles ansyn wæs swa beorht and his hrægl wæron swa hwite swa snaw`
+
 ### Hair and snow / wool comparisons
 
 - `white as wool`
