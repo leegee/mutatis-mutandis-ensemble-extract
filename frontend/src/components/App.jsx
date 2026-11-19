@@ -1,4 +1,4 @@
-import { createEffect, onMount, Show, untrack } from "solid-js";
+import { createEffect, Match, onMount, Show, Switch, untrack } from "solid-js";
 
 import { checkApi, runSearch } from "../actions.js";
 import { CONFIG } from "../config.js";
@@ -13,6 +13,8 @@ import {
 	hasTextQuery,
 	routeSync,
 } from "../urlState.js";
+
+import { AppHeader } from "./AppHeader.jsx";
 import { NotFound } from "./NotFound.jsx";
 import { SearchView } from "./SearchView.jsx";
 import { TextSearchView } from "./TextSearchView.jsx";
@@ -68,20 +70,28 @@ export function App() {
 	const isSearch = () => match(ROUTES.home) || match(ROUTES.search);
 	const isText = () => match(ROUTES.text);
 
+	const mode = () => {
+		if (isSearch()) return "semantic";
+		if (isText()) return "text";
+		return null;
+	};
+
 	return (
 		<div class="shell">
-			<Show when={isSearch()}>
-				<SearchView />
-			</Show>
-			<Show when={isText()}>
-				<TextSearchView />
-			</Show>
-			<Show when={!isSearch() && !isText()}>
-				<NotFound />
-			</Show>
-			<div class={`toast${toast() ? " show" : ""}`} role="status">
+			<AppHeader mode={mode()} />
+
+			<Switch fallback={<NotFound />}>
+				<Match when={isSearch()}>
+					<SearchView />
+				</Match>
+				<Match when={isText()}>
+					<TextSearchView />
+				</Match>
+			</Switch>
+
+			<aside class={`toast${toast() ? " show" : ""}`} role="status">
 				{toast()}
-			</div>
+			</aside>
 		</div>
 	);
 }
