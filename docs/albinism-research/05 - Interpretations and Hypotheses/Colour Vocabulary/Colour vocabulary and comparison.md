@@ -4,7 +4,6 @@ tags:
   - research/interpretation
   - topic/colour-language
 ---
-
 # Colour vocabulary and comparison
 
 ## Scope

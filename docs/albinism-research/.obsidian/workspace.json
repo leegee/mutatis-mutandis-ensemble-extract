@@ -8,45 +8,17 @@
         "type": "tabs",
         "children": [
           {
-            "id": "6a53085dc10912e3",
+            "id": "06d5a33ccd1e4d74",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "05 - Interpretations and Hypotheses/Blazing Eyes in Classical Latin and Greek.md",
+                "file": "02 - Primary Texts/00 Chronology Of Sources.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Blazing Eyes in Classical Latin and Greek"
-            }
-          },
-          {
-            "id": "aed0883861c80c81",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "05 - Interpretations and Hypotheses/Revelation's Greek.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "Revelation's Greek"
-            }
-          },
-          {
-            "id": "3eaa117806720ee6",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "05 - Interpretations and Hypotheses/Colour vocabulary - Hebrew - red, ruddy, rosy complexion.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "Colour vocabulary - Hebrew - red, ruddy, rosy complexion"
+              "title": "00 Chronology Of Sources"
             }
           }
         ]
@@ -217,45 +189,46 @@
       "citation-extended:Show references for current note": false
     }
   },
-  "active": "6a53085dc10912e3",
+  "active": "06d5a33ccd1e4d74",
   "lastOpenFiles": [
-    "05 - Interpretations and Hypotheses/Colour vocabulary - Hebrew - red, ruddy, rosy complexion.md",
+    "02 - Primary Texts/Daniel/Daniel - Witness Timeline.md",
+    "02 - Primary Texts/00 Chronology Of Sources.md",
+    "02 - Primary Texts/1 Enoch/1 Enoch 106 - Noah's birth.md",
+    "02 - Primary Texts/Lamentations/Lamentations 4 - Nazirites like snow.md",
+    "02 - Primary Texts/Revelation/Revelation Chronology.md",
+    "02 - Primary Texts/Revelation/Revelation 19.12.md",
+    "02 - Primary Texts/Revelation/Revelation 1 - Son of Man vision.md",
+    "02 - Primary Texts/Daniel/Daniel 7 - Ancient of Days.md",
+    "00 - Dashboard.md",
+    "03 - Manuscript Witnesses/Royal MS 5 E XIII - Latin Enoch witness.md",
+    "03 - Manuscript Witnesses/Ge'ez 1 Enoch tradition.md",
+    "05 - Interpretations and Hypotheses/Colour Vocabulary/Colour Vocabulary - Aramaic.md",
+    "05 - Interpretations and Hypotheses/Colour Vocabulary/Colour vocabulary - Hebrew red, ruddy, rosy complexion.md",
     "05 - Interpretations and Hypotheses/Revelation's Greek.md",
+    "05 - Interpretations and Hypotheses/Colour Vocabulary/Colour vocabulary - PIE White.md",
+    "05 - Interpretations and Hypotheses/Colour Vocabulary/Colour vocabulary and comparison.md",
+    "05 - Interpretations and Hypotheses/Colour Vocabulary/Scarlet.md",
+    "05 - Interpretations and Hypotheses/Colour Vocabulary",
+    "05 - Interpretations and Hypotheses/Colour Vocabulary/Colour Vocabulary - PIE Ruddy.md",
     "05 - Interpretations and Hypotheses/Blazing Eyes in Classical Latin and Greek.md",
     "06 - Evidence and Method/Clustering.md",
     "06 - Evidence and Method/Additional corpora to consider - through 1650.md",
     "Pasted image 20261119091953.png",
     "Pasted image 20261119091932.png",
     "Pasted image 20261119091901.png",
-    "00 - Dashboard.md",
     "05 - Interpretations and Hypotheses/Jerome - Daniel 7.9.md",
     "01 - Research Questions/Research Questions.md",
     "05 - Interpretations and Hypotheses/Origen - Daniel 7.9.md",
     "02 - Primary Texts/Romance/The Extravagant Shepherd, the Anti-Romance; or, The History of the Shepherd Lysis.md",
-    "02 - Primary Texts/Revelation/Revelation 1 - Son of Man vision.md",
     "10 - Templates/Template - Textual Passage.md",
-    "05 - Interpretations and Hypotheses/Word - Brightness and glory from Hebrew to Greek.md",
     "02 - Primary Texts/Romance",
     "Untitled 1",
     "Untitled",
-    "06 - Evidence and Method/Colour terminology and interpretation.md",
-    "07 - Bibliography/Bibliography.md",
-    "Revelation 1 - Son of Man vision.md",
     "Research Index.base",
-    "03 - Manuscript Witnesses/Codex Sinaiticus.md",
-    "03 - Manuscript Witnesses/Codex Sin.md",
-    "02 - Primary Texts/Daniel/Daniel 10 - Luminous figure.md",
-    "02 - Primary Texts/Revelation/Revelation 19.12.md",
-    "02 - Primary Texts/Song of Songs/Song of Songs 5 - Bright and ruddy.md",
-    "02 - Primary Texts/Codex Sinaiticus - Shepherd of Hermas.md",
-    "02 - Primary Texts/1 Enoch/1 Enoch 106 - Noah's birth.md",
-    "02 - Primary Texts/Lamentations/Lamentations 4 - Nazirites like snow.md",
-    "05 - Interpretations and Hypotheses/Open questions.md",
     "02 - Primary Texts/Proverbs",
     "skin_hair_mythology_search_results.csv",
     "Unconfirmed 601404.crdownload",
     "02 - Primary Texts/English Myth",
-    "engand_mythology_search_results.csv",
-    "Unconfirmed 305026.crdownload"
+    "engand_mythology_search_results.csv"
   ]
 }

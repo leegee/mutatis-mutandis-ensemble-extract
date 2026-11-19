@@ -33,12 +33,33 @@ Transliteration and exact pointing should be checked against the chosen critical
 
 ## **Witnesses**
 
+- **4Q114:** preserves Daniel 10:5–9, 11–16 and 21. This is a very early physical witness to the chapter 10 vision.
+    
+- **4Q112:** preserves portions of both chapters 7 and 10, making it particularly valuable for your comparison.
+
+| Manuscript     | Approximate date               | Relevant chapters |
+| -------------- | ------------------------------ | ----------------- |
+| 1QDanᵃ (1Q71)  | 1st century BCE–1st century CE | 1–2               |
+
+
 | Witness             | Date                                                                | Language | Significance                             |
 | ------------------- | ------------------------------------------------------------------- | -------- | ---------------------------------------- |
 | Masoretic Text      | Medieval manuscript tradition; consonantal text substantially older | Aramaic  | Principal Hebrew Bible textual tradition |
-| 4QDanᵃ (4Q112)      | 1st century BCE                                                     | Aramaic  | Dead Sea Scroll witness to Daniel        |
-| Theodotion's Daniel | 2nd century CE (approx.)                                            | Greek    | Important Greek textual tradition        |
-| Septuagint Daniel   | Hellenistic period                                                  | Greek    | Alternative Greek textual tradition      |
+
+| Tradition / witness | Estimated date                                                         | Significance                                               |     |
+| ------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------- | --- |
+| Old Greek Daniel    | 2nd century BCE (approx.)                                              | Earlier Greek translation, substantially different from MT |     |
+| Theodotionic Daniel | 2nd century CE (traditional attribution; textual history more complex) | Eventually became the dominant Greek Daniel                |     |
+| Papyrus 967         | 2nd–early 3rd century CE                                               | Important surviving Old Greek witness                      |     |
+| Codex Chisianus 88  | 9th–11th century CE                                                    | Witness to the Old Greek / Hexaplaric tradition            |     |
+| Syro-Hexapla        | 616–617 CE                                                             | Syriac translation of Origen's Hexaplaric Greek text       |     |
+| Peshitta Daniel     | Early centuries CE; precise date uncertain                             | Syriac version based on a Hebrew-Aramaic text              |     |
+| Jerome's Vulgate    | c. 390–405 CE                                                          | Latin translation based on Hebrew and Aramaic              |     |
+| Aleppo Codex        | c. 930 CE                                                              | Early Masoretic codex                                      |     |
+| Leningrad Codex     | 1008 CE                                                                | Oldest complete surviving Hebrew Bible codex               |     |
+
+| Witness             | Date                                                                | Language | Significance                             |
+| ------------------- | ------------------------------------------------------------------- | -------- | ---------------------------------------- |
 | Jerome, Vulgate     | c. 390–405                                                          | Latin    | Latin biblical transmission              |
 
 ## Lexical issue

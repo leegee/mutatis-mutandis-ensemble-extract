@@ -3,7 +3,6 @@ type: index
 tags:
   - research/index
 ---
-
 # Extraordinary Paleness — Research Dashboard
 
 > [!summary] Central research questions
@@ -35,8 +34,7 @@ The relationship between this transformation, the changing cultural authority of
 | 1650–1914            | Compare the preceding findings with Thomas White's historical investigation |
 ### In the back of my mind
 
-> The cultural interpretation of extraordinary human palidity undergoes a historical transformation, from a characteristic associated with divine, sacred or exceptional qualities towards one increasingly understood through medical, pathological and pejorative frameworks.
-
+> The cultural interpretation of "extraordinary human palidity" undergoes a historical transformation, from a characteristic associated with divine, sacred or exceptional qualities towards one increasingly understood through medical, pathological and pejorative frameworks.
 
 ## Current textual dossiers
 
@@ -63,7 +61,7 @@ The relationship between this transformation, the changing cultural authority of
 ## Main research threads
 
 - [[Colour vocabulary and comparison]]
-- [[Colour vocabulary - Hebrew - red, ruddy, rosy complexion]]
+- [[Colour vocabulary - Hebrew red, ruddy, rosy complexion]]
 - [[Transmission chronology]]
 - [[Transmission diagrams - Scriptural sources to Bede]]
 - [[Evidence protocol]]

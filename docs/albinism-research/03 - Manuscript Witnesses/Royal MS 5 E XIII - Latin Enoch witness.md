@@ -8,7 +8,6 @@ tags:
 related_notes:
   - "[[1 Enoch 106 - Noah's birth]]"
 ---
-
 # British Library Royal MS 5 E XIII — Latin Enoch witness
 
 **Language:** Latin
@@ -17,9 +16,9 @@ related_notes:
 **Shelfmark:** Royal MS 5 E XIII
 **Status:** Research lead; catalogue and passage details require verification.
 
-## Caution
+M. R. James (1893), "A Fragment of the Book of Enoch in Latin," _Apocrypha Anecdota_, pp. 146–150.
 
-Do not treat “Latin witness” as a sufficient description. Establish exactly which Latin text is present, whether it is a translation, excerpt, or derivative form, and whether the relevant Noah passage is actually preserved in this codex.
+The Latin text is important because it preserves portions of 106–107, but it is abbreviated and partially reworked. It should be represented as a distinct transmission witness, not as a direct equivalent of the Geʿez. Drawnel's 2019 edition also provides the relevant Latin material and manuscript photographs.
 
 ## Verification checklist
 

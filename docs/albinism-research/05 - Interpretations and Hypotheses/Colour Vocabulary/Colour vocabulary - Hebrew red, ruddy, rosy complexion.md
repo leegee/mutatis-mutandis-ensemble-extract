@@ -31,7 +31,7 @@ The investigation distinguishes three related but separate questions:
 
 ---
 
-## 1. The אדם red/ruddy colour family
+## The אדם red/ruddy colour family
 
 The principal Hebrew forms include:
 
@@ -51,7 +51,7 @@ The distinction between lexical meaning and contextual appearance is essential. 
 
 The root association alone cannot determine the precise visual appearance.
 
-## 2. Why modern colour categories do not map directly
+## Why modern colour categories do not map directly
 
 Biblical Hebrew has fewer ordinary colour terms than modern English. A single ancient term may encompass distinctions which contemporary English speakers would express through several different words.
 
@@ -61,39 +61,31 @@ He notes that the אדם family is applied to all three groups and that their de
 
 Reed gives examples of the broader semantic range:
 
-- Wine (Isa. 63:2).
-    
-- Blood (2 Kgs. 3:22).
-    
-- Precious stones, including the disputed _pĕnînîm_ in Lam. 4:7.
-    
-- Cooked lentils (Gen. 25:30).
-    
-- The red heifer (Num. 19:2).
-    
-- Horses (Zech. 1:8; 6:2).
-    
+- Wine (Isa. 63:2).    
+- Blood (2 Kgs. 3:22).    
+- Precious stones, including the disputed _pĕnînîm_ in Lam. 4:7.    
+- Cooked lentils (Gen. 25:30).    
+- The red heifer (Num. 19:2).    
+- Horses (Zech. 1:8; 6:2).    
 
 These objects do not necessarily share an identical modern colour. The same lexical family may communicate appearances that English speakers would describe as red, orange, yellowish-brown, reddish-brown or other shades.
 
 Reed reports a scholarly disagreement about the complexion of individuals described as _ʾādōm_ or related forms:
 
-- **Pinkish:** Brenner (1982, pp. 72–74).
-    
-- **Brown or brownish-red:** Keel (1994, p. 198); Longman (2001, p. 170, subject to verification of the precise Hebrew term under discussion).
-    
+- **Pinkish:** Brenner (1982, pp. 72–74).    
+- **Brown or brownish-red:** Keel (1994, p. 198); Longman (2001, p. 170, subject to verification of the precise Hebrew term under discussion).    
 
 The precise shade remains contested.
 
 This is not simply a problem of translation. It concerns the relationship between ancient colour categories, physical appearance and the way human complexion was described.
 
-## 3. Object exemplars and material associations
+## Object exemplars and material associations
 
 The material and natural referents associated with the אדם colour family offer a way of investigating the range of appearances communicated by the vocabulary.
 
 It is important to distinguish explicit comparisons from ordinary lexical applications. Not every occurrence provides an object exemplar.
 
-### 3.1 Carnelian or sardius
+### Carnelian or sardius
 
 **Exodus 28:17; 39:10; Ezekiel 28:13**
 
@@ -118,18 +110,15 @@ The ancient Near Eastern significance of red gemstones also deserves investigati
 - Did their associations with blood, fertility or protection contribute to the symbolic significance of redness?
     
 
-### 3.2 Coral, pearls or rubies
+### Coral, pearls or rubies
 
 **Lamentations 4:7**
 
 The term פְּנִינִים (_pĕnînîm_) is disputed. Proposed identifications include:
 
-- Coral.
-    
-- Pearls.
-    
-- Rubies or other precious stones.
-    
+- Coral.    
+- Pearls.    
+- Rubies or other precious stones.    
 
 Hartley (2010, p. 110) recognises the uncertainty.
 
@@ -148,7 +137,7 @@ The identification matters to the interpretation of the Nazirites' complexion, b
 - Can coral support a pinkish or rosy interpretation without assuming that the Hebrew word itself means pink?
     
 
-### 3.3 Lentils
+### Lentils
 
 **Genesis 25:30**
 
@@ -162,7 +151,7 @@ Depending on the preparation, lentils and their cooking liquid may produce reddi
 
 This demonstrates the breadth of the colour family, although it does not establish the appearance intended in descriptions of human complexion.
 
-### 3.4 The red heifer
+### The red heifer
 
 **Numbers 19:2**
 
@@ -174,7 +163,7 @@ This is a useful comparison because the colour describes an entire animal rather
 
 The precise acceptable shade is not specified by the adjective alone.
 
-### 3.5 Horses
+### Horses
 
 **Zechariah 1:8; 6:2**
 
@@ -184,7 +173,7 @@ Horse coat colours provide a useful comparison, particularly reddish-brown and c
 
 The passages should be examined in their own literary and visual contexts rather than automatically assigned modern horse-colour classifications.
 
-### 3.6 Blood and wine
+### Blood and wine
 
 **2 Kings 3:22; Proverbs 23:31; Isaiah 63:2**
 
@@ -194,7 +183,7 @@ In 2 Kings 3:22, the water appears red like blood. In Proverbs 23:31, wine is de
 
 These are useful contrasts with the possible lighter or more delicate complexion implied by human applications of the vocabulary.
 
-### 3.7 Summary of exemplars
+### Summary of exemplars
 
 |Passage|Hebrew expression|Referent|Evidential function|
 |---|---|---|---|
@@ -211,9 +200,9 @@ These examples establish a broad semantic and material field. They do not establ
 
 ---
 
-## 4. Human complexion: the principal passages
+## Human complexion: the principal passages
 
-### 4.1 Esau — Genesis 25:25
+### Esau in Genesis 25:25
 
 Esau is described as אַדְמוֹנִי (_ʾadmōnî_) at birth.
 
@@ -225,7 +214,7 @@ Noegel (2016) argues that the description also participates in the narrative's a
 
 It should not automatically be interpreted as a description of red hair.
 
-### 4.2 David — 1 Samuel 16:12; 17:42
+### David in 1 Samuel 16:12; 17:42
 
 David is described as אַדְמוֹנִי (_ʾadmōnî_), ruddy.
 
@@ -246,7 +235,7 @@ Noegel suggests that the redness instead signifies virility, fertility and mascu
 
 This disagreement is important: the term may communicate something beyond general attractiveness.
 
-### 4.3 Song of Songs 5:10
+### Song of Songs 5:10
 
 > דּוֹדִי צַח וְאָדֹם דָּגוּל מֵרְבָבָה
 
@@ -273,7 +262,7 @@ Noegel (2016) offers a further interpretation, connecting the beloved's redness 
 
 The question of whether the redness signifies beauty, health, vitality or sexual potency remains open.
 
-### 4.4 Lamentations 4:7–8
+### Lamentations 4:7–8
 
 The Masoretic form אָדְמוּ (_ʾādmû_) is a Qal perfect, third-person plural verb: "they were/became red" or contextually "ruddy."
 
@@ -291,20 +280,19 @@ This is not simply a change of colour. It is a transformation from health and vi
 
 ---
 
-## 5. The possible pink or rosy interpretation
+## The possible pink or rosy interpretation
 
 The distinction between lexical meaning and contextual appearance must be maintained.
 
-|Interpretation|Evidential status|
-|---|---|
-|The אדם family means red/ruddy|Established lexical gloss|
-|Its range is broader than modern English red|Strongly supported by varied usage|
-|It can communicate pinkish or rosy human complexion|Scholarly interpretation with contextual support|
-|It can communicate brown or brownish-red complexion|Alternative scholarly interpretation|
-|It specifically means blushing or pink-cheeked|Not established lexically|
-|It means modern English pink as a discrete colour category|Not established|
+| Interpretation                                             | Evidential status                                |
+| ---------------------------------------------------------- | ------------------------------------------------ |
+| The אדם family means red/ruddy                             | Established lexical **gloss**                    |
+| Its range is broader than modern English red               | Strongly supported by varied usage               |
+| It can communicate pinkish or rosy human complexion        | Scholarly interpretation with contextual support |
+| It can communicate brown or brownish-red complexion        | Alternative scholarly interpretation             |
+| It specifically means blushing or pink-cheeked             | Not established lexically                        |
 
-Brenner (1982, pp. 72–74) supports a pinkish complexion interpretation.
+**Brenner (1982, pp. 72–74) supports a pinkish complexion interpretation.**
 
 Keel (1994, p. 198) and Longman (2001, p. 170) are cited by Reed as supporting darker, brown or brownish-red interpretations. The precise lexical item each author discusses should be checked against the original publications, particularly in Longman's case, because _ṣaḥ_ and _ʾādōm_ must not be conflated.
 
@@ -324,10 +312,9 @@ A rosy cast against a pale or luminous complexion is therefore a reasonable reco
 
 ---
 
-## 6. Related Hebrew beauty imagery
+## Related Hebrew beauty imagery
 
 The Song of Songs contains other colour comparisons that should be considered alongside the אדם family, while keeping them lexically distinct.
-
 ### Scarlet lips and pomegranate
 
 **Song of Songs 4:3; 6:7**
@@ -340,7 +327,7 @@ These images do not use the אדם root, but they demonstrate how Hebrew poetry 
 
 ### Song 5:10
 
-The male beloved's brightness and redness may be read alongside the woman's scarlet lips.
+The male beloved's brightness and "redness" may be read alongside the woman's scarlet lips.
 
 Noegel (2016) interprets the male redness as a counterpart to the female scarlet imagery, proposing a relationship between sanguine colouring, fertility and sexual vitality.
 
@@ -348,13 +335,13 @@ This is an interpretative argument rather than an established lexical meaning.
 
 ### Lamentations 4:7–8
 
-The Nazirites' initial appearance is characterised by brightness, redness and precious materials. The subsequent description reverses this visual condition.
+The Nazirites' initial appearance is characterised by brightness, "redness" and precious materials. The subsequent description reverses this visual condition.
 
 The passage is particularly valuable because it connects colour, lustre, physical health and the loss of vitality.
 
 ---
 
-## 7. Noegel: redness, virility and fertility
+## Noegel: redness, virility and fertility
 
 Robert Noegel's 2016 article, "Scarlet and Harlots: Seeing Red in the Hebrew Bible," is important because it develops a symbolic interpretation that goes beyond the lexical question.
 
@@ -384,35 +371,29 @@ This gives the redness a possible sexual and reproductive significance rather th
     
 - Can this interpretation be reconciled with Brenner's account of youthful good looks?
     
-
 Noegel's interpretation should be retained as a significant competing hypothesis rather than adopted as the definitive meaning of the term.
 
----
-
-## 8. Achromaticity and the loss of colour in Lamentations 4
+## Achromaticity and the loss of colour in Lamentations 4
 
 Søren Lorenzen (2024), "Precarious Hues: On Chromophobia, Chromophilia, and Transitions between Chromatic and Achromatic Colours in the Hebrew Bible," offers a particularly useful interpretation of Lamentations 4:7–8.
 
 His discussion is relevant because it connects the loss of colour with the loss of health, lustre and vitality.
 
-### 8.1 Whiteness as luminosity
+### Whiteness as luminosity
 
 Lorenzen draws attention to the snow and milk comparisons in verse 7.
 
 The descriptions may involve more than a neutral white hue:
 
-- Snow can suggest glistening ice crystals as well as whiteness.
-    
-- The relevant Hebrew vocabulary can convey brightness and lustre.
-    
-- The comparison with milk may similarly evoke a luminous surface.
-    
+- Snow can suggest glistening ice crystals as well as whiteness.    
+- The relevant Hebrew vocabulary can convey brightness and lustre.    
+- The comparison with milk may similarly evoke a luminous surface.    
 
 The distinction between chromatic colour and brightness is important.
 
 The original appearance may be better understood as radiant or glistening rather than simply white.
 
-### 8.2 Redness as youthful vitality
+### Redness as youthful vitality
 
 Lorenzen draws on Hartley (2010, p. 110) concerning the uncertain identification of _pĕnînîm_, and on Brenner (1982, p. 79) concerning the association of redness with youthful good looks.
 
@@ -422,9 +403,7 @@ He also explores the association between bodily moisture, healthy bones and fert
 
 The transition is therefore not merely from colour to absence of colour. It involves a loss of lustre, moisture and bodily vitality.
 
-### 8.3 Sapphire and lapis lazuli
-
-Lamentations 4:7 also compares the appearance of the Nazirites with sapphire.
+### Sapphire and lapis lazuli
 
 Although the Hebrew term סַפִּיר (_sappîr_) is traditionally translated sapphire, the ancient stone is more likely to have been lapis lazuli in many biblical contexts.
 
@@ -432,43 +411,31 @@ Lapis lazuli has a deep blue appearance, often with golden pyrite inclusions and
 
 Lorenzen discusses the significance of this material and its possible associations with royal and divine imagery.
 
-The precise interpretation of the Hebrew expression describing the body or hair remains disputed.
+The precise interpretation of the Hebrew expression describing the body or hair remains disputed. I'm still hoping to push veins.
 
 ### 8.4 The transition in verses 7–8
 
 The earlier appearance is characterised by:
 
-- Snow-like brightness.
-    
-- Milk-like whiteness and lustre.
-    
-- Redness and healthy complexion.
-    
-- Precious-material imagery.
-    
-- Sapphire or lapis lazuli associations.
-    
+- Snow-like brightness.    
+- Milk-like whiteness and lustre.    
+- Redness and healthy complexion.    
+- Precious-material imagery.    
+- Sapphire or lapis lazuli associations.    
 
 The subsequent appearance is characterised by:
 
-- Darkness.
-    
-- Shrivelling.
-    
-- Dryness.
-    
-- Emaciation.
-    
-- Loss of the former visual splendour.
-    
+- Darkness.    
+- Shrivelling.    
+- Dryness.    
+- Emaciation.    
+- Loss of the former visual splendour.    
 
 This is a particularly valuable example of a transition from positive chromatic and luminous imagery towards an involuntary achromatic state.
 
 It may be useful for the wider thesis because it demonstrates that whiteness and colourlessness do not necessarily carry positive meanings independently of context. The loss of colour can signify suffering and the destruction of health.
 
----
-
-## 9. Comparative Jewish evidence: 1 Enoch 106
+## Comparative Jewish evidence: 1 Enoch 106
 
 The birth of Noah in 1 Enoch 106 provides a particularly important comparative example.
 
@@ -486,20 +453,14 @@ This is particularly relevant to the possibility that ancient descriptions of hu
 
 However, the evidence must be kept distinct:
 
-- The surviving Greek wording uses _pyrrhos_ and _rhodon_.
-    
-- The surviving Aramaic evidence is incomplete and should be examined independently.
-    
-- The Greek text cannot be used as direct proof of the meaning of Hebrew אָדֹם.
-    
-- The comparison nevertheless demonstrates that white/red combinations could describe extraordinary human appearance in ancient Jewish literary traditions.
-    
+- The surviving Greek wording uses _pyrrhos_ and _rhodon_.    
+- The surviving Aramaic evidence is incomplete and should be examined independently.    
+- The Greek text cannot be used as direct proof of the meaning of Hebrew אָדֹם.    
+- The comparison nevertheless demonstrates that white/red combinations could describe extraordinary human appearance in ancient Jewish literary traditions.    
 
 See [[1 Enoch 106 - Noah's birth]] and Kelley Coblentz Bautch, "Peter and the Patriarch: A Confluence of Traditions?", pp. 24–26.
 
----
-
-## 10. Implications for English transmission
+## Implications for English transmission
 
 The significance of the Hebrew white/red and white/ruddy combinations extends beyond establishing the possible shade of an individual colour term.
 
@@ -509,29 +470,21 @@ The English historical survey should investigate what happens to this relationsh
 
 Potential English expressions include:
 
-- White and red.
-    
-- White and ruddy.
-    
-- Fair and rosy.
-    
-- Pale and ruddy.
-    
-- Snow and rose.
-    
-- Rosy cheeks and pale complexion.
-    
+- White and red.    
+- White and ruddy.    
+- Fair and rosy.    
+- Pale and ruddy.    
+- Snow and rose.    
+- Rosy cheeks and pale complexion.    
 - Bright or luminous skin combined with redness.
     
-
 The research must distinguish three possible processes:
 
 1. **Inherited symbolism:** English writers preserve imagery transmitted through Jewish and Christian scripture, translation and commentary.
     
 2. **Transformation:** The original colour relationship survives but changes in vocabulary, intensity or symbolic meaning.
     
-3. **Independent development:** English literary culture develops its own associations around pale skin, rosy cheeks, white hair and extraordinary appearance.
-    
+3. **Independent development:** English literary culture develops its own associations around pale skin, rosy cheeks, white hair and extraordinary appearance.    
 
 Descriptions of pale complexions accompanied by rosy or red cheeks are particularly interesting as possible continuities.
 
@@ -539,9 +492,7 @@ Such continuities must be established through dated textual evidence rather than
 
 The distinction between inherited Jewish symbolism and independently developed English conventions must remain explicit.
 
----
-
-## 11. Evidence and inference kept distinct
+## Evidence and inference kept distinct
 
 The following distinctions should govern all subsequent interpretation.
 
@@ -560,24 +511,15 @@ The following distinctions should govern all subsequent interpretation.
 
 ### Not established
 
-- The exact modern colour equivalent of _ʾādōm_ in any individual passage.
-    
-- That the Hebrew word itself means modern English pink.
-    
-- That _pĕnînîm_ definitively means coral.
-    
-- That the redness necessarily indicates blushing or pink cheeks.
-    
-- That Song 5:10 and Lamentations 4:7 describe precisely the same complexion.
-    
-- That all instances of _ʾadmōnî_ signify beauty, virility or fertility in the same way.
-    
+- The exact modern colour equivalent of _ʾādōm_ in any individual passage.    
+- That the Hebrew word itself means modern English pink.    
+- That _pĕnînîm_ definitively means coral.    
+- That the redness necessarily indicates blushing or pink cheeks.    
+- That Song 5:10 and Lamentations 4:7 describe precisely the same complexion.    
+- That all instances of _ʾadmōnî_ signify beauty, virility or fertility in the same way.    
 - That the ancient Jewish examples share one fixed symbolic system.
     
-
----
-
-## 12. Methodological principles
+## Methodological principles
 
 1. Begin with the referent and the phrase in context, not the root's etymology alone.
     
@@ -601,10 +543,7 @@ The following distinctions should govern all subsequent interpretation.
     
 11. Record competing scholarly interpretations rather than resolving them prematurely.
     
-
----
-
-## 13. Outstanding research questions
+## To Do: Outstanding research questions
 
 ### Lexical and philological
 
@@ -621,41 +560,26 @@ The following distinctions should govern all subsequent interpretation.
 
 ### Material culture
 
-- What shades of red, pink and orange were associated with ancient carnelian?
-    
-- What did coral, pearls and rubies signify in the ancient Near East?
-    
-- Did red gemstones carry associations with blood, fertility, protection or vitality?
-    
-- How were red animal coats and cooked foods classified visually?
-    
+- What shades of red, pink and orange were associated with ancient carnelian?    
+- What did coral, pearls and rubies signify in the ancient Near East?    
+- Did red gemstones carry associations with blood, fertility, protection or vitality?    
+- How were red animal coats and cooked foods classified visually?    
 
 ### Symbolism
 
-- Does the combination of brightness and redness describe an idealised complexion?
-    
-- Is the redness associated with health, beauty, virility or fertility?
-    
-- How should Noegel's interpretation be reconciled with Brenner's?
-    
-- Does the loss of chromaticity in Lamentations signify the loss of physical vitality as well as beauty?
-    
+- Does the combination of brightness and redness describe an idealised complexion?    
+- Is the redness associated with health, beauty, virility or fertility?    
+- How should Noegel's interpretation be reconciled with Brenner's?    
+- Does the loss of chromaticity in Lamentations signify the loss of physical vitality as well as beauty?    
 
 ### Transmission and reception
 
-- How do the Septuagint and Vulgate translate the relevant Hebrew terms?
-    
-- Does the Greek translation preserve the distinction between luminosity and redness?
-    
-- What happens to the white/ruddy relationship in Old English biblical translation and commentary?
-    
-- Does the English tradition preserve the relationship through rosy cheeks, pale skin or other descriptions?
-    
+- How do the Septuagint and Vulgate translate the relevant Hebrew terms?    
+- Does the Greek translation preserve the distinction between luminosity and redness?    
+- What happens to the white/ruddy relationship in Old English biblical translation and commentary?    
+- Does the English tradition preserve the relationship through rosy cheeks, pale skin or other descriptions?    
 - Which associations are inherited, transformed or independently developed?
     
-
----
-
 ## Bibliography
 
 ### Principal scholarship

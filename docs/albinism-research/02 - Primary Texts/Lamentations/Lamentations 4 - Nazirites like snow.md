@@ -17,7 +17,41 @@ related_notes:
   - "[[אדם - red and ruddy]]"
   - "[[גזרה - form, division, veins]]"
 ---
-# Lamentations 4:7 — Hebrew text and word-by-word analysis
+# Lamentations 4:7
+
+## Overview
+
+```mermaid
+gantt
+    title Lamentations 4:7 — Composition and Transmission
+    dateFormat YYYY
+    axisFormat %Y
+
+    section Literary composition
+    Composition (586–500 BCE) :crit, 0414, 0500
+    Final literary form (500–400 BCE) :0500, 0600
+
+    section Hebrew manuscript witnesses
+    5QLama (30 BCE–68 CE) :active, 0970, 1068
+    Masoretic tradition (500–1000 CE) :1500, 2000
+    Aleppo Codex (c. 930 CE) :1930, 1940
+    Leningrad Codex (1008 CE) :2008, 2009
+```
+
+**Textual witnesses versus interpretative witnesses**
+
+| Evidence           | What it establishes                                      |
+| ------------------ | -------------------------------------------------------- |
+| 5Q6                | Ancient physical Hebrew witness, with significant damage |
+| Old Greek          | Early translation and interpretation                     |
+| Peshitta           | Syriac transmission                                      |
+| Vulgate            | Latin transmission                                       |
+| Masoretic codices  | Medieval Hebrew textual tradition                        |
+| Gildas             | Early medieval Latin reception                           |
+| Rashi              | Medieval Jewish interpretation                           |
+| Braunius / Blayney | Early modern interpretation of sapphire and veins        |
+|                    |                                                          |
+## Hebrew text and word-by-word analysis
 
 ## Textual basis: oldest surviving witness at this verse
 
@@ -102,7 +136,7 @@ A longstanding interpretive proposal reads the last colon as a description of bl
 
 The veins reading is associated with **Johann Braunius** (*De Vestitu Sacerdotum Hebraeorum*, 1680) and was made explicit in **Benjamin Blayney’s** translation and note (1784): “their veining was the sapphires.” **Adam Clarke** later explained the sequence as milk-white skin, ruddy flesh, and sapphire-coloured veins in a fine complexion. This interpretation is not Rashi’s: Rashi takes the phrase as their forms being like sapphire.
 
-### Foo
+### Chromophobia
 
 Søren Lorenzen (2024), _Precarious Hues: On Chromophobia, Chromophilia, and Transitions between Chromatic and Achromatic Colours in the Hebrew Bible_ discusses the sequence in Lamentations 4:7–8, drawing on Brenner and Hartley. It makes three observations particularly relevant to us:
 

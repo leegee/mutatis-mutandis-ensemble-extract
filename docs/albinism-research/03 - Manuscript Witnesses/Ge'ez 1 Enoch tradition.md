@@ -7,7 +7,6 @@ tags:
 related_notes:
   - "[[1 Enoch 106 - Noah's birth]]"
 ---
-
 # Geʿez 1 Enoch tradition
 
 **Language:** Geʿez (Classical Ethiopic)
