@@ -3,7 +3,7 @@ from pathlib import Path
 
 from mutatis_mutandis.lib.cannonical_rules import CanonicalRule, CanonicalRules
 
-CORPUS_MIN_YEAR = 0
+CORPUS_MIN_YEAR = -800
 CORPUS_MAX_YEAR = 2026
 FILTER_DOCUMENT_SIZE = False
 MIN_TOKENS_IN_DOC = 200
