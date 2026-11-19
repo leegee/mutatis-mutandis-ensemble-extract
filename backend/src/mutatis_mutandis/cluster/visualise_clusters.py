@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-45_visualise_clusters.py - interactive dark UMAP plot of a clustering run.
+visualise_clusters.py - interactive dark UMAP plot of a clustering run.
 
 Reads the .npz written by 41_cluster_targets.py and passage text/metadata from
 Postgres. Writes a self-contained HTML plot (Plotly JS is embedded) that fills
@@ -350,10 +350,20 @@ COPY_JS = r"""
   if (!gd) { return; }
   var RUN = __RUN__, DOCS = __DOCS__;
   var $ = function (id) { return document.getElementById(id); };
+
   var btnHover = $('copy-hover'), btnVisible = $('copy-visible'), btnOpt = $('opt-btn');
   var panel = $('opt-panel'), optMd = $('opt-md'), optCsv = $('opt-csv');
   var optLimit = $('opt-limit'), optClick = $('opt-click'), toast = $('toast');
-  if (!btnHover || !btnVisible || !btnOpt || !panel || !toast) { return; }
+  if (!btnHover || !btnVisible || !btnOpt || !panel) { return; }
+
+  // Ensure a toast exists even if the HTML order changes again
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'toast';
+    toast.setAttribute('role', 'status');
+    toast.setAttribute('aria-live', 'polite');
+    document.body.appendChild(toast);
+  }
 
   var OPT_KEY = 'cluster-copy-options';             // shared by all runs
   var COLS = ['occurrence_id', 'cluster', 'category', 'year', 'author', 'title', 'corpus',
@@ -801,10 +811,11 @@ def build_page(fig, run_id: str, n_points: int, n_clusters: int,
         f'  <span class="stat">{n_points:,} points · {n_clusters:,} clusters</span>'
         f'{year_controls}\n  <span class="stat" id="shown-count"></span>'
         f"{copy_controls}{term_controls}\n</div>\n"
+        # Toast moved here (before plotwrap / the script that needs it)
+        '<div id="toast" role="status" aria-live="polite"></div>\n'
         f'<div id="plotwrap">{fragment}</div>\n'
-        '<div id="toast" role="status" aria-live="polite"></div>\n</body>\n</html>\n'
+        '</body>\n</html>\n'
     )
-
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
