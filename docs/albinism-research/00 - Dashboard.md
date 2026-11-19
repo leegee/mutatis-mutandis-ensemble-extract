@@ -107,6 +107,10 @@ The relationship between this transformation, the changing cultural authority of
 - [[Additional corpora to consider - through 1650]]
 - [[Templates - Index]]
 
+## To Do
+
+Romans on piercing blue eyes https://www.youtube.com/shorts/HTlTWHl0PU4
+
 ## Live note index
 
 The table below updates from note properties. Use the view selector in the Base to switch between all notes, passages, witnesses, questions, interpretations, and chronologies. Add or update a note's `type` property to have it appear in the matching view.

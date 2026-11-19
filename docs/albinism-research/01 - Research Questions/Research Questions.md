@@ -13,7 +13,7 @@ tags:
 
 - **Jewish colour language:** What do the original Hebrew terms and constructions communicate about whiteness, redness and ruddy complexion? Can _ʾādōm_ in particular describe a pinkish or rosy appearance?
     
-- **Transmission into English:** What is preserved, altered or lost when these descriptions pass through Greek, Latin and English translation and reception?
+- **Transmission into English:** What is preserved, altered or lost when these descriptions pass through **Greek, Latin and English** translation and reception?
   
 * Does the English literary tradition preserve the ancient white/ruddy relationship through alternative expressions, particularly the association of pale skin with rosy or red cheeks, even when the original biblical vocabulary is no longer recognisable?
     
@@ -22,6 +22,9 @@ tags:
 - **Independent English symbolism:** Which associations are inherited from Jewish and Christian traditions, and which develop within English literary culture?
     
 - **Historical transformation:** When do sacred, positive or exceptional associations become supplemented or displaced by medical, pathological and pejorative interpretations?
+
+- **Jewish symbolism in eyes**: eyes of flame/fire/sun - does that depict colour or a gaze? If the latter is it comparable to the Latin?
+  
 ## Initial biblical and para-biblical questions
 
 1. What exactly is described in Daniel 7:9: garment, head-hair, or both?

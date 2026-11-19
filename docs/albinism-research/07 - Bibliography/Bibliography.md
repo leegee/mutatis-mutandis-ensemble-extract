@@ -6,7 +6,7 @@ tags:
 
 # Bibliography
 
-This is an intentionally incomplete bibliography register. Add full publication details only after checking the item itself.
+Zotero has the full bibliography.
 
 ## Primary editions and manuscript catalogues
 
@@ -35,4 +35,15 @@ This is an intentionally incomplete bibliography register. Add full publication 
 |---|---|---|
 | Kotzé, Gideon R. *The Qumran Manuscripts of Lamentations: A Text-Critical Study*. Studia Semitica Neerlandica 61. Leiden: Brill, 2013. | Qumran Lamentations manuscripts; detailed analysis of 4:7 | Check the 2013 edition pagination against the 2011 dissertation |
 
-| [[Salters - Lamentations ICC]] | Philological commentary on Lam 4:7-8, including adamu and etsem | 2010; pp. 301-303 in consulted edition |
+ [[Salters - Lamentations ICC]] - Philological commentary on Lam 4:7-8, including adamu and etsem | 2010; pp. 301-303 in consulted edition 
+
+
+# Find TEI
+
+1. **Luke 2:9** — the angel appears and the glory of the Lord shines around the shepherds.
+    
+2. **Matthew 28:2–3** — the angel's appearance is like lightning and his clothing white as snow.
+    
+3. **Acts 12:7** — an angel appears and light shines in the prison.
+    
+4. **2 Thessalonians 2:8** — the brightness/manifestation of Christ's coming, a related but distinct tradition.
