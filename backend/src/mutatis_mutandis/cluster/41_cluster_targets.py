@@ -373,7 +373,11 @@ def write_results(conn, run_id, params, metrics, meta, E2, labels, probs, summar
         cur.execute(
             "INSERT INTO target_projection_run (run_id, params, metrics) "
             "VALUES (%s, %s::jsonb, %s::jsonb)",
-            (run_id, json.dumps(params), json.dumps(metrics)),
+            (
+                run_id,
+                json.dumps(params, default=str),
+                json.dumps(metrics, default=str),
+            ),
         )
 
         insert_batches(

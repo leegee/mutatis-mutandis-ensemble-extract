@@ -211,7 +211,7 @@ def print_exemplars(
     size, stats, nearest, rand = row[0], _json(row[1]), _json(row[2]), _json(row[3])
     ids = (rand if sample else nearest)[:n]
 
-    logger.info(f"\n{'=' * 78}")
+    logger.info(f"\n\n--\n")
     logger.info(
         f"Cluster {cluster}: {size} occurrences, "
         f"{stats['year_min']}-{stats['year_max']} (median {stats['year_median']:.0f}), "
@@ -254,14 +254,11 @@ def print_exemplars(
 def main() -> None:
     p = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     p.add_argument("--run-id", default=None, help="default: the most recent run")
-    p.add_argument("--cluster", type=int, action="append", default=[],
-                   help="cluster id to print exemplars for (repeatable; -1 = noise)")
-    p.add_argument("--top", type=int, default=0,
-                   help="print exemplars for the N largest clusters")
+    p.add_argument("--cluster", type=int, action="append", default=[], help="cluster id to print exemplars for (repeatable; -1 = noise)")
+    p.add_argument("--top", type=int, default=0, help="print exemplars for the N largest clusters")
     p.add_argument("--n", type=int, default=8, help="exemplars per cluster")
     p.add_argument("--words", type=int, default=15, help="words of context each side")
-    p.add_argument("--sample", action="store_true",
-                   help="random members instead of nearest the centre")
+    p.add_argument("--sample", action="store_true", help="random members instead of nearest the centre")
     p.add_argument("--table", type=int, default=30, help="clusters in the overview table")
     args = p.parse_args()
 

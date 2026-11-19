@@ -244,18 +244,12 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
 
     parser.add_argument("--run-id", help="Run to inspect; defaults to latest")
-    parser.add_argument("--top", type=int, default=12,
-                        help="Number of largest clusters to inspect (default: 12)")
-    parser.add_argument("--all-clusters", action="store_true",
-                        help="Inspect every non-noise cluster")
-    parser.add_argument("--n", type=int, default=6,
-                        help="Exemplars per cluster per view (default: 6)")
-    parser.add_argument("--words", type=int, default=25,
-                        help="Context words either side of hit (default: 25)")
-    parser.add_argument("--table", type=int, default=50,
-                        help="Number of clusters in overview table")
-    parser.add_argument("--output", type=Path, default=None,
-                        help="Output Markdown file")
+    parser.add_argument("--top", type=int, default=12, help="Number of largest clusters to inspect (default: 12)")
+    parser.add_argument("--all-clusters", action="store_true", help="Inspect every non-noise cluster")
+    parser.add_argument("--n", type=int, default=6, help="Exemplars per cluster per view (default: 6)")
+    parser.add_argument("--words", type=int, default=25, help="Context words either side of hit (default: 25)")
+    parser.add_argument("--table", type=int, default=50, help="Number of clusters in overview table")
+    parser.add_argument("--output", type=Path, default=None, help="Output Markdown file")
 
     args = parser.parse_args()
 
