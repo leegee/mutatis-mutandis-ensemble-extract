@@ -1,6 +1,6 @@
 import { createMemo, For, Show } from "solid-js";
 import { narrowYears, resetYears } from "../actions.js";
-import { DEFAULT_END_YEAR, DEFAULT_START_YEAR } from "../config.js";
+import { DEFAULT_END_YEAR, DEFAULT_START_YEAR } from "../config";
 import { computeBins } from "../helpers.js";
 import { pane } from "../store.js";
 

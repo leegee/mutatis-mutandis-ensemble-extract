@@ -1,50 +1,55 @@
 import { createSignal, Show } from "solid-js";
 import type { CopyControls } from "./useCopy";
 
+import "./CopyBar.css";
+
 export function CopyBar(props: { copy: CopyControls }) {
 	const c = props.copy;
 	const [open, setOpen] = createSignal(false);
 
 	return (
-		<div class="ml-auto flex items-center gap-2">
+		<div class="copy-bar">
 			<button
 				type="button"
-				class="rounded border border-[#3a4150] bg-[#252a34] px-2.5 py-1 hover:bg-[#2f3542]"
+				class="copy-button"
 				title="Copy the point you last hovered (with the mouse over a point, press C)"
 				onClick={() => c.copyHovered()}
+				title="Copy hovered point"
 			>
-				Copy hovered point
+				Copy
 			</button>
 			<button
 				type="button"
-				class="rounded border border-[#3a4150] bg-[#252a34] px-2.5 py-1 hover:bg-[#2f3542]"
+				class="copy-button"
 				title="Copy every point currently shown (year range, terms and legend apply)"
 				onClick={() => c.copyVisible()}
+				title="Copy all visible points"
 			>
-				Copy visible points
+				Copy All
 			</button>
 
-			<div class="relative">
+			<div class="copy-menu">
 				<button
 					type="button"
-					class="rounded border border-[#3a4150] bg-[#252a34] px-2.5 py-1 hover:bg-[#2f3542]"
+					class="copy-button"
 					aria-expanded={open()}
 					onClick={(e) => {
 						e.stopPropagation();
 						setOpen((v) => !v);
 					}}
+					title="Copy optinos"
 				>
-					⚙ Options
+					⚙
 				</button>
 
 				<Show when={open()}>
 					<div
-						class="absolute right-0 top-9 z-30 flex w-72 flex-col gap-2 rounded-lg border border-[#3a4150] bg-[#1d212b] p-3 shadow-xl"
+						class="copy-options"
 						onClick={(e) => e.stopPropagation()}
 					>
-						<div class="font-semibold text-[#cfd5e1]">Copy format</div>
-						<div class="flex gap-4">
-							<label class="flex items-center gap-1.5">
+						<div class="copy-options-title">Copy format</div>
+						<div class="copy-format-options">
+							<label class="copy-label">
 								<input
 									type="radio"
 									name="fmt"
@@ -55,7 +60,7 @@ export function CopyBar(props: { copy: CopyControls }) {
 								/>
 								Markdown
 							</label>
-							<label class="flex items-center gap-1.5">
+							<label class="copy-label">
 								<input
 									type="radio"
 									name="fmt"
@@ -66,29 +71,29 @@ export function CopyBar(props: { copy: CopyControls }) {
 							</label>
 						</div>
 
-						<label class="flex items-center justify-between gap-2">
+						<label class="copy-label copy-limit-label">
 							Max points per copy
 							<input
 								type="number"
 								min={0}
 								step={1000}
 								value={c.opts().limit}
-								class="w-24 rounded border border-[#3a4150] bg-[#252a34] px-1.5 py-0.5"
+								class="copy-number"
 								onChange={(e) => {
 									const v = parseInt(e.currentTarget.value, 10);
 									c.setOpts((o) => ({
 										...o,
-										limit: isNaN(v) || v < 0 ? o.limit : v,
+										limit: Number.isNaN(v) || v < 0 ? o.limit : v,
 									}));
 								}}
 							/>
 						</label>
-						<small class="text-[#9aa3b2] leading-snug">
+						<small class="copy-help copy-help-snug">
 							0 means no limit. Very large copies can hang the browser. Points
 							are ordered by year, then cluster.
 						</small>
 
-						<label class="flex items-center gap-1.5">
+						<label class="copy-label">
 							<input
 								type="checkbox"
 								checked={c.opts().onClick}
@@ -98,7 +103,7 @@ export function CopyBar(props: { copy: CopyControls }) {
 							/>
 							Copy a point when I click it
 						</label>
-						<small class="text-[#9aa3b2]">
+						<small class="copy-help">
 							Shortcut: hover a point and press C.
 						</small>
 					</div>
@@ -108,10 +113,7 @@ export function CopyBar(props: { copy: CopyControls }) {
 			{/* toast */}
 			<Show when={c.toast()}>
 				{(t) => (
-					<div
-						class={`fixed bottom-7 left-1/2 z-50 -translate-x-1/2 rounded-md border px-3.5 py-2 text-sm transition-opacity
-              ${t().bad ? "border-[#b4545e] text-[#ffb4ba]" : "border-[#4a5568]"} bg-[#2b3140]`}
-					>
+					<div class={`copy-toast ${t().bad ? "copy-toast-error" : ""}`}>
 						{t().msg}
 					</div>
 				)}

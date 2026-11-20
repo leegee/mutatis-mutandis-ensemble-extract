@@ -1,4 +1,4 @@
-import { CONFIG, DEFAULT_END_YEAR, DEFAULT_START_YEAR } from "./config.js";
+import { CONFIG, DEFAULT_END_YEAR, DEFAULT_START_YEAR } from "./config";
 import {
 	CSV_COLS,
 	csvCell,

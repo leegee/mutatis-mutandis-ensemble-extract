@@ -20,7 +20,7 @@
  * in localStorage only.
  */
 
-import { DEFAULT_END_YEAR, DEFAULT_START_YEAR } from "./config.js";
+import { DEFAULT_END_YEAR, DEFAULT_START_YEAR } from "./config";
 import { hrefFor, navigate, ROUTES, route } from "./router.js";
 import { pane, store, update } from "./store.js";
 import { setTextStore, textStore } from "./textStore.js";

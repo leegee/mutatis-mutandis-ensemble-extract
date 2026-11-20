@@ -1,7 +1,7 @@
 import { createEffect, Match, onMount, Switch, untrack } from "solid-js";
 
 import { checkApiHealth, fetchApiDictionaries, runSearch } from "../actions.js";
-import { CONFIG } from "../config.js";
+import { CONFIG } from "../config";
 import { match, ROUTES, route } from "../router.js";
 import { store } from "../store.js";
 import { runTextSearch } from "../textActions.js";

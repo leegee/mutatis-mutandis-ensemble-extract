@@ -1,7 +1,7 @@
 import { Show } from "solid-js";
 
 import { addPane } from "../actions.js";
-import { CONFIG } from "../config.js";
+import { CONFIG } from "../config";
 import { store } from "../store.js";
 import { navigateMode } from "../urlState.js";
 

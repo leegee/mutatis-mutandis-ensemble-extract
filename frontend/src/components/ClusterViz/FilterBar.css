@@ -1,0 +1,127 @@
+/* Layout */
+
+.filter-row {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.filter-controls {
+	display: flex;
+	flex: 1;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 10pt;
+}
+
+.filter-terms {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.375rem;
+}
+
+.filter-label {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.filter-compact {
+	gap: 0.25rem;
+}
+
+/* Text */
+
+.filter-count {
+	font-size: 10pt;
+	color: #9aa3b2;
+}
+
+.filter-muted {
+	color: #9aa3b2;
+}
+
+/* Inputs */
+
+.filter-range {
+	width: 10rem;
+	accent-color: #7aa2ff;
+}
+
+.filter-number {
+	width: 4rem;
+	border: 1px solid #3a4150;
+	border-radius: 0.25rem;
+	background: #252a34;
+	padding: 0.125rem 0.375rem;
+}
+
+.filter-search {
+	width: 18rem;
+	border: 1px solid #3a4150;
+	border-radius: 0.25rem;
+	background: #252a34;
+	padding: 0.25rem 0.5rem;
+}
+
+.filter-select {
+	border: 1px solid #3a4150;
+	border-radius: 0.25rem;
+	background: #252a34;
+	padding: 0.125rem 0.375rem;
+}
+
+/* Buttons */
+
+.filter-button {
+	border: 1px solid #3a4150;
+	border-radius: 0.25rem;
+	background: #252a34;
+	padding: 0.25rem 0.5rem;
+	cursor: pointer;
+}
+
+.filter-button:hover {
+	background: #2f3542;
+}
+
+.filter-button-small {
+	padding: 0.125rem 0.5rem;
+}
+
+/* Term removal */
+
+.filter-remove {
+	border-radius: 9999px;
+	padding: 0 0.25rem;
+	cursor: pointer;
+}
+
+.filter-remove:hover {
+	background: #3a4150;
+}
+
+/* Term pills from previous step */
+
+.term {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+	border: 1px solid #4a5568;
+	border-radius: 9999px;
+	padding: 0.125rem 0.625rem;
+	font-size: 0.875rem;
+	line-height: 1.25rem;
+	cursor: pointer;
+}
+
+.term-negative {
+	border-color: #b4545e;
+	color: #ffb4ba;
+}
+
+.term-off {
+	opacity: 0.4;
+	text-decoration: line-through;
+}

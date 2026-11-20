@@ -1,4 +1,4 @@
-import { CONFIG } from "./config.js";
+import { CONFIG } from "./config";
 import { CSV_COLS, csvCell, formatDetail, toInt } from "./helpers.js";
 import { hrefFor, navigate, ROUTES } from "./router.js";
 import { persistTextForm, setTextStore, textStore } from "./textStore.js";

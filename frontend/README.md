@@ -16,7 +16,7 @@ Hash-based, no external router dependency:
 | anything else   | Not found            |
 
 - `js/router.js` exports `route()` (reactive `{ path, params }`), `navigate(to)`, `match(pattern)`, and `ROUTES`.
-- Browser query string (`?api=…&panes=…`) stays independent of the hash and is still read by `config.js`.
+- Browser query string (`?api=…&panes=…`) stays independent of the hash and is still read by `config`.
 - To add a route later: register it in `ROUTES`, add a view component, and branch in `App.js` (or introduce a small `<Routes>` helper).
 
 Examples:

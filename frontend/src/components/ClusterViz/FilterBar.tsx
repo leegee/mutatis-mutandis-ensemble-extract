@@ -1,6 +1,8 @@
 import { For, Show } from "solid-js";
 import type { ClusterFilters } from "./useClusterFilters";
 
+import "./FilterBar.css";
+
 export function FilterBar(props: {
 	filters: ClusterFilters;
 	yearBounds: [number, number] | null;
@@ -19,8 +21,8 @@ export function FilterBar(props: {
 	return (
 		<>
 			<Show when={props.yearBounds}>
-				<div class="flex items-center gap-2">
-					<label class="flex items-center gap-2">
+				<div class="filter-row">
+					<label class="filter-label">
 						From
 						<input
 							type="range"
@@ -28,7 +30,7 @@ export function FilterBar(props: {
 							max={f.yearBounds[1]}
 							value={f.yearLo()}
 							onInput={(e) => f.setYears(+e.currentTarget.value, f.yearHi())}
-							class="w-40 accent-[#7aa2ff]"
+							class="filter-range"
 						/>
 						<input
 							type="number"
@@ -36,10 +38,10 @@ export function FilterBar(props: {
 							max={f.yearBounds[1]}
 							value={f.yearLo()}
 							onChange={(e) => f.setYears(+e.currentTarget.value, f.yearHi())}
-							class="w-16 rounded border border-[#3a4150] bg-[#252a34] px-1.5 py-0.5"
+							class="filter-number"
 						/>
 					</label>
-					<label class="flex items-center gap-2">
+					<label class="filter-label">
 						To
 						<input
 							type="range"
@@ -47,7 +49,7 @@ export function FilterBar(props: {
 							max={f.yearBounds[1]}
 							value={f.yearHi()}
 							onInput={(e) => f.setYears(f.yearLo(), +e.currentTarget.value)}
-							class="w-40 accent-[#7aa2ff]"
+							class="filter-range"
 						/>
 						<input
 							type="number"
@@ -55,12 +57,12 @@ export function FilterBar(props: {
 							max={f.yearBounds[1]}
 							value={f.yearHi()}
 							onChange={(e) => f.setYears(f.yearLo(), +e.currentTarget.value)}
-							class="w-16 rounded border border-[#3a4150] bg-[#252a34] px-1.5 py-0.5"
+							class="filter-number"
 						/>
 					</label>
 					<button
 						type="button"
-						class="rounded border border-[#3a4150] bg-[#252a34] px-2 py-0.5 hover:bg-[#2f3542]"
+						class="filter-button filter-button-small"
 						onClick={() => f.setYears(f.yearBounds[0], f.yearBounds[1])}
 					>
 						Reset
@@ -68,17 +70,17 @@ export function FilterBar(props: {
 				</div>
 			</Show>
 
-			<span class="text-[#9aa3b2]">
+			<span class="filter-count">
 				{f.shownCount().toLocaleString()} of {f.totalCount.toLocaleString()}{" "}
 				points shown
 			</span>
 
-			<div class="flex flex-1 flex-wrap items-center gap-2">
+			<div class="filter-controls">
 				<input
 					ref={inputEl}
 					type="text"
 					placeholder="add term, press Enter  (comma = several, leading - = exclude)"
-					class="w-72 rounded border border-[#3a4150] bg-[#252a34] px-2 py-1"
+					class="filter-search"
 					onKeyDown={(e) => {
 						if (e.key === "Enter") {
 							e.preventDefault();
@@ -92,21 +94,15 @@ export function FilterBar(props: {
 						}
 					}}
 				/>
-				<button
-					type="button"
-					class="rounded border border-[#3a4150] bg-[#252a34] px-2 py-1 hover:bg-[#2f3542]"
-					onClick={submit}
-				>
+				<button type="button" class="filter-button" onClick={submit}>
 					Add
 				</button>
 
-				<div class="flex flex-wrap gap-1.5">
+				<div class="filter-terms">
 					<For each={f.terms()}>
 						{(t, idx) => (
 							<span
-								class={`inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-sm
-                  ${t.neg ? "border-[#b4545e] text-[#ffb4ba]" : "border-[#4a5568]"}
-                  ${t.on ? "" : "opacity-40 line-through"}`}
+								class={`term ${t.neg ? "term-negative" : ""} ${t.on ? "" : "term-off"}`}
 								title={`${t.neg ? "Excluding" : "Including"} · click to ${t.on ? "switch off" : "switch on"}`}
 								onClick={() => f.toggleTerm(idx())}
 							>
@@ -114,12 +110,12 @@ export function FilterBar(props: {
 									{t.neg ? "−" : ""}
 									{t.text}
 								</span>
-								<small class="text-[#9aa3b2]">
+								<small class="filter-muted">
 									{(f.termCounts()[idx()] ?? 0).toLocaleString()}
 								</small>
 								<button
 									type="button"
-									class="rounded-full px-1 hover:bg-[#3a4150]"
+									class="filter-remove"
 									onClick={(e) => {
 										e.stopPropagation();
 										f.removeTerm(idx());
@@ -132,26 +128,26 @@ export function FilterBar(props: {
 					</For>
 				</div>
 
-				<label class="flex items-center gap-1">
+				<label class="filter-label filter-compact">
 					match
 					<select
 						value={f.mode()}
 						onChange={(e) => f.setMode(e.currentTarget.value as "any" | "all")}
-						class="rounded border border-[#3a4150] bg-[#252a34] px-1.5 py-0.5"
+						class="filter-select"
 					>
 						<option value="any">any</option>
 						<option value="all">all</option>
 					</select>
 				</label>
 
-				<label class="flex items-center gap-1">
+				<label class="filter-label filter-compact">
 					in
 					<select
 						value={f.scope()}
 						onChange={(e) =>
 							f.setScope(e.currentTarget.value as "passage" | "hit" | "context")
 						}
-						class="rounded border border-[#3a4150] bg-[#252a34] px-1.5 py-0.5"
+						class="filter-select"
 					>
 						<option value="passage">passage</option>
 						<option value="hit">hit word</option>
@@ -159,7 +155,7 @@ export function FilterBar(props: {
 					</select>
 				</label>
 
-				<label class="flex items-center gap-1">
+				<label class="filter-label filter-compact">
 					<input
 						type="checkbox"
 						checked={f.whole()}
@@ -170,7 +166,7 @@ export function FilterBar(props: {
 
 				<button
 					type="button"
-					class="rounded border border-[#3a4150] bg-[#252a34] px-2 py-0.5 hover:bg-[#2f3542]"
+					class="filter-button filter-button-small"
 					onClick={() => f.clearTerms()}
 				>
 					Clear terms

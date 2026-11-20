@@ -83,11 +83,11 @@ function toCSV(recs: ReturnType<typeof record>[]) {
 	for (const r of recs) {
 		lines.push(COLS.map((c) => csvCell((r as any)[c])).join(","));
 	}
-	return lines.join("\n") + "\n";
+	return `${lines.join("\n")}\n`;
 }
 
 function mdEsc(s: unknown) {
-	return String(s ?? "").replace(/([\\`*_\[\]<>])/g, "\\$1");
+	return String(s ?? "").replace(/([\\`*_[\]<>])/g, "\\$1");
 }
 
 function mdPassage(p: string) {
@@ -101,7 +101,7 @@ function mdEntry(r: ReturnType<typeof record>, n?: number) {
 		mdEsc(r.title);
 	const lines: string[] = [];
 	lines.push(
-		`### ${n ? n + ". " : ""}${who || "(untitled)"}${
+		`### ${n ? `${n}. ` : ""}${who || "(untitled)"}${
 			r.year !== "" && r.year != null ? ` (${r.year})` : ""
 		}`,
 	);
@@ -208,7 +208,7 @@ export function useCopy(data: ClusterVizPayload, filters: ClusterFilters) {
 		const t = traces[ti];
 		if (!t || i == null || i >= t.customdata.length) return false;
 		const r = record(t, i, data.docs);
-		const text = opts().format === "csv" ? toCSV([r]) : mdEntry(r) + "\n";
+		const text = opts().format === "csv" ? toCSV([r]) : `${mdEntry(r)}\n`;
 		finish(text, 1, 1, "1 point");
 		return true;
 	}

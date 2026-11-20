@@ -1,5 +1,5 @@
 import { createStore } from "solid-js/store";
-import { CONFIG, DEFAULT_END_YEAR, DEFAULT_START_YEAR } from "./config.js";
+import { CONFIG, DEFAULT_END_YEAR, DEFAULT_START_YEAR } from "./config";
 
 let paneSeq = 0;
 

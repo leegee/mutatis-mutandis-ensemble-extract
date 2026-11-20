@@ -1,6 +1,6 @@
 // components/ClusterViz/ClusterViz.tsx
 import { type Component, createResource, Show } from "solid-js";
-import { CONFIG } from "./../../config";
+import { CONFIG } from "../../config";
 import type { ClusterVizPayload } from "../../types/cluster-viz";
 import { CopyBar } from "./CopyBar";
 import { FilterBar } from "./FilterBar";
@@ -37,12 +37,12 @@ export const ClusterViz: Component<{ runId: string }> = (props) => {
 				</Show>
 			}
 		>
-			{(data) => <ClusterVizInner data={data()} />}
+			{(data) => <ClusterVizInner runId={props.runId} data={data()} />}
 		</Show>
 	);
 };
 
-function ClusterVizInner(props: { data: ClusterVizPayload }) {
+function ClusterVizInner(props: { runId: string; data: ClusterVizPayload }) {
 	const filters = useClusterFilters(props.data);
 	const copy = useCopy(props.data, filters);
 
@@ -51,13 +51,14 @@ function ClusterVizInner(props: { data: ClusterVizPayload }) {
 	return (
 		<div id="plotwrap">
 			<nav>
-				<span class="font-semibold">
-					Target occurrence clusters · {props.data.runId}
-				</span>
-				<span style="color:#9aa3b2">
-					{props.data.n_points.toLocaleString()} points ·{" "}
-					{props.data.n_clusters} clusters
-				</span>
+				<div style="font-size: 10pt">
+					<span title="Run ID"> {props.data.runId} </span>
+					{/* <span>
+						{props.data.n_points.toLocaleString()} points
+						{" "}&middot;{" "}
+						{props.data.n_clusters} clusters
+					</span> */}
+				</div>
 				<FilterBar filters={filters} yearBounds={props.data.yearBounds} />
 				<CopyBar copy={copy} />
 			</nav>

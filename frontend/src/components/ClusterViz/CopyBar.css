@@ -1,0 +1,103 @@
+/* Main layout */
+
+.copy-bar {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-left: auto;
+}
+
+/* Buttons */
+
+.copy-button {
+	border: 1px solid #3a4150;
+	border-radius: 0.25rem;
+	background: #252a34;
+	padding: 0.25rem 0.625rem;
+	cursor: pointer;
+}
+
+.copy-button:hover {
+	background: #2f3542;
+}
+
+/* Options dropdown */
+
+.copy-menu {
+	position: relative;
+}
+
+.copy-options {
+	position: absolute;
+	top: 2.25rem;
+	right: 0;
+	z-index: 30;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	width: 18rem;
+	border: 1px solid #3a4150;
+	border-radius: 0.5rem;
+	background: #1d212b;
+	padding: 0.75rem;
+	box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1),
+	            0 8px 10px -6px rgb(0 0 0 / 0.1);
+}
+
+.copy-options-title {
+	font-weight: 600;
+	color: #cfd5e1;
+}
+
+.copy-format-options {
+	display: flex;
+	gap: 1rem;
+}
+
+.copy-label {
+	display: flex;
+	align-items: center;
+	gap: 0.375rem;
+}
+
+.copy-limit-label {
+	justify-content: space-between;
+	gap: 0.5rem;
+}
+
+.copy-number {
+	width: 6rem;
+	border: 1px solid #3a4150;
+	border-radius: 0.25rem;
+	background: #252a34;
+	padding: 0.125rem 0.375rem;
+}
+
+.copy-help {
+	color: #9aa3b2;
+}
+
+.copy-help-snug {
+	line-height: 1.375;
+}
+
+/* Toast */
+
+.copy-toast {
+	position: fixed;
+	bottom: 1.75rem;
+	left: 50%;
+	z-index: 50;
+	transform: translateX(-50%);
+	border: 1px solid #4a5568;
+	border-radius: 0.375rem;
+	background: #2b3140;
+	padding: 0.5rem 0.875rem;
+	font-size: 0.875rem;
+	transition: opacity 150ms ease;
+}
+
+.copy-toast-error {
+	border-color: #b4545e;
+	color: #ffb4ba;
+}

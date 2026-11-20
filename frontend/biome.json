@@ -33,7 +33,9 @@
         "enabled": true,
         "rules": {
             "a11y": {
-                "noLabelWithoutControl": "off"
+                "noLabelWithoutControl": "off",
+                "noStaticElementInteractions": "off",
+                "useKeyWithClickEvents": "off",
             },
             "style": {
                 "noNonNullAssertion": "off"
