@@ -21,53 +21,55 @@ export function FilterBar(props: {
 	return (
 		<>
 			<Show when={props.yearBounds}>
-				<div class="filter-row">
-					<label class="filter-label">
-						From
-						<input
-							type="range"
-							min={f.yearBounds[0]}
-							max={f.yearBounds[1]}
-							value={f.yearLo()}
-							onInput={(e) => f.setYears(+e.currentTarget.value, f.yearHi())}
-							class="filter-range"
-						/>
-						<input
-							type="number"
-							min={f.yearBounds[0]}
-							max={f.yearBounds[1]}
-							value={f.yearLo()}
-							onChange={(e) => f.setYears(+e.currentTarget.value, f.yearHi())}
-							class="filter-number"
-						/>
-					</label>
-					<label class="filter-label">
-						To
-						<input
-							type="range"
-							min={f.yearBounds[0]}
-							max={f.yearBounds[1]}
-							value={f.yearHi()}
-							onInput={(e) => f.setYears(f.yearLo(), +e.currentTarget.value)}
-							class="filter-range"
-						/>
-						<input
-							type="number"
-							min={f.yearBounds[0]}
-							max={f.yearBounds[1]}
-							value={f.yearHi()}
-							onChange={(e) => f.setYears(f.yearLo(), +e.currentTarget.value)}
-							class="filter-number"
-						/>
-					</label>
-					<button
-						type="button"
-						class="filter-button filter-button-small"
-						onClick={() => f.setYears(f.yearBounds[0], f.yearBounds[1])}
-					>
-						Reset
-					</button>
-				</div>
+				{(bounds) => (
+					<div class="filter-row">
+						<label class="filter-label">
+							From
+							<input
+								type="range"
+								min={bounds()[0]}
+								max={bounds()[1]}
+								value={f.yearLo()}
+								onInput={(e) => f.setYears(+e.currentTarget.value, f.yearHi())}
+								class="filter-range"
+							/>
+							<input
+								type="number"
+								min={bounds()[0]}
+								max={bounds()[1]}
+								value={f.yearLo()}
+								onChange={(e) => f.setYears(+e.currentTarget.value, f.yearHi())}
+								class="filter-number"
+							/>
+						</label>
+						<label class="filter-label">
+							To
+							<input
+								type="range"
+								min={bounds()[0]}
+								max={bounds()[1]}
+								value={f.yearHi()}
+								onInput={(e) => f.setYears(f.yearLo(), +e.currentTarget.value)}
+								class="filter-range"
+							/>
+							<input
+								type="number"
+								min={bounds()[0]}
+								max={bounds()[1]}
+								value={f.yearHi()}
+								onChange={(e) => f.setYears(f.yearLo(), +e.currentTarget.value)}
+								class="filter-number"
+							/>
+						</label>
+						<button
+							type="button"
+							class="filter-button filter-button-small"
+							onClick={() => f.setYears(bounds()[0], bounds()[1])}
+						>
+							Reset
+						</button>
+					</div>
+				)}
 			</Show>
 
 			<span class="filter-count">
