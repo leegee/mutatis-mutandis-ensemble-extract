@@ -187,5 +187,5 @@ def get_visualization(
         "n_points": len(ids),
         "n_clusters": len(set(labels[labels >= 0].tolist())),
         "n_noise": int((labels == -1).sum()),
-        "year_bounds": year_bounds,
+        "yearBounds": year_bounds,
     }
