@@ -1,5 +1,14 @@
 {
     "$schema": "https://biomejs.dev/schemas/2.5.9/schema.json",
+    "javascript": {
+        "parser": {
+            "jsxEverywhere": false
+        },
+        "formatter": {
+            "quoteStyle": "double",
+            "indentStyle": "tab"
+        }
+    },
     "formatter": {
         "enabled": true,
         "lineWidth": 120
@@ -35,7 +44,7 @@
             "a11y": {
                 "noLabelWithoutControl": "off",
                 "noStaticElementInteractions": "off",
-                "useKeyWithClickEvents": "off",
+                "useKeyWithClickEvents": "off"
             },
             "style": {
                 "noNonNullAssertion": "off"
