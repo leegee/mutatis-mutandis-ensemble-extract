@@ -68,6 +68,7 @@ function ClusterVizInner(props: { runId: string; data: ClusterVizPayload }) {
 				filtered={filters.filteredTraces()}
 				onHover={copy.setHovered}
 				onClick={copy.handleClick}
+				onRightClick={copy.handleClick}
 			/>
 		</div>
 	);
