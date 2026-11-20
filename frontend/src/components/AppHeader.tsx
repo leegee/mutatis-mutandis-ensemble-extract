@@ -1,11 +1,14 @@
+import { useLocation, useNavigate } from "@solidjs/router";
 import { Show } from "solid-js";
-
-import { addPane } from "../actions.js";
-import { CONFIG } from "../config";
+import { addPane } from "../actions";
+import { CONFIG } from "../config.jsx";
 import { store } from "../store.js";
-import { navigateMode } from "../urlState.js";
+import { navigateMode } from "../urlState";
 
 export function AppHeader(props) {
+	const location = useLocation();
+	const navigate = useNavigate();
+
 	return (
 		<header class="top">
 			<h1>Passage Search</h1>
@@ -13,21 +16,21 @@ export function AppHeader(props) {
 				<button
 					type="button"
 					class={`btn small ${props.mode === "semantic" ? "on" : "ghost"}`}
-					onClick={() => navigateMode("semantic")}
+					onClick={() => navigateMode("semantic", location.pathname, navigate)}
 				>
 					Semantic
 				</button>
 				<button
 					type="button"
 					class={`btn small ${props.mode === "text" ? "on" : "ghost"}`}
-					onClick={() => navigateMode("text")}
+					onClick={() => navigateMode("text", location.pathname, navigate)}
 				>
 					Text
 				</button>
 				<button
 					type="button"
 					class={`btn small ${props.mode === "cluster" ? "on" : "ghost"}`}
-					onClick={() => navigateMode("cluster")}
+					onClick={() => navigateMode("cluster", location.pathname, navigate)}
 				>
 					Cluster
 				</button>

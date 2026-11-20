@@ -55,6 +55,6 @@ Download the four packages listed in the import map into `./vendor/` and change 
 ## Conventions
 
 - Components receive a pane `id` (string) and read the store; they never receive callbacks as props.
-- Actions live in `actions.js` and are imported where needed.
+- Actions live in `actions` and are imported where needed.
 - Cross-pane features (`overlaps`) are memos over `store.panes`.
 - Routing is hash-only so the app can be dropped behind any static file server without rewrite rules.

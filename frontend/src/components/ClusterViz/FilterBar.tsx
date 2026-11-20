@@ -103,7 +103,7 @@ export function FilterBar(props: {
 				<div class="filter-terms">
 					<For each={f.terms()}>
 						{(t, idx) => (
-							<button
+							<span
 								type="button"
 								class={`term ${t.neg ? "term-negative" : ""} ${t.on ? "" : "term-off"}`}
 								title={`${t.neg ? "Excluding" : "Including"} · click to ${t.on ? "switch off" : "switch on"}`}
@@ -126,7 +126,7 @@ export function FilterBar(props: {
 								>
 									×
 								</button>
-							</button>
+							</span>
 						)}
 					</For>
 				</div>

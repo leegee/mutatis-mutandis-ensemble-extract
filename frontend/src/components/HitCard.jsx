@@ -1,5 +1,5 @@
 import { Show } from "solid-js";
-import { findSimilar, toggleNegative } from "../actions.js";
+import { findSimilar, toggleNegative } from "../actions";
 import { scoreLabel, scoreTitle, shortId } from "../helpers.js";
 import { overlaps } from "../overlaps.js";
 import { pane } from "../store.js";

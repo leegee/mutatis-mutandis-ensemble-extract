@@ -9,8 +9,9 @@
 		"preview": "vite preview"
 	},
 	"dependencies": {
+		"@solidjs/router": "0.15.3",
 		"plotly.js-dist-min": "^4.3.0",
-		"solid-js": "^1.9.0"
+		"solid-js": "1.9.17"
 	},
 	"devDependencies": {
 		"vite": "^7.0.0",

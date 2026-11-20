@@ -1,4 +1,4 @@
-import { CONFIG, DEFAULT_END_YEAR, DEFAULT_START_YEAR } from "./config";
+import { CONFIG, DEFAULT_END_YEAR, DEFAULT_START_YEAR } from "./config.jsx";
 import {
 	CSV_COLS,
 	csvCell,
@@ -7,7 +7,6 @@ import {
 	toInt,
 	toNum,
 } from "./helpers.js";
-import { hrefFor, navigate, ROUTES } from "./router.js";
 import { newPane, pane, setStore, store, update } from "./store.js";
 import { download } from "./toast.js";
 import {
@@ -17,6 +16,12 @@ import {
 } from "./urlState.js";
 
 const inflight = new Map(); // pane id -> AbortController
+
+let routerNavigate = () => {};
+
+export function setRouterNavigate(fn) {
+	routerNavigate = fn;
+}
 
 export function buildRequest(p) {
 	const f = p.form;
@@ -49,16 +54,27 @@ export function buildRequest(p) {
  * Write the first pane's (or this pane's, if it's the first) search into the hash.
  * Creates a history entry unless `replace` is set.
  */
+/**
+ * Write the first pane's search into the router URL.
+ * Creates a history entry unless `replace` is set.
+ */
 export function syncSemanticUrl(id, { replace = false } = {}) {
 	const first = store.panes[0];
+
 	// Only the primary pane is mirrored in the URL.
 	if (!first || first.id !== id) return;
+
+	if (!routerNavigate) {
+		throw new Error("Router navigation has not been initialised");
+	}
+
 	const qs = canonicalParams(semanticParamsFromPane(pane(id)));
-	const target = hrefFor(ROUTES.search, qs);
-	const nextHash = `#${target}`;
-	if (location.hash === nextHash) return;
+	const target = `/search${qs.size ? `?${qs}` : ""}`;
+
+	// Prevent the App URL-hydration effect from applying this URL
+	// back to the stores that have just generated it.
 	routeSync.suppressApply = true;
-	navigate(target, { replace });
+	routerNavigate(target, { replace });
 }
 
 /**

@@ -1,5 +1,5 @@
 import { createEffect, For, Show } from "solid-js";
-import { clearVectorSource, runSearch } from "../actions.js";
+import { clearVectorSource, runSearch } from "../actions";
 import { shortId } from "../helpers.js";
 import { pane, store, update } from "../store.js";
 

@@ -1,6 +1,6 @@
 import { For, Show } from "solid-js";
 
-import { exportPane } from "../actions.js";
+import { exportPane } from "../actions";
 import { pane } from "../store.js";
 
 export function StatusBar(props) {

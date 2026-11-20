@@ -1,7 +1,7 @@
 import { createEffect, createMemo, For, Show } from "solid-js";
 
 import { filterHits } from "../helpers.js";
-import { exportTextResults, runTextSearch } from "../textActions.js";
+import { exportTextResults, runTextSearch } from "../textactions";
 import { setTextStore, textStore } from "../textStore.js";
 
 import { FilterBar } from "./FilterBar.jsx";

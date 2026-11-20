@@ -3,7 +3,7 @@ import { CSV_COLS, csvCell, formatDetail, toInt } from "./helpers.js";
 import { hrefFor, navigate, ROUTES } from "./router.js";
 import { persistTextForm, setTextStore, textStore } from "./textStore.js";
 import { download } from "./toast.js";
-import { canonicalParams, routeSync, textParamsFromForm } from "./urlState.js";
+import { canonicalParams, routeSync, textParamsFromForm } from "./urlState";
 
 let inflight = null;
 

@@ -1,6 +1,6 @@
 import { For, Show } from "solid-js";
 
-import { clearNegatives, removeNegative } from "../actions.js";
+import { clearNegatives, removeNegative } from "../actions";
 import { snippet } from "../helpers.js";
 import { pane } from "../store.js";
 

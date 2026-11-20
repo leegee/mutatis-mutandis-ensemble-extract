@@ -1,5 +1,5 @@
 /**
- * Encode / decode search form state in the hash query string so the
+ * Encode / decode search form state in the URL query string so the
  * browser back/forward buttons restore (and re-run) searches.
  *
  * Shared params (both modes):
@@ -20,8 +20,7 @@
  * in localStorage only.
  */
 
-import { DEFAULT_END_YEAR, DEFAULT_START_YEAR } from "./config";
-import { hrefFor, navigate, ROUTES, route } from "./router.js";
+import { DEFAULT_END_YEAR, DEFAULT_START_YEAR } from "./config.jsx";
 import { pane, store, update } from "./store.js";
 import { setTextStore, textStore } from "./textStore.js";
 
@@ -47,16 +46,20 @@ const DEFAULTS = {
 export function canonicalParams(sp) {
 	const keys = [...new Set([...sp.keys()])].sort();
 	const out = new URLSearchParams();
+
 	for (const k of keys) {
 		for (const v of sp.getAll(k)) out.append(k, v);
 	}
+
 	return out.toString();
 }
 
 function setIfNotDefault(sp, key, value, defaultValue) {
 	const v = value == null ? "" : String(value).trim();
+
 	if (!v) return;
 	if (defaultValue != null && v === String(defaultValue)) return;
+
 	sp.set(key, v);
 }
 
@@ -64,10 +67,13 @@ function setIfNotDefault(sp, key, value, defaultValue) {
 export function pickSharedParams(params) {
 	const sp = new URLSearchParams();
 	const q = params.get("q")?.trim();
+
 	if (q) sp.set("q", q);
+
 	setIfNotDefault(sp, "from", params.get("from"), DEFAULTS.from);
 	setIfNotDefault(sp, "to", params.get("to"), DEFAULTS.to);
 	setIfNotDefault(sp, "limit", params.get("limit"), DEFAULTS.limit);
+
 	return sp;
 }
 
@@ -89,6 +95,7 @@ export function sharedParamsFromStores(leaving) {
 		from = textStore.form.startYear || DEFAULTS.from;
 		to = textStore.form.endYear || DEFAULTS.to;
 		limit = textStore.form.limit || DEFAULTS.limit;
+
 		if (!q && first?.source?.mode === "text") {
 			q = (first.source.text || "").trim();
 		}
@@ -98,41 +105,56 @@ export function sharedParamsFromStores(leaving) {
 		} else if (!(first?.source?.mode === "vector" && first.source.vectorId)) {
 			q = (textStore.form.query || "").trim();
 		}
+
 		from = first?.form?.startYear || textStore.form.startYear || DEFAULTS.from;
 		to = first?.form?.endYear || textStore.form.endYear || DEFAULTS.to;
 		limit = first?.form?.limit || textStore.form.limit || DEFAULTS.limit;
 	}
 
 	if (q) sp.set("q", q);
+
 	setIfNotDefault(sp, "from", from, DEFAULTS.from);
 	setIfNotDefault(sp, "to", to, DEFAULTS.to);
 	setIfNotDefault(sp, "limit", limit, DEFAULTS.limit);
+
 	return sp;
 }
 
 /**
  * Switch Semantic ↔ Text while keeping shared params (q, from, to, limit).
+ *
+ * @param {"text"|"semantic"|"cluster"} mode
+ * @param {string} currentPath Current pathname from useLocation().
+ * @param {Function} navigate Router navigate function from useNavigate().
  */
-export function navigateMode(mode) {
+export function navigateMode(mode, currentPath, navigate) {
 	const path =
-		mode === "text"
-			? ROUTES.text
-			: mode === "cluster"
-				? ROUTES.cluster
-				: ROUTES.search;
+		mode === "text" ? "/text" : mode === "cluster" ? "/cluster" : "/search";
+
 	const leaving =
-		route().path === ROUTES.text
+		currentPath === "/text"
 			? "text"
-			: route().path === ROUTES.cluster
+			: currentPath === "/cluster"
 				? "cluster"
 				: "semantic";
+
 	const shared = sharedParamsFromStores(leaving);
-	// Keep the scale selection when returning to Semantic (it is not a shared param).
+
+	// Keep the scale selection when returning to Semantic
+	// (it is not a shared param).
 	if (mode === "semantic") {
 		const sc = store.panes[0]?.form.scale;
 		if (sc) shared.set("scale", sc);
 	}
-	navigate(hrefFor(path, shared));
+
+	const query = shared.toString();
+	const target = query ? `${path}?${query}` : path;
+
+	// The form already contains the current values, so the route-change
+	// effect should not re-apply the URL over them.
+	routeSync.suppressApply = true;
+
+	navigate(target);
 }
 
 export function semanticParamsFromPane(p) {
@@ -141,13 +163,17 @@ export function semanticParamsFromPane(p) {
 
 	if (p.source.mode === "vector" && p.source.vectorId) {
 		sp.set("vid", p.source.vectorId);
-		if (p.source.vectorLabel) sp.set("vl", p.source.vectorLabel.slice(0, 120));
+
+		if (p.source.vectorLabel) {
+			sp.set("vl", p.source.vectorLabel.slice(0, 120));
+		}
 	} else {
 		const q = (p.source.text || "").trim();
 		if (q) sp.set("q", q);
 	}
 
 	const f = p.form;
+
 	setIfNotDefault(sp, "rep", f.representation, DEFAULTS.rep);
 	setIfNotDefault(sp, "scale", f.scale, DEFAULTS.scale);
 	setIfNotDefault(sp, "from", f.startYear, DEFAULTS.from);
@@ -159,17 +185,21 @@ export function semanticParamsFromPane(p) {
 	for (const n of p.negatives || []) {
 		if (n.id) sp.append("neg", n.id);
 	}
+
 	return sp;
 }
 
 export function textParamsFromForm(form) {
 	const sp = new URLSearchParams();
 	const q = (form.query || "").trim();
+
 	if (q) sp.set("q", q);
+
 	setIfNotDefault(sp, "from", form.startYear, DEFAULTS.from);
 	setIfNotDefault(sp, "to", form.endYear, DEFAULTS.to);
 	setIfNotDefault(sp, "limit", form.limit, DEFAULTS.limit);
 	setIfNotDefault(sp, "window", form.windowTokens, DEFAULTS.window);
+
 	return sp;
 }
 
@@ -185,28 +215,39 @@ export function hasTextQuery(params) {
 function syncSharedToStores({ q, from, to, limit }, source) {
 	if (source !== "text") {
 		const patch = {};
+
 		if (q !== undefined) patch.query = q;
 		if (from != null) patch.startYear = from;
 		if (to != null) patch.endYear = to;
 		if (limit != null) patch.limit = limit;
-		if (Object.keys(patch).length) setTextStore("form", patch);
+
+		if (Object.keys(patch).length) {
+			setTextStore("form", patch);
+		}
 	}
+
 	if (source !== "semantic") {
 		const first = store.panes[0];
 		if (!first) return;
+
 		if (q !== undefined && first.source.mode !== "vector") {
 			update(first.id, "source", { text: q });
 		}
+
 		const formPatch = {};
+
 		if (from != null) formPatch.startYear = from;
 		if (to != null) formPatch.endYear = to;
 		if (limit != null) formPatch.limit = limit;
-		if (Object.keys(formPatch).length) update(first.id, "form", formPatch);
+
+		if (Object.keys(formPatch).length) {
+			update(first.id, "form", formPatch);
+		}
 	}
 }
 
 /**
- * Apply hash params to the first semantic pane.
+ * Apply URL params to the first semantic pane.
  * Shared keys (q/from/to/limit) also update the text form.
  */
 export function applySemanticParams(params, paneId) {
@@ -217,6 +258,7 @@ export function applySemanticParams(params, paneId) {
 
 	const vid = params.get("vid")?.trim() || "";
 	const q = params.get("q")?.trim() || "";
+
 	if (vid) {
 		update(paneId, "source", {
 			mode: "vector",
@@ -233,23 +275,36 @@ export function applySemanticParams(params, paneId) {
 	}
 
 	const form = { ...p.form };
+
 	if (params.has("rep")) form.representation = params.get("rep");
-	// "All scales" is omitted from the URL, so absence must mean "", or history
-	// navigation could not get back to it.
+
+	// "All scales" is omitted from the URL, so absence must mean "",
+	// or history navigation could not get back to it.
 	form.scale = params.get("scale") ?? "";
+
 	if (params.has("from")) form.startYear = params.get("from");
 	if (params.has("to")) form.endYear = params.get("to");
 	if (params.has("limit")) form.limit = params.get("limit");
 	if (params.has("beta")) form.beta = params.get("beta");
 	if (params.has("overfetch")) form.overfetch = params.get("overfetch");
+
 	update(paneId, "form", form);
 
 	if (params.has("neg")) {
 		const negIds = params.getAll("neg").filter(Boolean);
+
 		const negatives = negIds.map((id) => {
 			const existing = (p.negatives || []).find((n) => n.id === id);
-			return existing || { id, year: "", snippet: id.slice(0, 8) };
+
+			return (
+				existing || {
+					id,
+					year: "",
+					snippet: id.slice(0, 8),
+				}
+			);
 		});
+
 		update(paneId, "negatives", negatives);
 	}
 
@@ -264,11 +319,12 @@ export function applySemanticParams(params, paneId) {
 	);
 
 	const after = canonicalParams(semanticParamsFromPane(pane(paneId)));
+
 	return before !== after || hasSemanticQuery(params);
 }
 
 /**
- * Apply hash params to the text-search form.
+ * Apply URL params to the text-search form.
  * Shared keys also update the first semantic pane (years/limit; q if not vector mode).
  */
 export function applyTextParams(params) {
@@ -276,19 +332,24 @@ export function applyTextParams(params) {
 		query: params.has("q")
 			? params.get("q")?.trim() || ""
 			: textStore.form.query,
+
 		startYear: params.has("from")
 			? params.get("from")
 			: textStore.form.startYear || DEFAULTS.from,
+
 		endYear: params.has("to")
 			? params.get("to")
 			: textStore.form.endYear || DEFAULTS.to,
+
 		limit: params.has("limit")
 			? params.get("limit")
 			: textStore.form.limit || DEFAULTS.limit,
+
 		windowTokens: params.has("window")
 			? params.get("window")
 			: textStore.form.windowTokens || DEFAULTS.window,
 	};
+
 	setTextStore("form", form);
 
 	syncSharedToStores(

@@ -1,6 +1,6 @@
 import { Show } from "solid-js";
 
-import { removePane } from "../actions.js";
+import { removePane } from "../actions";
 import { pane, store } from "../store.js";
 
 import { Histogram } from "./Histogram.jsx";

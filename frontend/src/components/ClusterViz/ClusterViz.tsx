@@ -8,6 +8,8 @@ import { PlotCanvas } from "./PlotCanvas";
 import { useClusterFilters } from "./useClusterFilters";
 import { useCopy } from "./useCopy";
 
+import "./ClusterViz.css";
+
 async function fetchViz(runId: string): Promise<ClusterVizPayload> {
 	console.log("Enter fetchViz", runId);
 	const res = await fetch(
