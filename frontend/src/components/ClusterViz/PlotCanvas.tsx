@@ -39,15 +39,12 @@ function toPlotlyTrace(t: ClusterTrace, name?: string): Data {
 			p.year,
 			p.docIndex,
 			p.hitIdx,
+			t.meta.category,
 		]),
 		mode: "markers",
 		type: "scattergl",
-		name: name ?? `${t.label} (n=${t.x.length.toLocaleString()})`,
-		meta: {
-			label: t.label,
-			cluster: t.cluster,
-			category: t.category,
-		},
+		name: name ?? `${t.meta.label} (n=${t.x.length.toLocaleString()})`,
+		meta: t.meta,
 		marker: {
 			size: t.isNoise ? 3 : 5,
 			color: t.color,
@@ -59,8 +56,9 @@ function toPlotlyTrace(t: ClusterTrace, name?: string): Data {
 			"<span style='color:#aaaaaa'>%{customdata[2]}</span><br><br>" +
 			"%{customdata[3]}<br><br>" +
 			"<span style='color:#aaaaaa'>" +
+			"<span style='color:#8fa8c8'>%{customdata[9]}</span><br>" +
 			"Membership: %{customdata[5]:.2f}<br>" +
-			"Occurrence: %{customdata[4]}" +
+			// "Occurrence: %{customdata[4]}" +
 			"</span><extra></extra>",
 	};
 }
@@ -215,7 +213,7 @@ export const PlotCanvas: Component<PlotCanvasProps> = (props) => {
 
 		const plotlyTraces = filtered.map((t) => {
 			const originalCount = props.traces.find(
-				(original) => original.cluster === t.cluster,
+				(original) => original.meta.cluster === t.meta.cluster,
 			)?.x.length;
 
 			const filteredCount = t.x.length;
@@ -227,7 +225,7 @@ export const PlotCanvas: Component<PlotCanvasProps> = (props) => {
 
 			return toPlotlyTrace(
 				t,
-				`${t.label} (n=${filteredCount.toLocaleString()}${countLabel})`,
+				`${t.meta.label} (n=${filteredCount.toLocaleString()}${countLabel})`,
 			);
 		});
 

@@ -251,7 +251,7 @@ def build_cluster_traces(
             interpretation = interpretations.get(cluster, {})
             category = interpretation.get("category", "").strip()
             label = (
-                f"Cluster {cluster} · {category}"
+                category
                 if category
                 else f"Cluster {cluster}"
             )

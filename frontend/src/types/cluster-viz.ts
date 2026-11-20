@@ -20,9 +20,11 @@ export interface PointCustom {
 }
 
 export interface ClusterTrace {
-	cluster: number; // -1 = noise
-	label: string; // "Cluster 3 · bodily whiteness" etc.
-	category: string;
+	meta: {
+		cluster: number; // -1 = noise
+		label: string; // "Cluster 3 · bodily whiteness" etc.
+		category: string;
+	};
 	x: number[];
 	y: number[];
 	customdata: PointCustom[];
