@@ -22,6 +22,7 @@ interface PlotCanvasProps {
 	filtered: ClusterTrace[];
 	onHover: (h: { ti: number; i: number } | null) => void;
 	onClick: (ti: number, i: number) => void;
+	onRightClick: (ti: number, i: number) => void;
 }
 
 function toPlotlyTrace(t: ClusterTrace, name?: string): Data {
@@ -134,7 +135,6 @@ export const PlotCanvas: Component<PlotCanvasProps> = (props) => {
 			disposed = true;
 
 			const graph = gd();
-
 			if (graph) {
 				Plotly.purge(graph);
 				setGd(undefined);
@@ -153,10 +153,22 @@ export const PlotCanvas: Component<PlotCanvasProps> = (props) => {
 
 			setGd(graphDiv);
 
+			let hoveredPoint:
+				| {
+						curveNumber: number;
+						pointNumber: number;
+				  }
+				| undefined;
+
 			graphDiv.on("plotly_hover", (ev) => {
 				const p = ev.points?.[0];
 
 				if (p) {
+					hoveredPoint = {
+						curveNumber: p.curveNumber,
+						pointNumber: p.pointNumber,
+					};
+
 					props.onHover({
 						ti: p.curveNumber,
 						i: p.pointNumber,
@@ -165,6 +177,7 @@ export const PlotCanvas: Component<PlotCanvasProps> = (props) => {
 			});
 
 			graphDiv.on("plotly_unhover", () => {
+				hoveredPoint = undefined;
 				props.onHover(null);
 			});
 
@@ -173,6 +186,17 @@ export const PlotCanvas: Component<PlotCanvasProps> = (props) => {
 
 				if (p) {
 					props.onClick(p.curveNumber, p.pointNumber);
+				}
+			});
+
+			graphDiv.addEventListener("contextmenu", (ev) => {
+				ev.preventDefault();
+
+				if (hoveredPoint) {
+					props.onRightClick(
+						hoveredPoint.curveNumber,
+						hoveredPoint.pointNumber,
+					);
 				}
 			});
 		} catch (error) {
