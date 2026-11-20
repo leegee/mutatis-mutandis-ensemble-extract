@@ -24,6 +24,13 @@ export function AppHeader(props) {
 				>
 					Text
 				</button>
+				<button
+					type="button"
+					class={`btn small ${props.mode === "cluster" ? "on" : "ghost"}`}
+					onClick={() => navigateMode("cluster")}
+				>
+					Cluster
+				</button>
 			</nav>
 
 			<span

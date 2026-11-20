@@ -114,11 +114,21 @@ export function sharedParamsFromStores(leaving) {
  * Switch Semantic ↔ Text while keeping shared params (q, from, to, limit).
  */
 export function navigateMode(mode) {
-	const path = mode === "text" ? ROUTES.text : ROUTES.search;
-	const leaving = route().path === ROUTES.text ? "text" : "semantic";
+	const path =
+		mode === "text"
+			? ROUTES.text
+			: mode === "cluster"
+				? ROUTES.cluster
+				: ROUTES.search;
+	const leaving =
+		route().path === ROUTES.text
+			? "text"
+			: route().path === ROUTES.cluster
+				? "cluster"
+				: "semantic";
 	const shared = sharedParamsFromStores(leaving);
 	// Keep the scale selection when returning to Semantic (it is not a shared param).
-	if (mode !== "text") {
+	if (mode === "semantic") {
 		const sc = store.panes[0]?.form.scale;
 		if (sc) shared.set("scale", sc);
 	}

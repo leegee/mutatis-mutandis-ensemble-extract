@@ -56,19 +56,20 @@ Install:
     pip install plotly
 """
 
-from __future__ import annotations
 
 import argparse
-import html
-import json
-import textwrap
 from pathlib import Path
 
 import numpy as np
+import plotly.graph_objects as go
 
 from mutatis_mutandis.lib.corpus_config import OUT_DIR
 from mutatis_mutandis.lib.corpus_db import get_connection
-from mutatis_mutandis.lib.corpus_logging import logger
+from mutatis_mutandis.cluster.visualization_data import (
+    build_cluster_traces,
+    fetch_cluster_interpretations,
+    fetch_occurrences,
+)
 
 PLOT_DIV_ID = "cluster-plot"
 
@@ -613,100 +614,6 @@ def wrap_html(value: object, width: int = 60) -> str:
     )
 
 
-def fetch_cluster_interpretations(conn, run_id: str) -> dict[int, dict]:
-    """Fetch the LLM interpretation for each cluster in this run."""
-    sql = """
-        SELECT cluster, classification
-        FROM target_cluster_interpretation
-        WHERE run_id = %s
-          AND prompt_version = %s
-    """
-
-    with conn.cursor() as cur:
-        cur.execute(
-            sql,
-            (run_id, "cluster-interpretation-v1"),
-        )
-
-        rows = cur.fetchall()
-
-    logger.info(
-        "Loaded %d cluster interpretations for run %s",
-        len(rows),
-        run_id,
-    )
-
-    result = {}
-    for cluster, classification in rows:
-        if isinstance(classification, str):
-            classification = json.loads(classification)
-
-        if isinstance(classification, dict):
-            result[int(cluster)] = classification
-
-    return result
-
-
-def fetch_occurrences(conn, occurrence_ids: list[str], words: int,
-                      min_year: int | None = None,
-                      max_year: int | None = None) -> dict:
-    """
-    Fetch metadata and a token-window passage for each occurrence.
-
-    The lateral subquery uses the occurrence's own hit_idx, rather than searching
-    the passage for the surface form (which may occur more than once).
-    With min_year / max_year, out-of-range occurrences are not returned (and their
-    passage text is never fetched).
-    """
-    sql = """
-        SELECT
-            o.occurrence_id, o.corpus, o.doc_id, o.pub_year, o.hit_idx,
-            o.matched_token, d.author, d.title,
-            COALESCE(passage.text, '') AS passage
-        FROM target_occurrence o
-        LEFT JOIN documents d
-          ON d.corpus = o.corpus AND d.doc_id = o.doc_id
-        LEFT JOIN LATERAL (
-            SELECT string_agg(
-                CASE WHEN t.token_idx = o.hit_idx
-                     THEN '«' || t.token || '»'
-                     ELSE t.token
-                END,
-                ' ' ORDER BY t.token_idx
-            ) AS text
-            FROM tokens t
-            WHERE t.corpus = o.corpus
-              AND t.doc_id = o.doc_id
-              AND t.token_idx BETWEEN o.hit_idx - %s AND o.hit_idx + %s
-        ) passage ON TRUE
-        WHERE o.occurrence_id = ANY(%s)
-          AND (%s::int IS NULL OR o.pub_year >= %s::int)
-          AND (%s::int IS NULL OR o.pub_year <= %s::int)
-    """
-    result = {}
-    # Keep parameter batches moderate for large runs.
-    batch_size = 10_000
-    with conn.cursor() as cur:
-        for start in range(0, len(occurrence_ids), batch_size):
-            batch = occurrence_ids[start:start + batch_size]
-            cur.execute(sql, (words, words, batch,
-                              min_year, min_year, max_year, max_year))
-            for row in cur.fetchall():
-                (oid, corpus, doc_id, year, hit_idx, token,
-                 author, title, passage) = row
-                result[oid] = {
-                    "corpus": corpus,
-                    "doc_id": doc_id,
-                    "year": year,
-                    "hit_idx": hit_idx,
-                    "token": token or "",
-                    "author": author or "Unknown author",
-                    "title": title or doc_id,
-                    "passage": passage or "",
-                }
-    return result
-
-
 def _js_json(value) -> str:
     """JSON that is safe to embed inside an inline <script>."""
     return json.dumps(value).replace("</", "<\\/")
@@ -886,99 +793,21 @@ def main() -> None:
     years = [m["year"] for m in metadata.values() if m["year"] is not None]
     year_bounds = (int(min(years)), int(max(years))) if years else None
 
-    import plotly.graph_objects as go
-    from plotly.colors import qualitative
+    traces, docs = build_cluster_traces(
+        ids,
+        xy,
+        labels,
+        probs,
+        metadata,
+        interpretations,
+        wrap_width=args.wrap,
+        point_size=args.point_size,
+        noise=args.noise,
+    )
 
-    fig = go.Figure()
-    palette = qualitative.Dark24
-    cluster_ids = sorted(c for c in set(labels.tolist()) if c >= 0)
-    if args.noise and np.any(labels == -1):
-        cluster_ids = [-1] + cluster_ids
-
-    # One entry per document, shared by all points (keeps the copy data compact):
-    # [corpus, doc_id, author, full title].
-    docs: list[list[str]] = []
-    doc_index: dict[tuple[str, str], int] = {}
-
-    def doc_slot(m: dict) -> int:
-        key = (m["corpus"], m["doc_id"])
-        if key not in doc_index:
-            doc_index[key] = len(docs)
-            docs.append([m["corpus"], m["doc_id"], m["author"], m["title"]])
-        return doc_index[key]
-
-    for cluster in cluster_ids:
-        idx = np.flatnonzero(labels == cluster)
-        if not len(idx):
-            continue
-
-        # customdata columns: 0 year text, 1 heading, 2 corpus/doc, 3 passage,
-        # 4 occurrence id, 5 membership, 6 numeric year (used by the page's filters),
-        # 7 index into docs, 8 hit_idx (7 and 8 are used when copying points)
-        custom = []
-        for i in idx:
-            m = metadata.get(ids[i])
-            if m is None:
-                custom.append(["?", "Unknown", "No metadata", "", ids[i], 0.0, None, -1, None])
-                continue
-
-            heading = f"{m['author']}, {m['title'][:100]}"
-            passage = wrap_html(m["passage"], args.wrap)
-            custom.append([
-                str(m["year"]),
-                wrap_html(heading, args.wrap),
-                wrap_html(f"{m['corpus']} / {m['doc_id']}", args.wrap),
-                passage,
-                ids[i],
-                float(probs[i]),
-                int(m["year"]) if m["year"] is not None else None,
-                doc_slot(m),
-                int(m["hit_idx"]) if m["hit_idx"] is not None else None,
-            ])
-
-        is_noise = cluster == -1
-
-        # label = "Noise" if is_noise else f"Cluster {cluster}"
-        # colour = "#777777" if is_noise else palette[(cluster if cluster >= 0 else 0) % len(palette)]
-
-        category = ""
-        if is_noise:
-            label = "Noise"
-        else:
-            interpretation = interpretations.get(cluster, {})
-            category = interpretation.get("category", "").strip()
-            label = (
-                f"Cluster {cluster} · {category}"
-                if category
-                else f"Cluster {cluster}"
-            )
-
-        colour = "#777777" if is_noise else palette[cluster % len(palette)]
-
-        fig.add_trace(go.Scattergl(
-            # Plain lists (not numpy) so the page's filters can read them back as given.
-            x=np.round(xy[idx, 0], 4).tolist(),
-            y=np.round(xy[idx, 1], 4).tolist(),
-            mode="markers",
-            name=f"{label} (n={len(idx):,})",
-            meta=dict(label=label, cluster=int(cluster), category=category),
-            marker=dict(
-                size=3 if is_noise else args.point_size,
-                color=colour,
-                opacity=0.25 if is_noise else 0.78,
-            ),
-            customdata=custom,
-            hovertemplate=(
-                "<b>%{customdata[1]}</b><br>"
-                "%{customdata[0]}<br>"
-                "<span style='color:#aaaaaa'>%{customdata[2]}</span><br><br>"
-                "%{customdata[3]}<br><br>"
-                "<span style='color:#aaaaaa'>"
-                "Membership: %{customdata[5]:.2f}<br>"
-                "Occurrence: %{customdata[4]}"
-                "</span><extra></extra>"
-            ),
-        ))
+    fig = go.Figure(
+        data=[go.Scattergl(**trace) for trace in traces]
+    )
 
     fig.update_layout(
         template="plotly_dark",

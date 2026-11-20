@@ -1,9 +1,8 @@
-import { createSignal, onCleanup, onMount } from "solid-js";
+import { createEffect, createSignal, onCleanup, onMount } from "solid-js";
 import type {
 	ClusterTrace,
 	ClusterVizPayload,
 	DocMeta,
-	PointCustom,
 } from "../../types/cluster-viz";
 import type { ClusterFilters } from "./useClusterFilters";
 

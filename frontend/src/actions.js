@@ -190,11 +190,14 @@ export function removePane(id) {
 	setStore("panes", (ps) => ps.filter((p) => p.id !== id));
 }
 
-export async function checkApi() {
+export async function checkApiHealth() {
+	const h = await fetch(`${CONFIG.apiBase}/health`);
+	if (!h.ok) throw new Error(`HTTP ${h.status}`);
+	setStore({ apiOk: true, apiError: "" });
+}
+
+export async function fetchApiDictionaries() {
 	try {
-		const h = await fetch(`${CONFIG.apiBase}/health`);
-		if (!h.ok) throw new Error(`HTTP ${h.status}`);
-		setStore({ apiOk: true, apiError: "" });
 		const r = await fetch(`${CONFIG.apiBase}/representations`);
 		if (r.ok) {
 			const { representations } = await r.json();

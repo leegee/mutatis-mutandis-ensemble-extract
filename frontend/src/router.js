@@ -94,5 +94,6 @@ export const ROUTES = {
 	home: "/",
 	search: "/search",
 	text: "/text",
+	cluster: "/cluster",
 	// about: "/about",
 };

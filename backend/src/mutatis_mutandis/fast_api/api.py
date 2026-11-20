@@ -28,6 +28,7 @@ from fastapi.staticfiles import StaticFiles
 from mutatis_mutandis.lib.corpus_config import CORPUS_INPUT_DIRS, CORPUS_ROOT_DIR, LANCE_INDEXES_DIR, PASSAGE_SCALES
 from mutatis_mutandis.lib.macberth import PASSAGE_REPRESENTATIONS
 
+from mutatis_mutandis.fast_api.target_runs import router as target_runs_router
 from mutatis_mutandis.fast_api.core import VectorNotFoundError
 from mutatis_mutandis.fast_api.schemas import (
     SearchRequest,
@@ -56,6 +57,8 @@ app = FastAPI(
     version="1.1.0",
     lifespan=lifespan,
 )
+
+app.include_router(target_runs_router)
 
 _origins = [o.strip() for o in os.getenv("PASSAGE_SEARCH_CORS_ORIGINS", "").split(",") if o.strip()]
 if _origins:

@@ -16,12 +16,17 @@ export default defineConfig({
 		port: 5173,
 		// The app calls same-origin endpoints (CONFIG.apiBase = ""), so proxy them
 		// to FastAPI in dev. Anchored regex keeps the page itself out of the proxy.
+		// What about http://localhost:5173/api/target-runs/l8-target-form-20261118-083730/visualization
 		proxy: {
 			"^/(search|text-search|health|representations|scales)$": {
 				target: API_TARGET,
 				changeOrigin: true,
 			},
 			"/texts": {
+				target: API_TARGET,
+				changeOrigin: true,
+			},
+			"^/target-runs": {
 				target: API_TARGET,
 				changeOrigin: true,
 			},

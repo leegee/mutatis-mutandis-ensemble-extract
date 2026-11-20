@@ -1,6 +1,6 @@
-import { createEffect, Match, onMount, Show, Switch, untrack } from "solid-js";
+import { createEffect, Match, onMount, Switch, untrack } from "solid-js";
 
-import { checkApi, runSearch } from "../actions.js";
+import { checkApiHealth, fetchApiDictionaries, runSearch } from "../actions.js";
 import { CONFIG } from "../config.js";
 import { match, ROUTES, route } from "../router.js";
 import { store } from "../store.js";
@@ -15,13 +15,15 @@ import {
 } from "../urlState.js";
 
 import { AppHeader } from "./AppHeader.jsx";
+import { ClusterViz } from "./ClusterViz/ClusterViz";
 import { NotFound } from "./NotFound.jsx";
 import { SearchView } from "./SearchView.jsx";
 import { TextSearchView } from "./TextSearchView.jsx";
 
 export function App() {
 	onMount(() => {
-		setInterval(checkApi, 5_000);
+		fetchApiDictionaries();
+		setInterval(checkApiHealth, 10_000);
 	});
 
 	// Persist the form state (not the results) across reloads.
@@ -67,12 +69,10 @@ export function App() {
 		});
 	});
 
-	const isSearch = () => match(ROUTES.home) || match(ROUTES.search);
-	const isText = () => match(ROUTES.text);
-
 	const mode = () => {
-		if (isSearch()) return "semantic";
-		if (isText()) return "text";
+		if (match(ROUTES.home) || match(ROUTES.search)) return "search";
+		if (match(ROUTES.text)) return "semantic";
+		if (match(ROUTES.cluster)) return "cluster";
 		return null;
 	};
 
@@ -81,11 +81,14 @@ export function App() {
 			<AppHeader mode={mode()} />
 
 			<Switch fallback={<NotFound />}>
-				<Match when={isSearch()}>
+				<Match when={match(ROUTES.home) || match(ROUTES.search)}>
 					<SearchView />
 				</Match>
-				<Match when={isText()}>
+				<Match when={match(ROUTES.text)}>
 					<TextSearchView />
+				</Match>
+				<Match when={match(ROUTES.cluster)}>
+					<ClusterViz runId="l8-target-form-20261118-083730" />
 				</Match>
 			</Switch>
 

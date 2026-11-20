@@ -1,4 +1,4 @@
-import { createEffect, createMemo, createSignal, onCleanup } from "solid-js";
+import { createEffect, createMemo, createSignal } from "solid-js";
 import type {
 	ClusterTrace,
 	ClusterVizPayload,
@@ -77,7 +77,9 @@ export function useClusterFilters(data: ClusterVizPayload) {
 			if (Array.isArray(s.terms)) {
 				setTerms(
 					s.terms
+						// biome-ignore lint/suspicious/noExplicitAny: <easy>
 						.filter((t: any) => t?.text)
+						// biome-ignore lint/suspicious/noExplicitAny: <easy>
 						.map((t: any) => ({
 							text: String(t.text),
 							neg: !!t.neg,
@@ -252,7 +254,7 @@ export function useClusterFilters(data: ClusterVizPayload) {
 		filteredTraces: () => filtered().traces,
 		termCounts: () => filtered().counts,
 		shownCount,
-		totalCount: data.nPoints,
+		totalCount: data.n_points,
 	};
 }
 

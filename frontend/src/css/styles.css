@@ -38,9 +38,12 @@
 * {
 	box-sizing: border-box;
 }
+.shell,
 html,
 body {
 	margin: 0;
+	width: 100vw;
+	height: 100vh;
 }
 body {
 	background: var(--bg);

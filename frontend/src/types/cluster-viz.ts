@@ -32,8 +32,8 @@ export interface ClusterTrace {
 
 export interface ClusterVizPayload {
 	runId: string;
-	nPoints: number;
-	nClusters: number;
+	n_points: number;
+	n_clusters: number;
 	yearBounds: [number, number] | null;
 	docs: DocMeta[];
 	traces: ClusterTrace[];

@@ -9,6 +9,7 @@
 		"preview": "vite preview"
 	},
 	"dependencies": {
+		"plotly.js-dist-min": "^4.3.0",
 		"solid-js": "^1.9.0"
 	},
 	"devDependencies": {
