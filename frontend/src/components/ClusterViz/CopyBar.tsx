@@ -14,7 +14,6 @@ export function CopyBar(props: { copy: CopyControls }) {
 				class="copy-button"
 				title="Copy the point you last hovered (with the mouse over a point, press C)"
 				onClick={() => c.copyHovered()}
-				title="Copy hovered point"
 			>
 				Copy
 			</button>
@@ -23,7 +22,6 @@ export function CopyBar(props: { copy: CopyControls }) {
 				class="copy-button"
 				title="Copy every point currently shown (year range, terms and legend apply)"
 				onClick={() => c.copyVisible()}
-				title="Copy all visible points"
 			>
 				Copy All
 			</button>
