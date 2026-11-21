@@ -64,7 +64,7 @@ The relevant 5Q6 fragment is identified as fragment 1, column i, lines 3–5. Th
 
 ### Eichah (Lamentations) - [Chapter 4](https://www.chabad.org/library/bible_cdo/aid/16460/jewish/Chapter-4.htm)
 
-| [1](https://www.chabad.org/library/bible_cdo/aid/16460/jewish/Chapter-4.htm#v1)How dim the gold has become, [how] changed is the fine gold jewelry! The holy stones are scattered at the head of every street.                                              |     | [א](https://www.chabad.org/library/bible_cdo/aid/16460/jewish/Chapter-4.htm#v1)אֵיכָה֙ יוּעַ֣ם זָהָ֔ב יִשְׁנֶ֖א הַכֶּ֣תֶם הַטּ֑וֹב תִּשְׁתַּפֵּ֨כְנָה֙ אַבְנֵי־קֹ֔דֶשׁ בְּרֹ֖אשׁ כָּל־חוּצֽוֹת:                               |
+| [1](https://www.chabad.org/library/bible_cdo/aid/16460/jewish/Chapter-4.htm#v1)How dim the gold has become, \[how] changed is the fine gold jewelry! The holy stones are scattered at the head of every street.                                             |     | [א](https://www.chabad.org/library/bible_cdo/aid/16460/jewish/Chapter-4.htm#v1)אֵיכָה֙ יוּעַ֣ם זָהָ֔ב יִשְׁנֶ֖א הַכֶּ֣תֶם הַטּ֑וֹב תִּשְׁתַּפֵּ֨כְנָה֙ אַבְנֵי־קֹ֔דֶשׁ בְּרֹ֖אשׁ כָּל־חוּצֽוֹת:                               |
 | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [2](https://www.chabad.org/library/bible_cdo/aid/16460/jewish/Chapter-4.htm#v2)The precious children of Zion, praised with fine gold; how they are regarded as earthen pitchers, the work of a potter's hands!                                              |     | [ב](https://www.chabad.org/library/bible_cdo/aid/16460/jewish/Chapter-4.htm#v2)בְּנֵ֤י צִיּוֹן֙ הַיְקָרִ֔ים הַֽמְסֻלָּאִ֖ים בַּפָּ֑ז אֵיכָ֤ה נֶחְשְׁבוּ֙ לְנִבְלֵי־חֶ֔רֶשׂ מַֽעֲשֵׂ֖ה יְדֵ֥י יוֹצֵֽר:                         |
 | [3](https://www.chabad.org/library/bible_cdo/aid/16460/jewish/Chapter-4.htm#v3)Even the sea-monsters offer the breast [and] suckle their young; the daughter of my people has become cruel, like the ostriches in the wilderness.                           |     | [ג](https://www.chabad.org/library/bible_cdo/aid/16460/jewish/Chapter-4.htm#v3)גַּם־תַּנִּים (כתיב תַּנִּין֙) חָ֣לְצוּ שַׁ֔ד הֵינִ֖יקוּ גּֽוּרֵיהֶ֑ן בַּת־עַמִּ֣י לְאַכְזָ֔ר כַּיְעֵנִ֖ים (כתיב כַּיְ עֵנִ֖ים) בַּמִּדְבָּֽר: |
@@ -109,6 +109,8 @@ Working transliteration: *zakkû nəzirêhā miššēleḡ; ṣaḥû mēḥāl�
 
 The verse falls into two paired image groups: purity/brightness compared with snow and milk, then ruddy colour compared with precious material and a sapphire-like form. Several words in the second group are difficult, so translations should not be treated as direct one-to-one glosses.
 
+מִפְּנִינִים (mippənînîm)
+
 ## Translation and the phrase “white as snow”
 
 The KJV has “Her Nazarites were purer than snow, they were whiter than milk.” The ESV instead begins “Her princes were purer than snow.” The verse’s Hebrew does not literally say “white as snow”: snow is introduced with מִן, “than/from,” and the first predicate זַכּוּ is commonly rendered “pure” or “bright.” The following line uses צַחוּ with milk and is commonly translated “whiter than milk.”
@@ -134,7 +136,9 @@ Salters reads the red/ruddy phrase alongside the whiteness and the following ver
 
 A longstanding interpretive proposal reads the last colon as a description of blue veins showing through a pale, ruddy complexion. In this picture, milk suggests pale skin, coral-like redness a flush or red cast in the flesh, and sapphire the blue lines visible beneath the skin. This makes the images a coordinated palette rather than a claim that the whole person was uniformly red or blue. The personal observation that veins can appear blue beneath very pale skin makes the proposed image easy to visualize.
 
-The veins reading is associated with **Johann Braunius** (*De Vestitu Sacerdotum Hebraeorum*, 1680) and was made explicit in **Benjamin Blayney’s** translation and note (1784): “their veining was the sapphires.” **Adam Clarke** later explained the sequence as milk-white skin, ruddy flesh, and sapphire-coloured veins in a fine complexion. This interpretation is not Rashi’s: Rashi takes the phrase as their forms being like sapphire.
+The veins reading is associated with **Johann Braunius** (*De Vestitu Sacerdotum Hebraeorum*, 1680) and was made explicit in **Benjamin Blayney’s** translation and note (1784): “their veining was the sapphires.”
+
+**Adam Clarke** later explained the sequence as milk-white skin, ruddy flesh, and sapphire-coloured veins in a fine complexion. This interpretation is not Rashi’s: Rashi takes the phrase as their forms being like sapphire.
 
 ### Chromophobia
 
@@ -195,5 +199,9 @@ The proposed “red from the milk” was a typo and is discarded. In the Masoret
 - [King James Version, Lamentations 4:7](https://www.biblegateway.com/passage/?search=Lamentations+4%3A7&version=KJV)
 - [English Standard Version, Lamentations 4:7](https://www.esv.org/verses/Lamentations%2B4%3A7/)
 - [Johann Braunius, *De Vestitu Sacerdotum Hebraeorum* (1680), as cited in John Gill on Lamentations 4:7](https://worthy.bible/commentaries/john-gills-exposition-of-the-bible/commentary-on-lamentations-4)
-- [Benjamin Blayney, *Jeremiah and Lamentations* (1784), note on 4:7](https://biblicalstudies.org.uk/pdf/e-books/blayney_b/jeremiah-and-lamentations_blayney.pdf)
 - [Adam Clarke, commentary on Lamentations 4:7](https://www.studylight.org/commentary/lamentations/4-7.html)
+- [Benjamin Blayney, *Jeremiah and Lamentations* (1784), note on 4:7](https://biblicalstudies.org.uk/pdf/e-books/blayney_b/jeremiah-and-lamentations_blayney.pdf)
+	- Blayney, Benjamin: *Jeremiah, and Lamentations: A New Translation; with Notes Critical, Philological, and Explanatory* (Oxford: Clarendon Press, 1784).
+	    - original in ECCO https://wellcomecollection.org/works/b4h4c97g
+	    - 1836 edition https://en.wikisource.org/wiki/Commentary_and_critical_notes_on_the_Bible/Lamentations
+	    - on Lamentations https://en.wikisource.org/wiki/Commentary_and_critical_notes_on_the_Bible/Lamentations

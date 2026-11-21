@@ -33,4 +33,4 @@ Salters, R. B. *Lamentations: A Critical and Exegetical Commentary*. Internation
 ## Sources
 
 - [Publisher record](https://www.bloomsbury.com/us/lamentations-icc-9780567625199/)
-- [Accessible text, commentary on Lamentations 4:7-8](https://www.thetbs.org/study-materials/wp-content/uploads/2022/09/A-Critical-and-Exegetical-Commentary-on-Lamentations-by-R.-B.-Salters-z-lib.org_.pdf)
+- [Lamentations A CRITICAL AND EXEGETICAL COMMENTARY](https://www.thetbs.org/study-materials/wp-content/uploads/2022/09/A-Critical-and-Exegetical-Commentary-on-Lamentations-by-R.-B.-Salters-z-lib.org_.pdf)
