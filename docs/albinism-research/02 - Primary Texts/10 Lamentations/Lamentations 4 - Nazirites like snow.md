@@ -50,19 +50,20 @@ gantt
 | Gildas             | Early medieval Latin reception                           |
 | Rashi              | Medieval Jewish interpretation                           |
 | Braunius / Blayney | Early modern interpretation of sapphire and veins        |
-|                    |                                                          |
 ## Hebrew text and word-by-word analysis
 
 ## Textual basis: oldest surviving witness at this verse
 
 The earliest extant Hebrew manuscript witness I have identified that includes Lamentations 4:7 is **5QLama (5Q6)**, a fragmentary scroll from Qumran Cave 5. Its late-Herodian palaeographic date is commonly given as approximately 30 BCE–68 CE. This dates the surviving copy, not the composition of Lamentations.
 
-The relevant 5Q6 fragment is identified as fragment 1, column i, lines 3–5. The Qumran Digital transcription records the opening words **זכו נזיריה** in line 3. Line 4 is heavily damaged: the sequence containing “from snow” and the following whiteness word is supplied in brackets in that transcription; outside the brackets, only the end of חלב (*ḥālāḇ*, “milk”) is legible there, along with some other damaged wording. Line 5 preserves only part of the final phrase. Thus 5Q6 is our oldest identified physical witness to this verse, but it does **not** give us a complete independent reading of “purer than snow / brighter than milk.” Thus we cannot present reconstructed letters as visible manuscript evidence.
+The relevant 5Q6 fragment is identified as fragment 1, column i, lines 3–5. The Qumran Digital transcription records the opening words **זכו נזיריה** in line 3. Line 4 is heavily damaged: the sequence containing "from snow” and the following whiteness word is supplied in brackets in that transcription; outside the brackets, only the end of חלב (*ḥālāḇ*, "milk”) is legible there, along with some other damaged wording. Line 5 preserves only part of the final phrase. Thus 5Q6 is our oldest identified physical witness to this verse, but it does **not** give us a complete independent reading of "purer than snow / brighter than milk.” Thus we cannot present reconstructed letters as visible manuscript evidence.
 
 > Editorial brackets in the digital transcription mark restorations; dotted letters are uncertain readings. Check the transcription and plate in the DJD edition before citing individual letters as secure.
 
 
 ### Eichah (Lamentations) - [Chapter 4](https://www.chabad.org/library/bible_cdo/aid/16460/jewish/Chapter-4.htm)
+
+JPS (1917):
 
 | [1](https://www.chabad.org/library/bible_cdo/aid/16460/jewish/Chapter-4.htm#v1)How dim the gold has become, \[how] changed is the fine gold jewelry! The holy stones are scattered at the head of every street.                                             |     | [א](https://www.chabad.org/library/bible_cdo/aid/16460/jewish/Chapter-4.htm#v1)אֵיכָה֙ יוּעַ֣ם זָהָ֔ב יִשְׁנֶ֖א הַכֶּ֣תֶם הַטּ֑וֹב תִּשְׁתַּפֵּ֨כְנָה֙ אַבְנֵי־קֹ֔דֶשׁ בְּרֹ֖אשׁ כָּל־חוּצֽוֹת:                               |
 | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -75,7 +76,7 @@ The relevant 5Q6 fragment is identified as fragment 1, column i, lines 3–5. Th
 | [8](https://www.chabad.org/library/bible_cdo/aid/16460/jewish/Chapter-4.htm#v8)[But now] their appearance has become darker than charcoal, they are not recognized in the streets; their skin is shriveled on their bones; it has become as dry as a stick. |     | [ח](https://www.chabad.org/library/bible_cdo/aid/16460/jewish/Chapter-4.htm#v8)חָשַׁ֤ךְ מִשְּׁחוֹר֙ תָּֽאֳרָ֔ם לֹ֥א נִכְּר֖וּ בַּֽחוּצ֑וֹת צָפַ֤ד עוֹרָם֙ עַל־עַצְמָ֔ם יָבֵ֖שׁ הָיָ֥ה כָעֵֽץ:                                 |
 ### Rashi
 
-| *Her Nazirites were purer*. Heb. נְזִירֶיהָ, her princes, like נֶזֶר and כֶּתֶר, a crown, but I say that [it means] real Nazirites, who had long hair and were remarkably handsome, and the antecedent is “the daughter of my people.” |     | זכו נזיריה.  שריה כמו נזר וכתר ואני אומר נזיריה ממש שהיו מגודלי שער ונאים ביותר ומוסב על בת עמי: |
+| *Her Nazirites were purer*. Heb. נְזִירֶיהָ, her princes, like נֶזֶר and כֶּתֶר, a crown, but I say that [it means] real Nazirites, who had long hair and were remarkably handsome, and the antecedent is "the daughter of my people.” |     | זכו נזיריה.  שריה כמו נזר וכתר ואני אומר נזיריה ממש שהיו מגודלי שער ונאים ביותר ומוסב על בת עמי: |
 | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- | ------------------------------------------------------------------------------------------------ |
 | *their appearance was ruddier than coral*. Those whose appearance was ruddier than coral and whose forms were like sapphire-their complexions became darker than charcoal.                                                             |     |                                                                                                  |
 
@@ -94,52 +95,72 @@ Working transliteration: *zakkû nəzirêhā miššēleḡ; ṣaḥû mēḥāl�
 
 ## Word by word
 
-| #   | Hebrew       | Transliteration | Form and syntax                                                                            | Working sense                                                                                                                                                                        |
-| --- | ------------ | --------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 1   | זַכּוּ       | *zakkû*         | Qal perfect, 3rd person plural (3cp), from זכה                                             | “They were pure/bright.” Stative “were pure” is traditional; “were brighter” foregrounds the colour image.                                                                           |
-| 2   | נְזִירֶיהָ   | *nəzirêhā*      | נָזִיר, masculine plural construct, with 3rd person feminine singular suffix               | “Her Nazirites/consecrated ones.” “Princes” or “nobles” is also a debated contextual interpretation. The morphology is clearer than the referent.                                    |
-| 3   | מִשֶּׁלֶג    | *miššēleḡ*      | Comparative מִן (“from/than”) + שֶׁלֶג (“snow”); the נ of מן assimilates before ש          | “Than snow.” The comparative force comes from the parallel comparisons in the verse; מִן can also mark source in other contexts.                                                     |
-| 4   | צַחוּ        | *ṣaḥû*          | Qal perfect, 3rd person plural (3cp), from צח                                              | “They were bright/gleaming white.” The word has no prefixed ו (“and”); it forms a parallel clause with זַכּוּ.                                                                       |
-| 5   | מֵחָלָב      | *mēḥālāḇ*       | Comparative מִן + חָלָב (“milk”), with the preposition’s form adjusted before the guttural | “Than milk.”                                                                                                                                                                         |
-| 6   | אָדְמוּ      | *ʾāḏəmû*        | Qal perfect, 3rd person plural (3cp), from אדם                                             | “They were red/ruddy.”                                                                                                                                                               |
-| 7   | עֶצֶם        | *ʿeṣem*         | Feminine singular noun                                                                     | Literally “bone” or “substance”; often understood here as “body” or “in body,” an adverbial expression of respect. The singular noun after a plural verb makes the syntax difficult. |
-| 8   | מִפְּנִינִים | *mippənînîm*    | Comparative מִן + plural פְּנִינִים                                                        | “Than pearls/precious stones.” The traditional “rubies” and modern “coral” reflect uncertainty about the material meant.                                                             |
-| 9   | סַפִּיר      | *sappîr*        | Noun, masculine singular                                                                   | “Sapphire” or lapis lazuli; functions in an elliptical comparison, “[like] sapphire.”                                                                                                |
-| 10  | גִּזְרָתָם   | *gizrātām*      | Feminine singular noun גִּזְרָה with 3rd person masculine plural suffix                    | “Their form/stature/appearance.” Its exact sense is disputed; the last colon is commonly understood as “[like] sapphire was their form.”                                             |
+| #   | Hebrew       | Transliteration | Form and syntax                                                                            | Working sense                                                                                                                                                                      |
+| --- | ------------ | --------------- | ------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | זַכּוּ       | *zakkû*         | Qal perfect, 3rd person plural (3cp), from זכה                                             | "They were pure/bright.” <br>Stative "were pure” is traditional; "were brighter” foregrounds the colour image.                                                                     |
+| 2   | נְזִירֶיהָ   | *nəzirêhā*      | נָזִיר, masculine plural construct, with 3rd person feminine singular suffix               | "Her Nazirites/consecrated ones.”<br>"Princes” or "nobles” is also a debated contextual interpretation. The morphology is clearer than the referent.                               |
+| 3   | מִשֶּׁלֶג    | *miššēleḡ*      | Comparative מִן ("from/than”) + שֶׁלֶג ("snow”); the נ of מן assimilates before ש          | "Than snow.” <br>The comparative force comes from the parallel comparisons in the verse; מִן can also mark source in other contexts.                                               |
+| 4   | צַחוּ        | *ṣaḥû*          | Qal perfect, 3rd person plural (3cp), from צח                                              | "They were bright/gleaming white.”<br>The word has no prefixed ו ("and”); it forms a parallel clause with זַכּוּ.                                                                  |
+| 5   | מֵחָלָב      | *mēḥālāḇ*       | Comparative מִן + חָלָב ("milk”), with the preposition’s form adjusted before the guttural | "Than milk.”                                                                                                                                                                       |
+| 6   | אָדְמוּ      | *ʾāḏəmû*        | Qal perfect, 3rd person plural (3cp), from אדם                                             | "They were red/ruddy.”                                                                                                                                                             |
+| 7   | עֶצֶם        | *ʿeṣem*         | Feminine singular noun                                                                     | Lit. "bone” or "substance”;<br>often understood here as "body” or "in body,” an adverbial expression of respect. The singular noun after a plural verb makes the syntax difficult. |
+| 8   | מִפְּנִינִים | *mippənînîm*    | Comparative מִן + plural פְּנִינִים                                                        | "Than pearls/precious stones.”<br>The traditional "rubies” and modern "coral” reflect uncertainty about the material meant.                                                        |
+| 9   | סַפִּיר      | *sappîr*        | Noun, masculine singular                                                                   | "Sapphire” or lapis lazuli;<br>functions in an elliptical comparison, "\[like] sapphire.”                                                                                          |
+| 10  | גִּזְרָתָם   | *gizrātām*      | Feminine singular noun גִּזְרָה with 3rd person masculine plural suffix                    | "Their form/stature/appearance.” <br>Its exact sense is disputed; the last colon is commonly understood as "\[like] sapphire was their form.”                                      |
 
 The verse falls into two paired image groups: purity/brightness compared with snow and milk, then ruddy colour compared with precious material and a sapphire-like form. Several words in the second group are difficult, so translations should not be treated as direct one-to-one glosses.
 
 מִפְּנִינִים (mippənînîm)
 
-## Translation and the phrase “white as snow”
+## Translation and the phrase "white as snow”
 
-The KJV has “Her Nazarites were purer than snow, they were whiter than milk.” The ESV instead begins “Her princes were purer than snow.” The verse’s Hebrew does not literally say “white as snow”: snow is introduced with מִן, “than/from,” and the first predicate זַכּוּ is commonly rendered “pure” or “bright.” The following line uses צַחוּ with milk and is commonly translated “whiter than milk.”
+The KJV has "Her Nazarites were purer than snow, they were whiter than milk.” The ESV instead begins "Her princes were purer than snow.” The verse’s Hebrew does not literally say "white as snow”: snow is introduced with מִן, "than/from,” and the first predicate זַכּוּ is commonly rendered "pure” or "bright.” The following line uses צַחוּ with milk and is commonly translated "whiter than milk.”
 
-Gildas later quotes the verse in Latin with *candidiores ... nive* (“whiter than snow”). That is important reception evidence, but it should be kept distinct from the wording of the Hebrew witnesses.
+Gildas later quotes the verse in Latin with *candidiores ... nive* ("whiter than snow”). That is important reception evidence, but it should be kept distinct from the wording of the Hebrew witnesses.
 
-## Focus: אָדְמוּ (*ʾāḏəmû*, “they were red/ruddy”)
+## Focus: אָדְמוּ (_ʾāḏəmû_, ‘they were red/ruddy’)
 
 ### Form and lexical sense
 
-- Consonants: אדם. Root: אדם, “be red.” The pointed form אָדְמוּ is a Qal perfect, third-person plural (often tagged 3cp). The ending -וּ marks the plural subject, supplied by נְזִירֶיהָ if that noun is read as “her nobles/Nazirites.”
-- It is a finite verb, not an adjective and not a passive form meaning “were dyed red.” Depending on how the perfect is read in this descriptive poem, English “were red/ruddy” or “had become red/ruddy” may fit.
-- The core lexical sense is simply “be red.” “Ruddy” is a contextual English choice for a person’s complexion; “healthy,” “rosy,” or “flushed” are interpretations of that image, not extra meanings encoded by the verb.
-- The verb itself does not mean “from milk.” The word for milk and its מִן preposition occur immediately before it, in the preceding phrase צַחוּ מֵחָלָב (*ṣaḥû mēḥālāḇ*, conventionally “they were bright/white[r] than milk”).
-
+- Consonants: אדם. Root: אדם, ‘be red’. The pointed form אָדְמוּ is a Qal perfect, third-person masculine plural (3mp). The ending ־וּ marks the plural subject, supplied by נְזִירֶיהָ if that noun is read as ‘her nobles’, ‘her Nazirites’ or ‘her consecrated ones’.
+    
+- It is a finite verb, not an adjective or a passive form meaning ‘were dyed red’. Depending on how the perfect is understood in this descriptive poem, English ‘were red/ruddy’ is a natural rendering; ‘had become red/ruddy’ is possible as an interpretation but should not be assumed from the form alone.
+    
+- The core lexical sense is simply ‘be red’. ‘Ruddy’ is a contextual English choice for a person's appearance or complexion; ‘healthy’, ‘rosy’ and ‘flushed’ are interpretations of that image, not additional meanings encoded in the verb.
+    
+- The verb itself does not mean ‘from milk’. The word for milk and its מִן preposition occur in the preceding phrase צַחוּ מֵחָלָב (_ṣaḥû mēḥālāḇ_, conventionally ‘they were brighter/whiter than milk’).
+    
 ### What is red?
 
-The following phrase is אָדְמוּ עֶצֶם מִפְּנִינִים. On the Masoretic wording, a common syntactic analysis takes עֶצֶם literally as “bone,” then as an adverbial accusative of respect: “they were red/ruddy in body, more than coral/precious stones.” This makes bodily complexion the point of comparison. The construction is difficult: עֶצֶם is singular after a plural verb and has no possessive suffix. Ancient versions handle it differently, and some interpreters take it as the subject (“their bones were red”) or understand it more freely as “body,” “appearance,” or “themselves.” Salters accepts “in body” as possible but notes that the rendering has been judged forced.
+The following phrase is אָדְמוּ עֶצֶם מִפְּנִינִים. On the Masoretic wording, a common syntactic analysis takes עֶצֶם literally as ‘bone’ or ‘body/substance’, but construes it as an adverbial accusative of respect: ‘they were red/ruddy in body, more than _penînîm_’. This is the interpretation adopted by Salters, following the KJV and scholars including Ehrlich, Albrektson and Kraus, although he acknowledges Gottlieb's objection that the construction is forced.
 
-Salters reads the red/ruddy phrase alongside the whiteness and the following verse’s darkening and emaciation. On that reading the colours describe the nobles’ former physical appearance, then reverse after the disaster. This is a contextual interpretation supported by the sequence; the verb alone does not identify skin, lips, bones, or another body part.
+The construction remains difficult. עֶצֶם is singular, has no possessive suffix, and does not straightforwardly identify the anatomical feature being described. Ancient versions and later interpreters handle it differently: some understand bones or bodily substance, others ‘themselves’ or ‘appearance’. The possibility that it is the subject of אָדְמוּ has also been considered, although this raises the grammatical difficulty of a singular noun accompanying a plural verb.
 
+Consequently, ‘in body’ is a possible syntactic interpretation, not a certain translation, and does not establish that the redness refers specifically to skin or complexion.
+
+#### Relationship with verse 8
+
+Salters reads the redness alongside the preceding descriptions of whiteness and the following verse's darkening and emaciation. On this contextual interpretation, the colours describe the subjects' former physical appearance, subsequently contrasted with their deterioration after the disaster. The sequence supports a contrast between former and present bodily condition, but the verb אָדְמוּ alone does not identify skin, lips, bones or any other particular body part. Nor does it establish that the darkening in verse 8 represents a literal change in pigmentation.
 ### Could סַפִּיר evoke blue veins?
 
 A longstanding interpretive proposal reads the last colon as a description of blue veins showing through a pale, ruddy complexion. In this picture, milk suggests pale skin, coral-like redness a flush or red cast in the flesh, and sapphire the blue lines visible beneath the skin. This makes the images a coordinated palette rather than a claim that the whole person was uniformly red or blue. The personal observation that veins can appear blue beneath very pale skin makes the proposed image easy to visualize.
 
-The veins reading is associated with **Johann Braunius** (*De Vestitu Sacerdotum Hebraeorum*, 1680) and was made explicit in **Benjamin Blayney’s** translation and note (1784): “their veining was the sapphires.”
+**Blayney:** In his 1784 commentary on Lamentations, Blayney explicitly proposes that the sapphire represents veins visible through the skin. He explains this through the sense of גזר (_g-z-r_), ‘to divide or intersect’.
+
+Blayney's full transcription of the verse reads (pp 403-404, 1836):
+
+> Her nobles were purer than snow, they were whiter than milk, 
+> They were ruddier on the bone tl1an rubies, their veining was the sapphires
+
+His exposition lies in his footnotes:
+
+> **They were ruddier on the bone** -- In the preceding line, the whiteness of their skin is described; in this, their flesh, which was red underneath towards the bone, marking their high health.
+
+> **Their veining was the sapphires** -- גזר signifies to 'divide' or 'intersect', as the blue veins do on the surface of the body. These, therefore, are without doubt intended.
 
 **Adam Clarke** later explained the sequence as milk-white skin, ruddy flesh, and sapphire-coloured veins in a fine complexion. This interpretation is not Rashi’s: Rashi takes the phrase as their forms being like sapphire.
 
+xxx
 ### Chromophobia
 
 Søren Lorenzen (2024), _Precarious Hues: On Chromophobia, Chromophilia, and Transitions between Chromatic and Achromatic Colours in the Hebrew Bible_ discusses the sequence in Lamentations 4:7–8, drawing on Brenner and Hartley. It makes three observations particularly relevant to us:
@@ -150,30 +171,29 @@ Søren Lorenzen (2024), _Precarious Hues: On Chromophobia, Chromophilia, and Tra
 4. 
 ### Working reading: divisions, sapphire, and veins
 
-A possible synthesis is to hear גִּזְרָתָם at the edge of its “cut/divide/form” associations: “their divisions/forms.” In the bodily context, that could allude poetically to branching blue veins beneath milk-pale skin, alongside the ruddy or coral-like cast of the flesh. On this reading, סַפִּיר supplies the blue colour and גִּזְרָתָם evokes the lines or divisions that carry it across the body. “Veins” remains an allusion inferred from the image, not the dictionary meaning of the noun.
+A possible synthesis is to hear גִּזְרָתָם at the edge of its "cut/divide/form” associations: "their divisions/forms.” In the bodily context, that could allude poetically to branching blue veins beneath milk-pale skin, alongside the ruddy or coral-like cast of the flesh. On this reading, סַפִּיר supplies the blue colour and גִּזְרָתָם evokes the lines or divisions that carry it across the body. "Veins” remains an allusion inferred from the image, not the dictionary meaning of the noun.
 
 The cultural setting may make that allusion more apt. Leviticus 19:28 prohibits tattoo marks on the body. If deliberate tattooing is prohibited within the poem’s Jewish cultural frame, sapphire-blue markings on skin would be less readily understood as ornamental tattoos; natural veins provide a bodily image that fits the pale-and-ruddy complexion already described. The prohibition is contextual support for this reading, not proof of what every person did or a direct gloss of גִּזְרָתָם.
 
-The proposal remains conjectural. The Hebrew has no explicit word for “veins”; it has גִּזְרָתָם (*gizrātām*), an obscure noun usually rendered “their form/shape” and associated with the idea of cutting or dividing. The veins proposal extends that intersecting/dividing sense to branching veins and takes סַפִּיר as a blue stone. Salters records it among several interpretations but notes the lack of consensus and questions whether visible blue veins would have been singled out as an ideal of beauty. The phrase can support the proposed visual reading, but it does not state “veins” directly. See [[גזרה - form, division, veins]] for the word history and concordance. As a poetic description of an albino, though, it holds solid.
+The proposal remains conjectural. The Hebrew has no explicit word for "veins”; it has גִּזְרָתָם (*gizrātām*), an obscure noun usually rendered "their form/shape” and associated with the idea of cutting or dividing. The veins proposal extends that intersecting/dividing sense to branching veins and takes סַפִּיר as a blue stone. Salters records it among several interpretations but notes the lack of consensus and questions whether visible blue veins would have been singled out as an ideal of beauty. The phrase can support the proposed visual reading, but it does not state "veins” directly. See [[גזרה - form, division, veins]] for the word history and concordance. As a poetic description of an albino, though, it holds solid.
 
 
 ### Masoretic clause grouping
 
-The proposed “red from the milk” was a typo and is discarded. In the Masoretic wording, מֵחָלָב belongs with the immediately preceding צַחוּ (“bright/white[r] than milk”); אָדְמוּ begins the next phrase and is followed by מִפְּנִינִים. The *ʾatnaḥ* at מֵחָלָב supports that grouping in the Masoretic reading tradition. The remaining question is how the red/ruddy predicate relates to עֶצֶם מִפְּנִינִים. See [[אדם - red and ruddy]] for the Hebrew root and its use for human appearance elsewhere.
+The proposed "red from the milk” was a typo and is discarded. In the Masoretic wording, מֵחָלָב belongs with the immediately preceding צַחוּ ("bright/white[r] than milk”); אָדְמוּ begins the next phrase and is followed by מִפְּנִינִים. The *ʾatnaḥ* at מֵחָלָב supports that grouping in the Masoretic reading tradition. The remaining question is how the red/ruddy predicate relates to עֶצֶם מִפְּנִינִים. See [[אדם - red and ruddy]] for the Hebrew root and its use for human appearance elsewhere.
 
 ### Comparative evidence
 
-- The noun/adjective אָדֹם “red” and related forms show that the root is used for red colour; BDB specifically lists אָדְמוּ here as Qal perfect 3 plural, “ruddy,” of the Nazirites.
+- The noun/adjective אָדֹם "red” and related forms show that the root is used for red colour; BDB specifically lists אָדְמוּ here as Qal perfect 3 plural, "ruddy,” of the Nazirites.
 - Related Hebrew forms can describe a red or ruddy appearance, but those parallels do not settle the syntax of עֶצֶם מִפְּנִינִים in this verse.
 - In the fragmentary 5Q6 witness, the transcription gives the corresponding sequence only partly: it prints an editorially supplied initial א and marks ד as uncertain before מוּ. Do not treat the whole form as equally secure in the physical fragment.
 
 ## Textual and lexical cautions
 
 - In 5Q6, the opening words are represented in the fragment, but the snow comparison is not fully preserved; bracketed text is editorial restoration.
-- The form נְזִירֶיהָ is read as “her Nazirites” by ancient versions and the KJV; “princes/nobles” is a contextual proposal. Keep both possibilities visible.
-- The sequence אָדְמוּ עֶצֶם מִפְּנִינִים is syntactically difficult. Kotzé discusses readings of עֶצֶם as “bone/body” and the possibility of an adverbial “in body”; this remains analysis, not a settled literal gloss.
-- גִּזְרָתָם is also obscure. “Their form” is a conventional contextual rendering, not a certain lexical equivalent.
-- The verse describes a poetic ideal and its reversal in verse 8. It is not direct evidence for a medical condition or literal albinism.
+- The form נְזִירֶיהָ is read as "her Nazirites” by ancient versions and the KJV; "princes/nobles” is a contextual proposal. Keep both possibilities visible.
+- The sequence אָדְמוּ עֶצֶם מִפְּנִינִים is syntactically difficult. Kotzé discusses readings of עֶצֶם as "bone/body” and the possibility of an adverbial "in body”; this remains analysis, not a settled literal gloss.
+- גִּזְרָתָם is also obscure. "Their form” is a conventional contextual rendering, not a certain lexical equivalent.
 
 ## My bold translation
 
@@ -200,8 +220,9 @@ The proposed “red from the milk” was a typo and is discarded. In the Masoret
 - [English Standard Version, Lamentations 4:7](https://www.esv.org/verses/Lamentations%2B4%3A7/)
 - [Johann Braunius, *De Vestitu Sacerdotum Hebraeorum* (1680), as cited in John Gill on Lamentations 4:7](https://worthy.bible/commentaries/john-gills-exposition-of-the-bible/commentary-on-lamentations-4)
 - [Adam Clarke, commentary on Lamentations 4:7](https://www.studylight.org/commentary/lamentations/4-7.html)
-- [Benjamin Blayney, *Jeremiah and Lamentations* (1784), note on 4:7](https://biblicalstudies.org.uk/pdf/e-books/blayney_b/jeremiah-and-lamentations_blayney.pdf)
+- [Blayney, Benjamin, *Jeremiah and Lamentations* (1784), note on 4:7](https://biblicalstudies.org.uk/pdf/e-books/blayney_b/jeremiah-and-lamentations_blayney.pdf)
 	- Blayney, Benjamin: *Jeremiah, and Lamentations: A New Translation; with Notes Critical, Philological, and Explanatory* (Oxford: Clarendon Press, 1784).
+	- Blayney, Benjamin (3rd ed. 1836) _Jeremiah and Lamentations_. Glasgow: Thomas Tegg & Son.
 	    - original in ECCO https://wellcomecollection.org/works/b4h4c97g
 	    - 1836 edition https://en.wikisource.org/wiki/Commentary_and_critical_notes_on_the_Bible/Lamentations
 	    - on Lamentations https://en.wikisource.org/wiki/Commentary_and_critical_notes_on_the_Bible/Lamentations
