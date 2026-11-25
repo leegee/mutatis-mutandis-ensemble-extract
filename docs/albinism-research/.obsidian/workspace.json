@@ -10,34 +10,23 @@
           {
             "id": "ca6d39bf9a11fcc8",
             "type": "leaf",
+            "pinned": true,
             "state": {
               "type": "markdown",
               "state": {
-                "file": "07 - Bibliography/Bibliography.md",
+                "file": "Essay on Lamentations.md",
                 "mode": "source",
                 "source": false
               },
+              "pinned": true,
               "icon": "lucide-file",
-              "title": "Bibliography"
-            }
-          },
-          {
-            "id": "dd1f939ec34cdf90",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "07 - Bibliography/Bibliography.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "Bibliography"
+              "title": "Essay on Lamentations"
             }
           },
           {
             "id": "8495c52b132c4cc1",
             "type": "leaf",
+            "pinned": true,
             "state": {
               "type": "markdown",
               "state": {
@@ -45,8 +34,23 @@
                 "mode": "source",
                 "source": false
               },
+              "pinned": true,
               "icon": "lucide-file",
               "title": "Lamentations 4 - Nazirites like snow"
+            }
+          },
+          {
+            "id": "01b1f714c456fffe",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Lam Essay Temp.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Lam Essay Temp"
             }
           }
         ]
@@ -100,7 +104,7 @@
             "state": {
               "type": "bookmarks",
               "state": {
-                "showSearch": false,
+                "showSearch": true,
                 "searchQuery": ""
               },
               "icon": "lucide-bookmark",
@@ -127,7 +131,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Words For White.md",
+                "file": "Essay on Lamentations.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -219,10 +223,13 @@
   },
   "active": "ca6d39bf9a11fcc8",
   "lastOpenFiles": [
-    "02 - Primary Texts/10 Lamentations/Lamentations - Blaney on Sapir Veins.md",
-    "07 - Bibliography/Bibliography.md",
+    "Lam Essay Temp.md",
+    "Essay on Lamentations.md",
     "02 - Primary Texts/10 Lamentations/Lamentations 4 - Nazirites like snow.md",
     "02 - Primary Texts/10 Lamentations/Lamentations - Salter Quotes.md",
+    "02 - Primary Texts/10 Lamentations/Lamentations - Blaney on Sapir Veins.md",
+    "Salters on Lamentations 4.7.md",
+    "07 - Bibliography/Bibliography.md",
     "07 - Bibliography/Salters - Lamentations ICC.md",
     "07 - Bibliography/Bibliography - Colour.md",
     "04 - Transmission History/Lamentations in English.md",
@@ -242,13 +249,10 @@
     "10 - Templates/Template - Claim or Hypothesis.md",
     "02 - Primary Texts/Codex Sinaiticus - Shepherd of Hermas.md",
     "02 - Primary Texts/1 Chronology Of Primary Sources.md",
-    "02 - Primary Texts/English Myth/Jack The Giant Killer.md",
-    "02 - Primary Texts/English Myth/Chaucer.md",
-    "02 - Primary Texts/English Myth/Beowulf.md",
     "05 - Interpretations and Hypotheses/Colour Vocabulary",
     "Pasted image 20261119091953.png",
     "Pasted image 20261119091932.png",
-    "Pasted image 20261119091901.png",
+    "05 - Interpretations and Hypotheses/Pasted image 20261119091901.png",
     "02 - Primary Texts/Romance",
     "Untitled 1",
     "Untitled",

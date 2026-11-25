@@ -6,5 +6,13 @@
       ],
       "key": "E"
     }
+  ],
+  "line-editing-commands:join-lines": [
+    {
+      "modifiers": [
+        "Mod"
+      ],
+      "key": "J"
+    }
   ]
 }

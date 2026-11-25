@@ -1,0 +1,10 @@
+{
+  "id": "line-editing-commands",
+  "name": "Line Editing Commands",
+  "version": "0.2.1",
+  "minAppVersion": "1.1.1",
+  "description": "Duplicate, join, sort, reverse and clean up lines, insert blank lines and jump to a line number, with multi-cursor support.",
+  "author": "Siulved54",
+  "authorUrl": "https://github.com/perezamadorluisenrique-gif",
+  "isDesktopOnly": false
+}

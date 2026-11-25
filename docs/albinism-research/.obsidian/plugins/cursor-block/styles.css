@@ -1,0 +1,52 @@
+/* Hide the line cursor: Obsidian draws it in .cm-cursorLayer using
+   --caret-color, which also colors the browser's native caret */
+.cm-editor.cursor-block-enabled {
+  --caret-color: transparent;
+}
+
+.cm-editor.cursor-block-enabled > .cm-scroller > .cm-layer.cm-cursorLayer {
+  display: none;
+}
+
+/* The block */
+.cm-block-cursor-layer {
+  pointer-events: none;
+  /* On the layer, not the block: the layer creates its own stacking context */
+  mix-blend-mode: var(--cursor-block-blend, normal);
+}
+
+.cm-block-cursor {
+  background-color: var(--cursor-block-color, var(--text-accent));
+  opacity: var(--cursor-block-opacity, 0.6);
+}
+
+/* Rules that depend on focus use child combinators: Live Preview table cells
+   are editors nested inside the main editor, and a descendant selector would
+   match through the outer editor's focus state */
+
+/* Blink is on the layer so it doesn't interfere with the block's opacity */
+.cm-editor.cm-focused > .cm-scroller > .cm-block-cursor-layer {
+  animation: cursor-block-blink-a var(--cursor-block-blink-duration, 1.2s) steps(1) infinite;
+}
+
+.cm-editor.cm-focused.cursor-block-phase-b > .cm-scroller > .cm-block-cursor-layer {
+  animation-name: cursor-block-blink-b;
+}
+
+body.cursor-block-no-blink .cm-editor > .cm-scroller > .cm-block-cursor-layer {
+  animation: none;
+}
+
+/* Hide the block when the editor is not focused */
+.cm-editor:not(.cm-focused) > .cm-scroller > .cm-block-cursor-layer > .cm-block-cursor {
+  display: none;
+}
+
+/* Two identical copies: see restartBlink in main.ts */
+@keyframes cursor-block-blink-a {
+  50% { opacity: 0; }
+}
+
+@keyframes cursor-block-blink-b {
+  50% { opacity: 0; }
+}

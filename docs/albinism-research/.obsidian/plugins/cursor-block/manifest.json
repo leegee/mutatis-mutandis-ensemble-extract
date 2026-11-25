@@ -1,0 +1,10 @@
+{
+  "id": "cursor-block",
+  "name": "Cursor Block",
+  "version": "1.0.2",
+  "minAppVersion": "1.13.1",
+  "description": "Display the editor cursor as a block, with configurable color, opacity and blinking.",
+  "author": "gavvop",
+  "authorUrl": "https://github.com/gavvop",
+  "isDesktopOnly": false
+}
