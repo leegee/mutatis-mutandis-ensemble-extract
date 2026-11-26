@@ -1,8 +1,23 @@
+"""
+corpus_albinism.py
+"""
+
 import unicodedata
 from pathlib import Path
 
 from mutatis_mutandis.lib.cannonical_rules import CanonicalRule, CanonicalRules
 
+
+INCLUSION_ROUTES = (
+    ("white+appearance", "white", "appearance"),
+    ("light+supernatural", "light", "supernatural"),
+    ("fire+appearance", "fire", "appearance"),
+    ("white+supernatural", "white", "supernatural"),
+)
+
+DIRECT_INCLUSION_GROUPS = (
+    "albinism",
+)
 
 # Legacy verse-screening vocabulary and weights. These are research-profile
 # settings; the reusable filtering implementation lives elsewhere.
@@ -118,6 +133,19 @@ WHITENESS_WEIGHTS = {
     "livid": 1.0,
 }
 
+FIRE = {
+    "fire", "fires",
+    "flame", "flames",
+    "flaming", "flamy",
+    "fiery",
+    "burn", "burns", "burned", "burnt", "burning",
+    "blaze", "blazes", "blazing",
+    "incandescent",
+    "furnace", "furnaces",
+    "flambe", "flambeau",
+}
+
+
 CORPUS_MIN_YEAR = -800
 CORPUS_MAX_YEAR = 2026
 FILTER_DOCUMENT_SIZE = False
@@ -217,6 +245,7 @@ APPEARANCE |= {
     # complexion / appearance
     "hīw", "hiw", "hīwe", "blēoh", "bleoh", "blēo", "bleo",
     "wlite", "wlites", "wlitig", "ansȳn", "ansyn", "andwlita",
+    "eyes", "feet",
     # pale / wan
     "blāc", "blac", "bleac", "blāce", "fealu", "fealo",
 }
@@ -274,6 +303,7 @@ PROXIMITY = 10
 
 TERM_GROUPS = {
     "white": WHITE,
+    "fire": FIRE,
     "appearance": APPEARANCE,
     "light": LIGHT,
     "supernatural": SUPERNATURAL,
@@ -457,54 +487,31 @@ def frequency_diagnostic_sql() -> str:
 
 
 def _hit_routes_sql() -> str:
-    """The four proximity / albinism routes, now against the indexed temp table."""
-    return f"""
-    target_hits AS (
-        -- Route 1: whiteness near appearance or luminosity
-        SELECT w.corpus, w.doc_id, w.token_idx
-        FROM target_tokens AS w
-        JOIN target_tokens AS a
-          ON a.corpus = w.corpus
-         AND a.doc_id = w.doc_id
-         AND a.grp = 'appearance'
-         AND a.token_idx BETWEEN w.token_idx - {PROXIMITY}
-                             AND w.token_idx + {PROXIMITY}
-        WHERE w.grp = 'white'
+    """Build document-selection routes from the shared route declarations."""
 
-        UNION
+    routes = []
 
-        -- Route 2: luminosity near a supernatural figure
-        SELECT l.corpus, l.doc_id, l.token_idx
-        FROM target_tokens AS l
-        JOIN target_tokens AS s
-          ON s.corpus = l.corpus
-         AND s.doc_id = l.doc_id
-         AND s.grp = 'supernatural'
-         AND s.token_idx BETWEEN l.token_idx - {PROXIMITY}
-                             AND l.token_idx + {PROXIMITY}
-        WHERE l.grp = 'light'
+    for label, hit_grp, partner_grp in INCLUSION_ROUTES:
+        routes.append(f"""
+            SELECT h.corpus, h.doc_id, h.token_idx
+            FROM target_tokens AS h
+            JOIN target_tokens AS p
+              ON p.corpus = h.corpus
+             AND p.doc_id = h.doc_id
+             AND p.grp = '{partner_grp}'
+             AND p.token_idx BETWEEN h.token_idx - {PROXIMITY}
+                                 AND h.token_idx + {PROXIMITY}
+            WHERE h.grp = '{hit_grp}'
+        """)
 
-        UNION
+    for group in DIRECT_INCLUSION_GROUPS:
+        routes.append(f"""
+            SELECT corpus, doc_id, token_idx
+            FROM target_tokens
+            WHERE grp = '{group}'
+        """)
 
-        -- Route 3: explicit whiteness near a supernatural figure
-        SELECT w.corpus, w.doc_id, w.token_idx
-        FROM target_tokens AS w
-        JOIN target_tokens AS s
-          ON s.corpus = w.corpus
-         AND s.doc_id = w.doc_id
-         AND s.grp = 'supernatural'
-         AND s.token_idx BETWEEN w.token_idx - {PROXIMITY}
-                             AND w.token_idx + {PROXIMITY}
-        WHERE w.grp = 'white'
-
-        UNION
-
-        -- Route 4: explicit historical albinism-related vocabulary
-        SELECT corpus, doc_id, token_idx
-        FROM target_tokens
-        WHERE grp = 'albinism'
-    )
-    """
+    return "target_hits AS (\n" + "\nUNION\n".join(routes) + "\n)"
 
 
 def build_corpus_query(

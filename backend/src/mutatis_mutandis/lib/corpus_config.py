@@ -17,6 +17,8 @@ from mutatis_mutandis.lib.corpus_albinism import (
     MIN_TOKENS_IN_DOC,
     PHRASE_SETS,
     PROXIMITY,
+    INCLUSION_ROUTES,
+    DIRECT_INCLUSION_GROUPS,
 )
 
 LANCE_MODEL_NAME = "macberth"

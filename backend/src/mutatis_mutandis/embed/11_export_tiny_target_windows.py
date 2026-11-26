@@ -1,27 +1,17 @@
+
 """
 11_export_tiny_target_windows.py
 
-Postgres -> parquet. One row per *hit occurrence*: the hit's position, matched
+Postgres -> parquet. One row per hit occurrence: the hit's position, matched
 token, term group(s), the route(s) that qualified it, and the +/-50-word
 context around it. Input for 21_colab_embed_targets.py.
 
-How this differs from 10_export_passage_windows.py
---------------------------------------------------
-* Keeps the hit. 10_ discards it in the UNION; here every route is tagged.
-* One row per occurrence. Overlapping windows are not merged, so every hit has
-  the same hit-centred context geometry.
-* Ignores the existing Lance passage tables. 10_ skips documents that are
-  already embedded there, which here would exclude nearly everything.
-* Never calls reset_outputs() / warn_stale_outputs(): the existing
-  output-passages embeddings are left alone.
-* Optionally drops "self-matches": a token that sits in both groups of a route
-  (e.g. blac / blāc are in WHITE and APPEARANCE) qualifies against itself.
+Routes are defined anywhere imported and re-exported in corpus_config.py.
+This exporter retains route labels and hit occurrences, unlike the document
+selector, which only needs to know which documents qualify.
 
-    python 11_export_tiny_target_windows.py --count-only   # set-up + counts, no export
+    python 11_export_tiny_target_windows.py --count-only
     python 11_export_tiny_target_windows.py
-
-Assumes lib/corpus_storage.local_dir / clear / publish accept any sub-directory
-name, as they do for "source_tokens".
 """
 
 import argparse
@@ -35,6 +25,8 @@ from mutatis_mutandis.lib.corpus_storage import clear, local_dir, publish
 from mutatis_mutandis.lib.corpus_logging import get_logger
 from mutatis_mutandis.lib.corpus_config import (
     PROXIMITY,
+    INCLUSION_ROUTES,
+    DIRECT_INCLUSION_GROUPS,
     build_setup_sql,
     frequency_diagnostic_sql,
 )
@@ -54,27 +46,33 @@ DOC_TABLE = "documents"
 
 HITS_PER_SHARD = 5_000
 WINDOW_LEFT = 50
-WINDOW_RIGHT = 49          # same 100-word geometry as 10_export_passage_windows.py
+WINDOW_RIGHT = 49
 
-EXCLUDE_SELF_MATCH = True  # set False to reproduce the original routes exactly
+# Exclude a token matching itself across the two groups of a route.
+# For example, a token belonging to both WHITE and APPEARANCE cannot qualify
+# against itself, though it can still qualify against a different nearby token.
+EXCLUDE_SELF_MATCH = True
 
 SCHEMA = pa.schema([
     ("corpus", pa.string()),
     ("doc_id", pa.string()),
     ("pub_year", pa.int32()),
-    ("hit_idx", pa.int32()),                     # token_idx of the hit
+    ("hit_idx", pa.int32()),
     ("matched_token", pa.string()),
-    ("hit_groups", pa.list_(pa.string())),       # term group(s) of the hit token
-    ("routes", pa.list_(pa.string())),           # route(s) that qualified it
-    ("token_idx", pa.list_(pa.int32())),         # context, ascending
+    ("hit_groups", pa.list_(pa.string())),
+    ("routes", pa.list_(pa.string())),
+    ("token_idx", pa.list_(pa.int32())),
     ("tokens", pa.list_(pa.string())),
 ])
 
 
 def _route(label: str, hit_grp: str, partner_grp: str) -> str:
+    """Build one occurrence-level proximity route."""
     not_self = "AND p.token_idx <> h.token_idx" if EXCLUDE_SELF_MATCH else ""
+
     return f"""
-        SELECT h.corpus, h.doc_id, h.token_idx, h.grp, '{label}'::text AS route
+        SELECT h.corpus, h.doc_id, h.token_idx, h.grp,
+               '{label}'::text AS route
         FROM target_tokens AS h
         JOIN target_tokens AS p
           ON p.corpus = h.corpus
@@ -87,29 +85,52 @@ def _route(label: str, hit_grp: str, partner_grp: str) -> str:
     """
 
 
-def hit_occurrences_sql() -> str:
-    """Same four routes as corpus_config._hit_routes_sql(), but each hit keeps its route."""
+def _direct_route(group: str) -> str:
+    """Build a route for a group that qualifies without a proximity partner."""
     return f"""
-    DROP TABLE IF EXISTS hit_occurrences;
-    CREATE TEMP TABLE hit_occurrences AS
-    SELECT corpus, doc_id, token_idx,
-           array_agg(DISTINCT route ORDER BY route) AS routes,
-           array_agg(DISTINCT grp   ORDER BY grp)   AS grps
-    FROM (
-        {_route("white+appearance", "white", "appearance")}
-        UNION ALL
-        {_route("light+supernatural", "light", "supernatural")}
-        UNION ALL
-        {_route("white+supernatural", "white", "supernatural")}
-        UNION ALL
-        SELECT corpus, doc_id, token_idx, grp, 'albinism'::text AS route
+        SELECT corpus, doc_id, token_idx, grp,
+               '{group}'::text AS route
         FROM target_tokens
-        WHERE grp = 'albinism'
-    ) AS r
-    GROUP BY corpus, doc_id, token_idx;
+        WHERE grp = '{group}'
+    """
 
-    CREATE INDEX ON hit_occurrences (corpus, doc_id, token_idx);
-    ANALYZE hit_occurrences;
+
+def hit_occurrences_sql() -> str:
+    """
+    Build the occurrence-level hit table from the shared route declarations.
+
+    Multiple routes qualifying the same token position are aggregated into
+    one occurrence, retaining all route labels and hit groups.
+    """
+    route_queries = [
+        _route(label, hit_grp, partner_grp)
+        for label, hit_grp, partner_grp in INCLUSION_ROUTES
+    ]
+
+    route_queries.extend(
+        _direct_route(group)
+        for group in DIRECT_INCLUSION_GROUPS
+    )
+
+    if not route_queries:
+        raise ValueError("No inclusion routes or direct inclusion groups defined")
+
+    routes_sql = "\nUNION ALL\n".join(route_queries)
+
+    return f"""
+        DROP TABLE IF EXISTS hit_occurrences;
+
+        CREATE TEMP TABLE hit_occurrences AS
+        SELECT corpus, doc_id, token_idx,
+               array_agg(DISTINCT route ORDER BY route) AS routes,
+               array_agg(DISTINCT grp ORDER BY grp) AS grps
+        FROM (
+            {routes_sql}
+        ) AS r
+        GROUP BY corpus, doc_id, token_idx;
+
+        CREATE INDEX ON hit_occurrences (corpus, doc_id, token_idx);
+        ANALYZE hit_occurrences;
     """
 
 
@@ -140,7 +161,9 @@ def flush(records: list[dict], shard_no: int) -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
+    parser = argparse.ArgumentParser(
+        description=__doc__.split("\n\n")[0]
+    )
     parser.add_argument(
         "--count-only",
         action="store_true",
@@ -153,7 +176,10 @@ def main() -> None:
 
     try:
         with conn.cursor() as cur:
-            setup_sql, setup_params = build_setup_sql(table=TABLE, inline=True)
+            setup_sql, setup_params = build_setup_sql(
+                table=TABLE,
+                inline=True,
+            )
             cur.execute(setup_sql, setup_params)
             logger.info("Created vocab / term_expansion / target_tokens")
 
@@ -163,25 +189,33 @@ def main() -> None:
                 logger.info("  %12d  %-12s  %s", n, grp, tok)
 
             cur.execute(hit_occurrences_sql())
-            cur.execute(
-                "SELECT count(*), count(DISTINCT (corpus, doc_id)) FROM hit_occurrences"
-            )
+
+            cur.execute("""
+                SELECT count(*),
+                       count(DISTINCT (corpus, doc_id))
+                FROM hit_occurrences
+            """)
             hits, docs = cur.fetchone()
             logger.info("%d hit occurrences in %d documents", hits, docs)
 
             cur.execute("""
-                SELECT r, count(*) FROM hit_occurrences, unnest(routes) AS r
-                GROUP BY r ORDER BY 2 DESC
+                SELECT r, count(*)
+                FROM hit_occurrences, unnest(routes) AS r
+                GROUP BY r
+                ORDER BY 2 DESC
             """)
             for route, n in cur.fetchall():
-                logger.info("  route  %-20s %9d", route, n)
+                logger.info("  route  %-24s %9d", route, n)
 
             cur.execute("""
-                SELECT g, count(*) FROM hit_occurrences, unnest(grps) AS g
-                GROUP BY g ORDER BY 2 DESC
+                SELECT g, count(*)
+                FROM hit_occurrences, unnest(grps) AS g
+                GROUP BY g
+                ORDER BY 2 DESC
             """)
             for grp, n in cur.fetchall():
-                logger.info("  group  %-20s %9d", grp, n)
+                logger.info("  group  %-24s %9d", grp, n)
+
         conn.commit()
 
         if args.count_only:
@@ -202,21 +236,25 @@ def main() -> None:
             cur.execute(export_sql())
 
             for (corpus, doc_id, hit_idx), grouped in groupby(
-                cur, key=lambda row: (row[0], row[1], row[3]),
+                cur,
+                key=lambda row: (row[0], row[1], row[3]),
             ):
                 rows = list(grouped)
                 pub_year = rows[0][2]
+
                 if pub_year is None:
                     skipped_no_year += 1
                     continue
 
                 idxs = [row[6] for row in rows]
                 toks = [row[7] for row in rows]
+
                 try:
                     matched = toks[idxs.index(hit_idx)]
                 except ValueError:
                     raise RuntimeError(
-                        f"hit {hit_idx} missing from its own window: {corpus}/{doc_id}"
+                        f"hit {hit_idx} missing from its own window: "
+                        f"{corpus}/{doc_id}"
                     )
 
                 records.append({
@@ -230,6 +268,7 @@ def main() -> None:
                     "token_idx": idxs,
                     "tokens": toks,
                 })
+
                 exported += 1
                 rows_seen += len(rows)
 
@@ -239,18 +278,27 @@ def main() -> None:
                     shard_no += 1
 
                 if exported % 10_000 == 0:
-                    logger.info("Exported %d hits; %d token rows", exported, rows_seen)
+                    logger.info(
+                        "Exported %d hits; %d token rows",
+                        exported,
+                        rows_seen,
+                    )
 
             if records:
                 flush(records, shard_no)
 
         publish(SUBDIR, SHARD_GLOB, prune=CLEAR_BEFORE_EXPORT)
-        # Deliberately no reset_outputs() / warn_stale_outputs(): the existing
-        # output-passages embeddings do not depend on these shards.
+
+        # Deliberately no reset_outputs() / warn_stale_outputs():
+        # existing output-passages embeddings do not depend on these shards.
         logger.info(
-            "Done: exported %d hits (%d token rows); %d skipped for missing pub_year",
-            exported, rows_seen, skipped_no_year,
+            "Done: exported %d hits (%d token rows); "
+            "%d skipped for missing pub_year",
+            exported,
+            rows_seen,
+            skipped_no_year,
         )
+
     finally:
         conn.close()
 
