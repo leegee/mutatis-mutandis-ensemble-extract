@@ -83,6 +83,8 @@ def screen_files(inputs: list[Path], output: Path, include_rejected: bool = True
                     passed_count += 1
                 if not include_rejected and not passed:
                     continue
+                if include_rejected and reason == "no_whiteness_terms":
+                    continue
 
                 sparse = extract_sparse_windows(tokens)
                 writer.writerow({
