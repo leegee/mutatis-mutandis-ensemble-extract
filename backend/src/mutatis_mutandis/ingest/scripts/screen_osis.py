@@ -15,9 +15,9 @@ from pathlib import Path
 
 from mutatis_mutandis.lib.corpus_config import OUT_DIR;
 from mutatis_mutandis.ingest.lib.osis import process_osis_file
-from mutatis_mutandis.ingest.lib.whiteness_filter import (
+from mutatis_mutandis.ingest.lib.inclusion_filter import (
     extract_sparse_windows,
-    whiteness_filter_reason,
+    inclusion_filter_reason,
 )
 
 
@@ -78,12 +78,12 @@ def screen_files(inputs: list[Path], output: Path, include_rejected: bool = True
             records = process_osis_file(source)
             for meta, tokens in records:
                 total += 1
-                passed, reason, score, hits = whiteness_filter_reason(tokens)
+                passed, reason, score, hits = inclusion_filter_reason(tokens)
                 if passed:
                     passed_count += 1
                 if not include_rejected and not passed:
                     continue
-                if include_rejected and reason == "no_whiteness_terms":
+                if include_rejected and reason == "no_target_terms":
                     continue
 
                 sparse = extract_sparse_windows(tokens)

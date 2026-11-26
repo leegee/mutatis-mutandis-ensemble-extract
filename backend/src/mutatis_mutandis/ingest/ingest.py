@@ -33,9 +33,9 @@ import mutatis_mutandis.lib.corpus_config as config
 import mutatis_mutandis.lib.corpus_db as corpus_db
 import mutatis_mutandis.lib.eebo_ocr_fixes as eebo_ocr_fixes
 from mutatis_mutandis.lib.corpus_logging import get_logger
-from mutatis_mutandis.lib.whiteness_filter import (
-    whiteness_seed_score,
-    passes_whiteness_filter,
+from mutatis_mutandis.lib.inclusion_filter import (
+    inclusion_seed_score,
+    passes_inclusion_filter,
     extract_sparse_windows,
 )
 
@@ -501,7 +501,7 @@ def process_ecco_file(tree, xml_path):
 
     tokens = re.findall( r"\w+|[^\w\s]", normalized )
 
-    if not passes_whiteness_filter(doc_id, tokens):
+    if not passes_inclusion_filter(doc_id, tokens):
         logger.debug( f"Rejecting {doc_id}: not enough extreme-whiteness hits" )
         return None
 
@@ -1295,7 +1295,7 @@ def _worker_ingest(
 
                 if use_windows:
                     # Force the albinism/whiteness filter for every corpus
-                    if not passes_whiteness_filter(meta["doc_id"], tokens):
+                    if not passes_inclusion_filter(meta["doc_id"], tokens):
                         logger.debug(
                             f"Rejecting {meta['doc_id']}: not enough extreme-whiteness hits"
                         )
