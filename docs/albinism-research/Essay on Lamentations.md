@@ -3,6 +3,7 @@
 ## Abstract
 
 Where Lamentations 4:7 describes the former appearance of Jerusalem's _nəzîrêhā_ in terms of snow, milk, a red substance and sapphire, the sense of nearly every term is disputed. This essay examines how R. B. Salters' 2010 ICC commentary resolves those disputes as a description of the 'refined beauty of ... nobles' (p. 209). It reconstructs his philological reasoning and the history of interpretation behind it, and argues that his translation is coherent but not required by the Hebrew. In particular, the traditional identification as 'Nazirites' remains lexically viable, and the Hebrew provides no clear lexical basis for preferring the hair reading of גִּזְרָתָם (_gizratām_) over alternatives. The essay then asks what verses 1-8 imply about the function of the description, and suggests that the poem's framing of the loss in verse 8 is compatible with the colours having made the subjects publicly identifiable, a function not fully explained by an ideal of beauty. The argument is tentative: rather than proposing a new translation, the essay shows how assumptions about aesthetic ideals may have shaped the interpretation of a physical description whose precise meaning remains uncertain.
+
 ## Introduction: an unresolved physical description in Lamentations 4:7
 
 The earliest English surviving complete renditions of Lamentations are the Wycliffite versions of the closing decades of the fourteenth century.[^1] The passage offers a striking description of an exceptional group:
@@ -28,6 +29,7 @@ Considered individually, each version presents an unusual physical description. 
 This essay examines the interpretative reasoning underlying the translation of this passage in R. B. Salters' _Lamentations: A Critical and Exegetical Commentary_ (2010), published in the International Critical Commentary series. I draw on Salters' extensive philological and textual analysis, as well as the earlier scholarship on which it builds. His treatment of 4:7-8 is particularly valuable for its detailed consideration of the disputed Hebrew expressions and the history of their interpretation.
 
 I argue three related points. First, Salters' rendering of נְזִירֶיהָ (_nəzîrêhā_) as 'nobles' rests on the sense of being 'set apart', a meaning that applies at least as directly to the traditional identification of the subjects as Nazirites. Second, I shall show that the evidence for interpreting _gizratām_ as hair is no stronger than that supporting the proposed references to veins or the cutting of precious stones, and that Salters' preference for hair is easier to understand once the passage has been read as a celebration of refined physical beauty. Third, the treatment of the subjects' appearance in verse 8 is compatible with their colouring having been a means of recognising them. This does not decide between 'nobles' and 'Nazirites', but it does shift the interpretative emphasis away from an assumed ideal of beauty towards the possibility of a visually distinctive appearance. I do not propose a replacement translation; rather, I aim to show where the existing one depends on interpretative choices that the Hebrew does not compel and that the text remains open to alternative readings.
+
 ## The history of interpretation
 
 ### Defining the subject: Jerusalem's Nazirites, or not?
@@ -39,6 +41,7 @@ Several alternatives have been proposed. Some consider the Masoretic reading to 
 Luther follows _Midrash Leqah Tob_ to derive the sense 'princes' (שָׂרֶיהָ) from the idea of being set apart or distinguished, via Nahum 3:17.
 
 Salters draws on Albrektson and Renkema[^3] in developing a broader, non-technical understanding of _nāzîr_ as someone distinguished or pre-eminent. Albrektson cites Genesis 49:26 and Deuteronomy 33:16, where Joseph is called the _nāzîr_ of his brothers. The term may mean that he is distinguished or set apart from them, but these passages do not establish that it denotes a social rank. Renkema argues that the poem could not appropriately use the ordinary Hebrew term for 'princes,' שָׂרִ֗ים (_śārîm_), since the fate of Jerusalem's rulers is recounted earlier in the poem, and therefore proposes the less specific 'nobles'. Salters questions the dependence of this argument on the unity of the book, but nonetheless adopts 'nobles' in his translation, although the broader sense of _nāzîr_ as someone distinguished or set apart does not in itself establish social rank.
+
 ### White
 
 There is little disagreement over the basic lexical meaning of זַכּוּ (_zakkû_), a form of זכה (_zākâ_), meaning 'to be clean, pure or bright'. The word can also carry a metaphorical sense of moral purity, as in Psalm 51:6 and Job 15:14 and 25:4, but Salters considers that unlikely here. The parallel verb צַחוּ (_ṣāḥû_), also associated with brightness or whiteness, and the subsequent references to redness and darkness suggest that both verbs describe physical appearance rather than moral qualities.
@@ -48,11 +51,13 @@ Salters follows Brenner in arguing that the comparisons with snow and milk give 
 > The skin of someone living in Palestine is likely to be a shade of olive, but it is possible that the paler the skin the more refined a person was thought to be.
 
 He regards this, like all the descriptive language of the passage, as 'hyperbolic' (p. 299).
+
 ### Red
 
 Salters notes that the second half of verse 7 is difficult. The Masoretic Text reads אָדְמוּ עֶצֶם מִפְּנִינִים (_ʾādmû ʿeṣem mippənînîm_), approximately 'they were redder in body than _penînîm_.' עֶצֶם (_ʿeṣem_), ordinarily 'bone' and by extension 'body' or 'substance', is singular where the plural verb might lead one to expect a plural or collective subject. Salters follows the KJV and other scholars in treating it as an adverbial accusative, 'in body', although he acknowledges (p. 301) Gottlieb's objection that this is forced. The ancient versions offer no clear resolution: the Septuagint omits the word, the Vulgate has 'old ivory', the Peshitta 'their bones', and the Targum and Rashi 'appearance'.
 
 The verb אָדְמוּ (_ʾādmû_), 'they were red', is less disputed; the uncertainty lies chiefly in the comparison. Elsewhere _penînîm_ denotes something precious or valuable, never explicitly a colour; its precise identity is unknown, with coral, pearls and other precious stones proposed. Salters argues that the verb constrains the interpretation: whatever _penînîm_ denotes, it must be compatible with redness. He therefore reads the clause as describing a ruddy physical appearance, without claiming certainty about the material or the function of עֶצֶם.
+
 ### Blue
 
 The final expression of the verse, סַפִּיר גִּזְרָתָם (_sappîr gizratām_), presents a further difficulty. Salters identifies גִּזְרָתָם (_gizratām_) as a rare word derived from גזר (_g-z-r_), meaning 'to cut' or 'divide', but notes that its precise referent is unclear. Its only other biblical occurrences, in Ezekiel 41-42, refer to a separated room or forecourt and offer little help. The ancient versions vary: the Septuagint has 'their pieces' or 'detached portion', Symmachus 'their limbs', the Peshitta 'their body', the RSV 'their form', Luther 'their appearance', and the Targum 'their faces'. Jerome's _pulchriores_, 'more fair', is a freer rendering.
@@ -70,6 +75,7 @@ Salters (p. 303) ultimately favours the hair interpretation, citing Song of Song
 > It is, perhaps, unlikely that anyone's hair in the ancient Near East was anything but black, but healthy lustrous black hair may/does reflect the blue sky (the healthier, the bluer) and gives the impression of being blue or purple
 
 So the sapphire comparison is read as an allusion to the lustre of healthy black hair, rather than its literal colour. This is possible, but depends on comparative evidence rather than a clear Hebrew meaning for _gizratām_.
+
 ## On Salters' translation
 
 Having set out Salters' reasoning, I turn to the points at which it depends on interpretative choices that the Hebrew does not compel.
@@ -85,6 +91,7 @@ There is some biblical evidence for a social or aesthetic significance attached 
 If this aesthetic framework is adopted, it must also apply to the final clause. Once the subjects are imagined as embodiments of refined beauty, the sapphire comparison is drawn toward the feature that can most readily be made to serve that ideal: lustrous hair that reflects sapphire-coloured light. Yet hair is also the one bodily marker the biblical texts repeatedly associate with the Nazirite, namely the uncut hair required by the vow. The hair reading therefore sits at least as comfortably with the traditional understanding of נְזִירֶיהָ as with the 'nobles' reading that Salters prefers. Notably, hair could also be prized in a prince (2 Sam 14:25-26), so it does not decide between them. Furthermore, the textual warrant for identifying גִּזְרָתָם with hair is itself slender, and in Salters' discussion rests heavily on comparative and iconographic material rather than on clear Hebrew usage. The same is true of the veins reading discussed above, and the same standard ought to be applied to both.
 
 In short, Salters' translation is a coherent and carefully argued interpretation but not the only coherent interpretation the Hebrew will support.
+
 ## The immediate context: Lamentations 4:1-8
 ### Verses 1-5
 
@@ -95,6 +102,7 @@ This context establishes a contrast between former preciousness and present degr
 The gem imagery of verse 7 is already prepared by verses 1-2, where gold and precious stones provide the language for describing the people. This makes the comparisons with *penînîm* and sapphire less surprising, but also raises the possibility that they express worth and radiance rather than literal anatomy. The alternatives need not be mutually exclusive: a physical description can simultaneously convey preciousness.
 
 The streets/public places frame the chapter's reversals in verses 1, 5 and 8, keeping the public visibility of the fall in view. The context therefore supports a reading of verse 7 in terms of former distinction and present degradation, but does not determine the nature of that distinction.
+
 ### Verse 8: the inversion
 
 Verse 8 answers verse 7 closely, though not term for term. Whiteness and brightness give way to a darkness stronger than soot (חָשַׁךְ מִשְּׁחוֹר, _ḥāšaḵ miššāḥôr_), and what was luminous becomes dry as wood. Verse 8 also supplies the only unambiguous bodily term in the passage, עוֹר (_ʿôr_) 'skin', and the colours of verse 7 are usually read back onto it.
@@ -106,6 +114,7 @@ A further point concerns the noun תֹּאַר (_tōʾar_), 'form' or 'bodily ap
 Recognisability is a further feature of the inversion, and it bears on the beauty framework. The poem says that the subjects are 'not recognised in the streets' (לֹא נִכְּרוּ בַּחוּצוֹת), and the cause given is the darkening of their appearance. Non-recognition after a change of condition is not unique to this passage (compare Job 2:12, where Job's friends, seeing him from afar, do not recognise him[^6]), but here the change is the complete inversion of a colour described in verse 7: from a brightness compared to snow and milk to a blackness exceeding soot. The poem presents the darkening of their appearance as what makes the subjects unrecognisable; it does not say that they have lost their rank or their beauty. This is compatible with the colours of verse 7 having been features by which they were known, though the extremity of the antithesis may also be rhetorical, and the passage does not show which. It does not require Salters' ideal of refined beauty, and the possibility that they were recognisable, set apart, נְזִירֶיהָ (_nəzîrêhā_), because of an unusual appearance deserves consideration alongside it.
 
 None of this establishes that the subjects were Nazirites. It shows that the features usually offered against the traditional reading, that Numbers 6 mentions no complexion and that the description is aesthetic, are not decisive, because the same description can be read as marking out a visibly distinctive group, and _nāzîr_ means 'set apart.' The word is not attested for a specifically visible difference, and I do not claim that it is. What remains is a lexical possibility, a contextual consistency (the chapter's gem and consecration language, Amos 2:11-12), and a modest observation about recognisability. The contextual evidence therefore leaves the traditional reading open, without establishing that the subjects were Nazirites.
+
 ## Three construals
 
 The colours of verse 7 can be viewed in three ways, which differ in what they take the poem to be describing.
@@ -123,9 +132,11 @@ What may help is how the description functions in its setting. The poem frames t
 The nearest comparison for the whole cluster lies outside the canon of the Hebrew Bible. 1 Enoch 106:2-3[^7]  describes the new-born Noah as 'white as snow and red as a rose', with hair like 'white wool' and eyes that 'light the house,' leading his father Lamech to fear that the child is not his, and to say that the baby's form is unlike that of men and is like that of the children of heaven (106:5). The Genesis Apocryphon has a parallel account. Both are far later than Lamentations, and cannot be used as evidence for how it was read in its day, but they do show that the same culture did have available these colour terms for a body understood as extraordinary - and not necessarily as beautiful. The luminous white hair of Daniel 7:9 and Revelation 1:14, and the body 'like beryl' of Daniel 10:6, suggest that this idiom either belonged to or developed into a wider register.
 
 Of the three, the third construal gives the most direct account of the subjects' loss of recognisability, although the poem does not require it.
+
 ## Conclusion
 
  The traditional identification as 'her Nazirites' remains possible if not established; nor does the Hebrew clearly privilege Salters' hair interpretation of _gizratām_. His account is coherent, but its aesthetic framework is an interpretative choice rather than a requirement of the text. The poem's framing of the loss in verse 8 as a loss of recognition offers one reason to consider whether the colours of verse 7 were features by which the subjects were known, rather than simply admired. This is a modest claim that does not identify the subjects or fix the meaning of any single term. It suggests, however, that the question of what the subjects looked like should be considered alongside another: what function does their appearance serve in the poem?.
+
 ## Bibliography
 
 Baden, Joel S., and Candida R. Moss. "The Origin and Interpretation of ṣāraʿat in Leviticus 13–14." _JBL_ 130 (2011): 643–62.
@@ -149,12 +160,14 @@ Salters, R. B. _Lamentations: A Critical and Exegetical Commentary_. ICC. London
 Solopova, Elizabeth. _Manuscripts of the Wycliffite Bible in the Bodleian and Oxford College Libraries_. Liverpool: Liverpool University Press, 2016.
 
 Stuckenbruck, Loren T. _1 Enoch 91–108_. CEJL. Berlin: de Gruyter, 2007.
+
 ### Primary Sources / Bible Versions
 
-**The Holy Bible.**  
-Early Wycliffite Version.  
-Late Wycliffite Version.  
+**The Holy Bible.**
+Early Wycliffite Version.
+Late Wycliffite Version.
 King James Version (1611).
+
 # Endnotes
 
 [^1]: Marsden (2015); Solopova (2016).
