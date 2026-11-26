@@ -1,7 +1,7 @@
 # Semantic Search Across Historical Texts
 
 
-> [!INFO]
+> [!NOTE]
 > [Case study write-up](./docs/case_study.md).
 
 > [!NOTE]
