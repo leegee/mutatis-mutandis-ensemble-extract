@@ -109,6 +109,8 @@ def main() -> int:
     parser.add_argument("-o", "--output", type=Path, default=Path(OUT_DIR / "whiteness_screening.csv"))
     parser.add_argument(
         "--passed-only",
+        "-p",
+        "--pass",
         action="store_true",
         help="Write only verses that pass the filter (default: include rejected verses too)",
     )
