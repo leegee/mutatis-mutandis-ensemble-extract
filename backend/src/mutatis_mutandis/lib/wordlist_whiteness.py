@@ -8,6 +8,9 @@ WHITENESS = {
     "whitened",
     "whitening",
 
+    "whiter", "whitest",
+    "whyter", "whytest",
+
     "pale",
     "paleness",
     "pallid",
@@ -60,6 +63,10 @@ WHITENESS_WEIGHTS = {
     "whiten": 1.0,
     "whitened": 1.0,
     "whitening": 1.0,
+    "whiter": 2.0,
+    "whitest": 2.0,
+    "whyter": 2.0,
+    "whytest": 2.0,
 
     # Pallor
     "pale": 1.0,

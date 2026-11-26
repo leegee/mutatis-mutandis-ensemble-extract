@@ -12,7 +12,6 @@ To do:
 
 from __future__ import annotations
 
-from collections import Counter
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 from typing import Optional
@@ -34,7 +33,11 @@ import mutatis_mutandis.lib.corpus_config as config
 import mutatis_mutandis.lib.corpus_db as corpus_db
 import mutatis_mutandis.lib.eebo_ocr_fixes as eebo_ocr_fixes
 from mutatis_mutandis.lib.corpus_logging import get_logger
-from mutatis_mutandis.lib.wordlist_whiteness import WHITENESS, WHITENESS_WEIGHTS, WEAK_WHITENESS_PATTERNS
+from mutatis_mutandis.lib.whiteness_filter import (
+    whiteness_seed_score,
+    passes_whiteness_filter,
+    extract_sparse_windows,
+)
 
 from mutatis_mutandis.ingest.lib.osis import process_osis_file
 
@@ -49,8 +52,6 @@ DATE_XPATHS = [
     ("translation",     ".//tei:teiHeader//tei:sourceDesc//tei:bibl/tei:date[@type='translation']"),
     ("docDate",         ".//tei:text/tei:front//tei:docDate"),
 ]
-
-MIN_WHITENESS_SCORE = 2.0
 
 NUM_WORKERS = 4
 BATCH_DOCS = 100
@@ -75,47 +76,6 @@ XML_ID = "{http://www.w3.org/XML/1998/namespace}id"
 # Block-level elements: a space is appended after them when rendering, so
 # hand-written </p><p> or </l><l> with no whitespace cannot fuse words.
 BLOCK_TAGS = {"p", "l", "lg", "head", "div", "ab", "item", "sp", "speaker", "stage"}
-
-WINDOW_WORDS = 100
-WINDOW_LEFT  = WINDOW_WORDS // 2
-WINDOW_RIGHT = WINDOW_WORDS - WINDOW_LEFT - 1
-
-
-def whiteness_seed_score(
-    tokens: list[str],
-) -> tuple[float, Counter[str]]:
-    hits = Counter(
-        token.lower()
-        for token in tokens
-        if token.lower() in WHITENESS
-    )
-
-    score = sum(
-        count * WHITENESS_WEIGHTS.get(lemma, 1)
-        for lemma, count in hits.items()
-    )
-
-    return score, hits
-
-
-def passes_whiteness_filter( doc_id: str, tokens: list[str] ) -> bool:
-    score, hits = whiteness_seed_score(tokens)
-
-    if not hits:
-        return False
-
-    seeds = set(hits)
-
-    # White/grey/gray alone are too non-diagnostic,
-    # regardless of how frequently they occur.
-    if any(seeds <= weak for weak in WEAK_WHITENESS_PATTERNS):
-        return False
-
-    if score < MIN_WHITENESS_SCORE:
-        return False
-
-    logger.info( f"Whiteness filter PASS: {doc_id} score={score}, hits={dict(hits)}" )
-    return True
 
 
 def normalize_tei_namespace(root):
@@ -156,36 +116,6 @@ def normalize_historical_unicode(text: str) -> str:
         for ch in text
     )
     return re.sub(r"\s+", " ", text).strip()
-
-
-def extract_sparse_windows(
-    tokens: list[str],
-    left: int = WINDOW_LEFT,
-    right: int = WINDOW_RIGHT,
-) -> list[tuple[int, str]]:
-    """
-    Return (token_idx, token) pairs for every token that falls inside
-    any ±window around a WHITENESS seed.  Indices are the original
-    positions in the full document (sparse, not re-indexed).
-    """
-    if not tokens:
-        return []
-
-    hits = [
-        i for i, tok in enumerate(tokens)
-        if tok.lower() in WHITENESS
-    ]
-    if not hits:
-        return []
-
-    n = len(tokens)
-    covered: set[int] = set()
-    for h in hits:
-        start = max(0, h - left)
-        end   = min(n, h + right + 1)
-        covered.update(range(start, end))
-
-    return [(i, tokens[i]) for i in sorted(covered)]
 
 
 def parse_tei(xml_path):
