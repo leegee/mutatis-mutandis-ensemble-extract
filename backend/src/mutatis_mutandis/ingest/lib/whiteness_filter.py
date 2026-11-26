@@ -13,7 +13,7 @@ from collections import Counter
 from collections.abc import Sequence
 import logging
 
-from mutatis_mutandis.lib.wordlist_whiteness import (
+from mutatis_mutandis.ingest.lib.wordlist_whiteness import (
     WHITENESS,
     WHITENESS_WEIGHTS,
     WEAK_WHITENESS_PATTERNS,

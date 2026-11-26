@@ -15,7 +15,7 @@ from pathlib import Path
 
 from mutatis_mutandis.lib.corpus_config import OUT_DIR;
 from mutatis_mutandis.ingest.lib.osis import process_osis_file
-from mutatis_mutandis.lib.whiteness_filter import (
+from mutatis_mutandis.ingest.lib.whiteness_filter import (
     extract_sparse_windows,
     whiteness_filter_reason,
 )
