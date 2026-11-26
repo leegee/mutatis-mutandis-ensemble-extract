@@ -357,8 +357,6 @@ Watkins. (2000): _The American Heritage Dictionary of Indo-European Roots_, 2nd 
 
 White, Thomas. *"Their Whiteness Is Not Like Ours": A Social and Cultural History of Albinism and Albino Identities, 1650-1914.* PhD thesis, University of Manchester, 2011.
 
-
-
 **Reference works**
 
 *Thesaurus of Old English*.

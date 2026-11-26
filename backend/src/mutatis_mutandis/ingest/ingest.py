@@ -4,10 +4,6 @@ ingest.py - - Multi-process streaming EEBO TEI XML/text ingestion pipeline
 
 Formerly mutatis_mutandis/tier0/tier0_0_text2db.py (formerly tier0_0_eebo_parse_tei.py)
 
-Corpus roots are defined in config.CORPUS_INPUT_DIRS
-
-    THE ALBINISM FILTER OF CLMET IS NOT YET APPLIED UNIVERSALLY!
-
 To do:
 
 `pub_year` was a good start but we now need to note it is a search-engine field rather than provenance-level metadata. Introduce 'date_range' fields
@@ -40,6 +36,7 @@ import mutatis_mutandis.lib.eebo_ocr_fixes as eebo_ocr_fixes
 from mutatis_mutandis.lib.corpus_logging import get_logger
 from mutatis_mutandis.lib.wordlist_whiteness import WHITENESS, WHITENESS_WEIGHTS, WEAK_WHITENESS_PATTERNS
 
+from mutatis_mutandis.ingest.lib.osis import process_osis_file
 
 logger = get_logger('ingester')
 
@@ -86,7 +83,7 @@ WINDOW_RIGHT = WINDOW_WORDS - WINDOW_LEFT - 1
 
 def whiteness_seed_score(
     tokens: list[str],
-) -> tuple[int, Counter[str]]:
+) -> tuple[float, Counter[str]]:
     hits = Counter(
         token.lower()
         for token in tokens
@@ -1200,6 +1197,12 @@ def process_file(xml_path: Path, corpus):
     if corpus == "ycoe":
         return process_ycoe_file(xml_path)
 
+    if corpus == "osis":
+        return process_osis_file(
+            xml_path,
+            corpus_root=config.CORPUS_ROOT_DIR,
+        )
+
     try:
         tree = parse_tei(xml_path)
     except etree.ParseError as e:
@@ -1346,61 +1349,67 @@ def _worker_ingest(
             result = process_file(fp, corpus)
             if not result:
                 continue
-            meta, tokens = result
-            meta["corpus"] = corpus
 
-            if meta["doc_id"] in seen_ids:
-                new_id = f'{meta["doc_id"]}__{fp.stem}'
-                logger.warning(
-                    f"Duplicate doc_id {meta['doc_id']} in {fp}; using {new_id}"
-                )
-                meta["doc_id"] = new_id
-            seen_ids.add(meta["doc_id"])
+            records = result if isinstance(result, list) else [result]
 
-            if use_windows:
-                # Force the albinism/whiteness filter for every corpus
-                if not passes_whiteness_filter(meta["doc_id"], tokens):
-                    logger.debug(
-                        f"Rejecting {meta['doc_id']}: not enough extreme-whiteness hits"
+            for meta, tokens in records:
+                meta["corpus"] = corpus
+
+                if meta["doc_id"] in seen_ids:
+                    new_id = f'{meta["doc_id"]}__{fp.stem}'
+                    logger.warning(
+                        f"Duplicate doc_id {meta['doc_id']} in {fp}; using {new_id}"
                     )
-                    continue
+                    meta["doc_id"] = new_id
+                seen_ids.add(meta["doc_id"])
 
-                windowed = extract_sparse_windows(tokens)
-                if not windowed:
-                    continue
+                if use_windows:
+                    # Force the albinism/whiteness filter for every corpus
+                    if not passes_whiteness_filter(meta["doc_id"], tokens):
+                        logger.debug(
+                            f"Rejecting {meta['doc_id']}: not enough extreme-whiteness hits"
+                        )
+                        continue
 
-                rows = [
-                    (corpus, meta["doc_id"], idx, tok)
-                    for idx, tok in windowed
-                ]
-                meta["token_count"] = len(windowed)
-            else:
-                # Original behaviour (ECCO already filtered inside process_ecco_file)
-                rows = [
-                    (corpus, meta["doc_id"], i, t)
-                    for i, t in enumerate(tokens)
-                ]
+                    windowed = extract_sparse_windows(tokens)
+                    if not windowed:
+                        continue
 
-            pending.append((to_doc_row(meta), rows))
-            pending_tokens += len(rows)
-            docs_seen += 1
+                    rows = [
+                        (corpus, meta["doc_id"], idx, tok)
+                        for idx, tok in windowed
+                    ]
+                    meta["token_count"] = len(windowed)
+                else:
+                    # Original behaviour (ECCO already filtered inside process_ecco_file)
+                    rows = [
+                        (corpus, meta["doc_id"], i, t)
+                        for i, t in enumerate(tokens)
+                    ]
 
-            if len(pending) >= batch_docs or pending_tokens >= batch_tokens:
-                flush()
+                pending.append((to_doc_row(meta), rows))
+                pending_tokens += len(rows)
+                docs_seen += 1
 
-            if docs_seen % LOG_EVERY_N_DOCS == 0:
-                logger.info(
-                    f"[worker {os.getpid()}] ingested {docs_seen} docs"
-                    + (" (windows)" if use_windows else "")
-                )
+                if len(pending) >= batch_docs or pending_tokens >= batch_tokens:
+                    flush()
+
+                if docs_seen % LOG_EVERY_N_DOCS == 0:
+                    logger.info(
+                        f"[worker {os.getpid()}] ingested {docs_seen} docs"
+                        + (" (windows)" if use_windows else "")
+                    )
+
         except Exception:
             logger.error(f"FAILED FILE: {fp}")
             logger.error(traceback.format_exc())
 
+    # Flush anything remaining after all files have been processed
     try:
         flush()
     except Exception:
         logger.error(traceback.format_exc())
+
     logger.info(f"[worker {os.getpid()}] finished: {docs_seen} docs processed")
 
 
