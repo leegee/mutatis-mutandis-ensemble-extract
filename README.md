@@ -4,10 +4,6 @@
 > [!NOTE]
 > [Case study write-up](./docs/case_study.md).
 
-> [!NOTE]
-> Supersedes [mutatis-mutandis-extract](https://github.com/leegee/mutatis-mutandis-extract)
-> and [mutatis-mutandis](https://github.com/leegee/mutatis-mutandis)
-
 From a Postgres database of document metadata and tokens extracted from TEI XML and plain text,
 uses various layers of various scales of embeddings created by Manjavacas and Fonteyn's historical BERT model
 [MacBERTh](https://aclanthology.org/2021.nlp4dh-1.4/) that are stored in and searched through Lance via a Python
@@ -77,3 +73,12 @@ Run the search servers from the root:
 ## Licence
 
 Copyright (C) Lee Goddard 2024-26. All rights reserved.
+
+## Earlier Versions
+
+> [!NOTE]
+> This repo supersedes [mutatis-mutandis-extract](https://github.com/leegee/mutatis-mutandis-extract)
+> and [mutatis-mutandis](https://github.com/leegee/mutatis-mutandis)
+
+Early versions used FastText for economy, sampling co-occurring terms, after which MacBERTh was adopted along with FAISS for kNN . After that, Parquet/Disk ANN was passed through (buggy and unmaintained) to reach the current version, in Lance. Although the index is not very good, current data loads allow brute-force scanning. Both are available via the API, in the CLI and GUI.
+
