@@ -8,53 +8,20 @@
         "type": "tabs",
         "children": [
           {
-            "id": "ca6d39bf9a11fcc8",
-            "type": "leaf",
-            "pinned": true,
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Essay on Lamentations.md",
-                "mode": "source",
-                "source": false
-              },
-              "pinned": true,
-              "icon": "lucide-file",
-              "title": "Essay on Lamentations"
-            }
-          },
-          {
-            "id": "35d1c1edded7684b",
-            "type": "leaf",
-            "pinned": true,
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "20 - Proposal/04 - 2,000 words for Sussex.md",
-                "mode": "source",
-                "source": false
-              },
-              "pinned": true,
-              "icon": "lucide-file",
-              "title": "04 - 2,000 words for Sussex"
-            }
-          },
-          {
-            "id": "25cf7fd812475d64",
+            "id": "6e3cd382d8a094eb",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "20 - Proposal/03.md",
+                "file": "20 - Proposal/Research proposal, Faculty of Media, Arts and Humanities, University of Sussex.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "03"
+              "title": "Research proposal, Faculty of Media, Arts and Humanities, University of Sussex"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -88,7 +55,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "",
+                "query": "words for white",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -112,7 +79,8 @@
               "title": "Bookmarks"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "horizontal",
@@ -132,7 +100,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "20 - Proposal/04 - 2,000 words for Sussex.md",
+                "file": "20 - Proposal/Research proposal, Faculty of Media, Arts and Humanities, University of Sussex.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -222,12 +190,26 @@
       "citation-extended:Show references for current note": false
     }
   },
-  "active": "35d1c1edded7684b",
+  "active": "6e3cd382d8a094eb",
   "lastOpenFiles": [
+    "20 - Proposal/04 - 2,000 words for Sussex.md",
+    "07 - Bibliography/Many Words For White.md",
+    "20 - Proposal/Research proposal, Faculty of Media, Arts and Humanities, University of Sussex.md",
     "20 - Proposal/03.md",
+    "justyna robinson.md",
+    "05 - Interpretations and Hypotheses/Colour Vocabulary/Colour Vocabulary - PIE Black.md",
+    "temp.md",
+    "02 - Primary Texts/20 Daniel/Daniel 7 - Ancient of Days.md",
+    "20 - Proposal/05 - 2,000 words for Sussex.md",
+    "20 - Proposal 1/04 - 2,000 words for Sussex.md",
+    "20 - Proposal 1/03.md",
+    "20 - Proposal 1/05 - 2,000 words for Sussex.md",
+    "20 - Proposal 1/02.md",
+    "20 - Proposal 1/01.md",
+    "20 - Proposal 1",
+    "20 - Proposal/Unconfirmed 846805.crdownload",
     "02 - Primary Texts/Genesis 49 - Wine-red eyes and milk-white teeth.md",
     "Essay on Lamentations.md",
-    "20 - Proposal/04 - 2,000 words for Sussex.md",
     "02 - Primary Texts/Isaiah 1 - Scarlet made white.md",
     "02 - Primary Texts/Codex Sinaiticus - Shepherd of Hermas.md",
     "02 - Primary Texts/Proverbs/Proverbs 31 - red-white.md",
@@ -246,22 +228,8 @@
     "research_proposal.md",
     "02 - Primary Texts/Enoch 1/1 Enoch 106 - Noah's birth.md",
     "02 - Primary Texts/10 Lamentations/Lamentations Bibliography.md",
-    "Temp.md",
-    "02 - Primary Texts/2 Kings 5.27 - Gehazi.md",
-    "07 - Bibliography/Bibliography.md",
-    "Untitled 1.md",
-    "Lam Essay Temp.md",
-    "02 - Primary Texts/10 Lamentations/Lamentations - Salter Quotes.md",
-    "02 - Primary Texts/10 Lamentations/Lamentations - Blaney on Sapir Veins.md",
-    "Salters on Lamentations 4.7.md",
-    "07 - Bibliography/Salters - Lamentations ICC.md",
-    "07 - Bibliography/Bibliography - Colour.md",
-    "04 - Transmission History/Lamentations in English.md",
-    "04 - Transmission History/English Bibles.md",
-    "05 - Interpretations and Hypotheses/Colour Vocabulary",
     "Pasted image 20261119091953.png",
     "Pasted image 20261119091932.png",
-    "05 - Interpretations and Hypotheses/Pasted image 20261119091901.png",
-    "02 - Primary Texts/Romance"
+    "05 - Interpretations and Hypotheses/Pasted image 20261119091901.png"
   ]
 }
