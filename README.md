@@ -80,5 +80,5 @@ Copyright (C) Lee Goddard 2024-26. All rights reserved.
 > This repo supersedes [mutatis-mutandis-extract](https://github.com/leegee/mutatis-mutandis-extract)
 > and [mutatis-mutandis](https://github.com/leegee/mutatis-mutandis)
 
-Early versions used FastText for economy, sampling co-occurring terms, after which MacBERTh was adopted along with FAISS for kNN . After that, Parquet/Disk ANN was passed through (buggy and unmaintained) to reach the current version, in Lance. Although the index is not very good, current data loads allow brute-force scanning. Both are available via the API, in the CLI and GUI.
+Early versions used FastText for economy, sampling co-occurring terms, after which MacBERTh was adopted along with FAISS for kNN . After that, Parquet/Disk ANN was passed through (buggy and unmaintained, the Rust port still (lacking Python bindings)[https://github.com/microsoft/DiskANN/issues/841]) to reach the current version, in Lance. Although the index is not very good, current data loads allow brute-force scanning. Both are available via the API, in the CLI and GUI.
 
