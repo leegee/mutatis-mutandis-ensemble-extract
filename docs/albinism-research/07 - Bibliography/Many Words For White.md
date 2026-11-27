@@ -9,6 +9,8 @@ tags:
 
 hwīt (Old English) -> derived-from -> *hwītaz (Proto-Germanic)
 
+quhite (Chaucer’s Troilus cited in *Reading Skin in Medieval Litearture* ed Katie Walter)
+
 white (English) -> derived-from -> hwīt (Old English)
 
 whit/white (Middle English) -> derived-from -> hwīt (Old English)
