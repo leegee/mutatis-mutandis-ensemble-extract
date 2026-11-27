@@ -30,9 +30,11 @@ WHITENESS = {
     "whiten",
     "whitened",
     "whitening",
+    "quhite",
 
     "whiter", "whitest",
     "whyter", "whytest",
+    "snawhwit",
 
     "pale",
     "paleness",
